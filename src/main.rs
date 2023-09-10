@@ -1,7 +1,7 @@
-use std::time::Duration;
 use double_clicker::external::backends::{factory, now, Seconds};
 use double_clicker::frame;
 use macroquad::prelude::*;
+use std::time::Duration;
 
 const DEFAULT_WINDOW_WIDTH: i32 = 800;
 const DEFAULT_WINDOW_HEIGHT: i32 = 450;
@@ -30,14 +30,15 @@ fn window_conf() -> Conf {
 }
 
 async fn sleep_until_next_frame(previous_time: &mut Seconds) {
-    #[cfg(not(target_family = "wasm"))] {
+    #[cfg(not(target_family = "wasm"))]
+    {
         let new_time = now();
-        dbg!(new_time);
-        dbg!(*previous_time);
-        let frame_duration = dbg!(new_time - *previous_time);
-        if dbg!(frame_duration < dbg!(FRAME_PERIOD)) {
+        // dbg!(new_time);
+        // dbg!(*previous_time);
+        let frame_duration = new_time - *previous_time;
+        if frame_duration < FRAME_PERIOD {
             let sleep_secs = FRAME_PERIOD - frame_duration;
-            eprintln!("sleeping for {}", sleep_secs);
+            // eprintln!("sleeping for {}", sleep_secs);
             std::thread::sleep(Duration::from_secs_f64(sleep_secs));
         }
     }

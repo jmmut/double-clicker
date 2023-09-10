@@ -23,7 +23,7 @@ impl World {
     }
     pub fn update(&mut self, gui_actions: GuiActions) -> bool {
         self.frame += 1;
-        
+
         let now_time = now();
         self.time_since_last_frame = now_time - self.previous_frame_timestamp;
         self.previous_frame_timestamp = now_time;

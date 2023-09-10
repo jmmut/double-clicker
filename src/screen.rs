@@ -13,7 +13,7 @@ pub struct Screen {
 }
 
 impl Screen {
-    pub fn get_gui_actions(&self, world: &World) -> GuiActions {
+    pub fn get_gui_actions(&self, _world: &World) -> GuiActions {
         self.input_source.get_gui_actions()
     }
 
