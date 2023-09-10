@@ -13,11 +13,11 @@ pub struct Screen {
 }
 
 impl Screen {
-    pub fn get_gui_actions(&self, world: &mut World) -> GuiActions {
+    pub fn get_gui_actions(&self, world: &World) -> GuiActions {
         self.input_source.get_gui_actions()
     }
 
-    pub fn draw(&self, world: &mut World) {
+    pub fn draw(&mut self, world: &mut World) {
         self.drawer.draw(world)
     }
 }

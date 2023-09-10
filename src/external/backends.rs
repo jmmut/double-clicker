@@ -6,7 +6,7 @@ use crate::world::World;
 pub async fn factory() -> (Screen, World) {
     (
         Screen {
-            drawer: Box::new(BasicDrawer),
+            drawer: Box::new(BasicDrawer::new()),
             input_source: Box::new(BasicInput),
         },
         World::new(),

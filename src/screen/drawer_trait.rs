@@ -1,5 +1,5 @@
 use crate::world::World;
 
 pub trait DrawerTrait {
-    fn draw(&self, world: &World);
+    fn draw(&mut self, world: &World);
 }
