@@ -1,4 +1,3 @@
-
 pub struct GuiActions {
     pub quit: bool,
 }

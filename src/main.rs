@@ -1,6 +1,6 @@
-use macroquad::prelude::*;
-use double_clicker::frame;
 use double_clicker::external::backends::factory;
+use double_clicker::frame;
+use macroquad::prelude::*;
 
 const DEFAULT_WINDOW_WIDTH: i32 = 800;
 const DEFAULT_WINDOW_HEIGHT: i32 = 450;

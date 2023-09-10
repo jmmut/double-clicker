@@ -30,7 +30,11 @@ struct TriggerTime {
     new_time: Seconds,
     remaining: Seconds,
 }
-fn try_trigger_timer(previous_trigger_time: Seconds, now_time: Seconds, period: Seconds) -> TriggerTime {
+fn try_trigger_timer(
+    previous_trigger_time: Seconds,
+    now_time: Seconds,
+    period: Seconds,
+) -> TriggerTime {
     let diff = now_time - previous_trigger_time;
     let remaining = period - diff % period;
     if diff >= period {
@@ -55,10 +59,14 @@ mod tests {
     #[test]
     fn test_payment_timer() {
         let previous_trigger_time: Seconds = macroquad::miniquad::date::now();
-        let period : Seconds = 5.0;
+        let period: Seconds = 5.0;
         let extra_time: Seconds = 1.0;
         let now_time: Seconds = previous_trigger_time + period + extra_time;
-        let TriggerTime { triggered, new_time, remaining } = try_trigger_timer(previous_trigger_time, now_time, period);
+        let TriggerTime {
+            triggered,
+            new_time,
+            remaining,
+        } = try_trigger_timer(previous_trigger_time, now_time, period);
         assert_eq!(triggered, true);
         assert_eq!(new_time, now_time);
         assert_eq!(remaining, period - extra_time)

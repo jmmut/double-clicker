@@ -1,5 +1,5 @@
-mod gui_actions;
 pub mod drawer_trait;
+mod gui_actions;
 pub(crate) mod input_source_trait;
 
 use crate::screen::drawer_trait::DrawerTrait;
@@ -21,5 +21,3 @@ impl Screen {
         self.drawer.draw(world)
     }
 }
-
-

@@ -1,6 +1,6 @@
-use macroquad::prelude::*;
 use crate::screen::drawer_trait::DrawerTrait;
 use crate::world::World;
+use macroquad::prelude::*;
 
 pub struct BasicDrawer;
 
