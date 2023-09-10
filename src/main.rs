@@ -1,16 +1,26 @@
 use macroquad::prelude::*;
+use double_clicker::frame;
+use double_clicker::external::backends::factory;
 
-#[macroquad::main("double-clicker")]
+const DEFAULT_WINDOW_WIDTH: i32 = 800;
+const DEFAULT_WINDOW_HEIGHT: i32 = 450;
+const DEFAULT_WINDOW_TITLE: &str = "Double Clicker";
+
+#[macroquad::main(window_conf)]
 async fn main() {
-    loop {
-        clear_background(RED);
+    let (mut screen, mut world) = factory().await;
 
-        draw_line(40.0, 40.0, 100.0, 200.0, 15.0, BLUE);
-        draw_rectangle(screen_width() / 2.0 - 60.0, 100.0, 120.0, 60.0, GREEN);
-        draw_circle(screen_width() - 30.0, screen_height() - 30.0, 15.0, YELLOW);
-
-        draw_text("IT WORKS!", 20.0, 20.0, 30.0, DARKGRAY);
-
+    while frame(&mut screen, &mut world) {
         next_frame().await
+    }
+}
+
+fn window_conf() -> Conf {
+    Conf {
+        // high_dpi: true,
+        window_title: DEFAULT_WINDOW_TITLE.to_owned(),
+        window_width: DEFAULT_WINDOW_WIDTH,
+        window_height: DEFAULT_WINDOW_HEIGHT,
+        ..Default::default()
     }
 }
