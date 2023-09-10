@@ -7,5 +7,11 @@ pub async fn factory() -> (Screen, World) {
     (Screen {
         drawer: Box::new(BasicDrawer),
         input_source: Box::new(BasicInput),
-    }, World)
+    }, World::new())
+}
+
+pub type Seconds = f64;
+
+pub fn now() -> Seconds {
+    macroquad::miniquad::date::now()
 }
