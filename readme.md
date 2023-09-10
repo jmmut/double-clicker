@@ -1,4 +1,4 @@
-# MY_CRATE_NAME
+# double-clicker
 
 The first thing to do after cloning this template repo is `./rename_crate.sh new_name`, where new_name
 is the name you want for this project.
