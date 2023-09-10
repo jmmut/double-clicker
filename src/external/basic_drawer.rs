@@ -39,14 +39,16 @@ impl DrawerTrait for BasicDrawer {
     fn draw(&mut self, world: &World) {
         self.frame += 1;
         // self.debug_fps(world);
+        clear_background(LIGHTGRAY);
         root_ui().label(
             None,
             &format!(
-                "remaining time until next payment: {}",
+                "remaining time until next payment: {:.1}",
                 &world.remaining_until_next_trigger
             ),
         );
-        clear_background(LIGHTGRAY);
-        draw_rectangle(100.0, 150.0, 10.0, 10.0, RED);
+        root_ui().label(None, &format!("cleaned: {}", &world.cleaned));
+        root_ui().label(None, &format!("dirtied: {}", &world.dirtied));
+        root_ui().label(None, &format!("money: {}", &world.money));
     }
 }

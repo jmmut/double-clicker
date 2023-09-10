@@ -2,6 +2,7 @@ use crate::external::backends::{now, Seconds};
 use crate::screen::GuiActions;
 
 pub const MONEY_PERIOD: f64 = 5.0;
+pub const SALARY: i64 = 100;
 
 pub struct World {
     previous_trigger_time: Seconds,
@@ -9,6 +10,9 @@ pub struct World {
     pub frame: i64,
     pub previous_frame_timestamp: Seconds,
     pub time_since_last_frame: Seconds,
+    pub cleaned: i64,
+    pub dirtied: i64,
+    pub money: i64,
 }
 
 impl World {
@@ -19,10 +23,20 @@ impl World {
             remaining_until_next_trigger: MONEY_PERIOD,
             frame: 0,
             time_since_last_frame: 0.0,
+            cleaned: 0,
+            dirtied: 0,
+            money: 0,
         }
     }
     pub fn update(&mut self, gui_actions: GuiActions) -> bool {
         self.frame += 1;
+
+        if gui_actions.dirty_pressed {
+            self.dirtied += 1;
+        }
+        if gui_actions.clean_pressed {
+            self.cleaned += 1;
+        }
 
         let now_time = now();
         self.time_since_last_frame = now_time - self.previous_frame_timestamp;
@@ -32,8 +46,26 @@ impl World {
         self.remaining_until_next_trigger = trigger_time.remaining;
         if trigger_time.triggered {
             self.previous_trigger_time = trigger_time.new_time;
+            if should_receive_payment(self.dirtied, self.cleaned) {
+                self.money += SALARY;
+            }
         }
         gui_actions.should_continue()
+    }
+}
+
+fn should_receive_payment(dirtied: i64, cleaned: i64) -> bool {
+    return if dirtied + cleaned == 0 {
+        false
+    } else {
+        let percentage = dirtied * 100 / (dirtied + cleaned);
+        let min_valid_percentage = 40;
+        let max_valid_percentage = 60;
+        if min_valid_percentage <= percentage && percentage <= max_valid_percentage {
+            true
+        } else {
+            false
+        }
     }
 }
 
