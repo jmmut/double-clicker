@@ -1,11 +1,12 @@
 use crate::external::backends::{now, Seconds};
 use crate::screen::drawer_trait::{Button, DrawerTrait};
-use crate::world::{should_receive_payment, World};
+use crate::world::{SALARY, should_receive_payment, World};
 use macroquad::prelude::*;
 use macroquad::ui::root_ui;
 
 const CLEAN_COLOR: Color = SKYBLUE;
 const DIRTY_COLOR: Color = PURPLE;
+const FONT_SIZE: f32 = 16.0;
 
 pub struct TexturelessDrawer {
     frame: i64,
@@ -46,10 +47,8 @@ impl DrawerTrait for TexturelessDrawer {
         clear_background(LIGHTGRAY);
         let width = screen_width();
         let height = screen_height();
-        draw_rectangle(width * 0.1, height * 0.05, width * 0.8, height * 0.1, CLEAN_COLOR);
-        let dirtiness = world.dirtied as f32 / (world.cleaned + world.dirtied + 1) as f32;
-        let dirtiness_screen = dirtiness * 0.8;
-        draw_rectangle(width * (0.9 - dirtiness_screen), height * 0.05, width * dirtiness_screen, height * 0.1, DIRTY_COLOR);
+        draw_salary(world);
+        draw_bar(world, width, height);
     }
 
     fn button(&self, button: Button) -> bool {
@@ -60,4 +59,26 @@ impl DrawerTrait for TexturelessDrawer {
             Button::Dirty => root_ui().button(Some(Vec2::new(width * 0.52, height * 0.2)), "Ensuciar"),
         }
     }
+}
+
+fn draw_salary(world: &World) {
+    root_ui().label(None, "Salario:");
+    root_ui().label(None, &format!("{:.1} €", world.expected_payment()));
+    root_ui().label(None, &format!("{:.1}", &world.remaining_until_next_trigger));
+}
+
+fn draw_bar(world: &World, width: f32, height: f32) {
+    draw_rectangle(width * 0.1, height * 0.05, width * 0.8, height * 0.1, CLEAN_COLOR);
+    let dirtiness = world.dirtied as f32 / (world.cleaned + world.dirtied + 1) as f32;
+    let dirtiness_screen = dirtiness * 0.8;
+    draw_rectangle(width * (0.9 - dirtiness_screen), height * 0.05, width * dirtiness_screen, height * 0.1, DIRTY_COLOR);
+    draw_money(world, width, height);
+}
+
+fn draw_money(world: &World, width: f32, height: f32) {
+    let font_size = FONT_SIZE;
+    let money_text = format!("{} €", world.money);
+    let money_size = measure_text(&money_text, None, font_size as u16, 1.0);
+    // root_ui().label(Some(Vec2::new(width * 0.5 - money_size.width * 0.5, height * 0.1 - money_size.height)), &money_text);
+    draw_text(&money_text, width * 0.5 - (money_size.width * 0.5).round(), height * 0.1 + (money_size.height * 0.5).round(), font_size, BLACK);
 }

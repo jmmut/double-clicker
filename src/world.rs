@@ -46,13 +46,19 @@ impl World {
         self.remaining_until_next_trigger = trigger_time.remaining;
         if trigger_time.triggered {
             self.previous_trigger_time = trigger_time.new_time;
-            if should_receive_payment(self.dirtied, self.cleaned) {
-                self.money += SALARY;
-            }
+            self.money += self.expected_payment();
             self.dirtied = monotonically_decrease(self.dirtied);
             self.cleaned = monotonically_decrease(self.cleaned);
         }
         gui_actions.should_continue()
+    }
+
+    pub fn expected_payment(&self) -> i64 {
+        if should_receive_payment(self.dirtied, self.cleaned) {
+            SALARY
+        } else {
+            0
+        }
     }
 }
 
