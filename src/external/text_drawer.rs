@@ -1,15 +1,15 @@
 use crate::external::backends::{now, Seconds};
-use crate::screen::drawer_trait::DrawerTrait;
+use crate::screen::drawer_trait::{Button, DrawerTrait};
 use crate::world::{should_receive_payment, World};
 use macroquad::prelude::*;
 use macroquad::ui::root_ui;
 
-pub struct BasicDrawer {
+pub struct TextDrawer {
     frame: i64,
     previous_time: Seconds,
 }
 
-impl BasicDrawer {
+impl TextDrawer {
     pub fn new() -> Self {
         Self {
             frame: 0,
@@ -35,7 +35,7 @@ impl BasicDrawer {
         self.previous_time = new_time;
     }
 }
-impl DrawerTrait for BasicDrawer {
+impl DrawerTrait for TextDrawer {
     fn draw(&mut self, world: &World) {
         self.frame += 1;
         // self.debug_fps(world);
@@ -50,5 +50,12 @@ impl DrawerTrait for BasicDrawer {
         root_ui().label(None, &format!("cleaned: {}", &world.cleaned));
         root_ui().label(None, &format!("dirtied: {}", &world.dirtied));
         root_ui().label(None, &format!("money: {}, will get paid? {}", &world.money, should_receive_payment(world.cleaned, world.dirtied)));
+    }
+
+    fn get_button_pos(&self, button: Button) -> Option<Vec2> {
+        match button {
+            Button::Clean => None,
+            Button::Dirty => None,
+        }
     }
 }

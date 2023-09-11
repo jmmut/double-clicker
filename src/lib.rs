@@ -1,11 +1,12 @@
 use crate::screen::Screen;
 use crate::world::World;
 
+
 mod screen;
 mod world;
 pub mod external {
     pub mod backends;
-    pub mod basic_drawer;
+    pub mod text_drawer;
     pub mod basic_input;
 }
 

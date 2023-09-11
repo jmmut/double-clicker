@@ -14,7 +14,7 @@ pub struct Screen {
 
 impl Screen {
     pub fn get_gui_actions(&self, _world: &World) -> GuiActions {
-        self.input_source.get_gui_actions()
+        self.input_source.get_gui_actions(&*self.drawer)
     }
 
     pub fn draw(&mut self, world: &mut World) {
