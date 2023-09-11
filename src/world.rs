@@ -49,12 +49,14 @@ impl World {
             if should_receive_payment(self.dirtied, self.cleaned) {
                 self.money += SALARY;
             }
+            self.dirtied = monotonically_decrease(self.dirtied);
+            self.cleaned = monotonically_decrease(self.cleaned);
         }
         gui_actions.should_continue()
     }
 }
 
-fn should_receive_payment(dirtied: i64, cleaned: i64) -> bool {
+pub fn should_receive_payment(dirtied: i64, cleaned: i64) -> bool {
     return if dirtied + cleaned == 0 {
         false
     } else {
@@ -69,6 +71,10 @@ fn should_receive_payment(dirtied: i64, cleaned: i64) -> bool {
     }
 }
 
+fn monotonically_decrease(x: i64) -> i64 {
+    let decreased = x - (x * 10 + 100) / 100;
+    decreased.max(0)
+}
 struct TriggerTime {
     triggered: bool,
     new_time: Seconds,
@@ -130,5 +136,16 @@ mod tests {
         assert_eq!(triggered, false);
         assert_eq!(new_time, previous_trigger_time);
         assert_eq!(remaining, period - extra_time)
+    }
+
+    #[test]
+    fn test_decrease() {
+        assert_eq!(monotonically_decrease(0), 0);
+        assert_eq!(monotonically_decrease(1), 0);
+        assert_eq!(monotonically_decrease(2), 1);
+        assert_eq!(monotonically_decrease(3), 2);
+        assert_eq!(monotonically_decrease(9), 8);
+        assert_eq!(monotonically_decrease(10), 8);
+        assert_eq!(monotonically_decrease(100), 89);
     }
 }

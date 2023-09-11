@@ -1,6 +1,6 @@
 use crate::external::backends::{now, Seconds};
 use crate::screen::drawer_trait::DrawerTrait;
-use crate::world::World;
+use crate::world::{should_receive_payment, World};
 use macroquad::prelude::*;
 use macroquad::ui::root_ui;
 
@@ -49,6 +49,6 @@ impl DrawerTrait for BasicDrawer {
         );
         root_ui().label(None, &format!("cleaned: {}", &world.cleaned));
         root_ui().label(None, &format!("dirtied: {}", &world.dirtied));
-        root_ui().label(None, &format!("money: {}", &world.money));
+        root_ui().label(None, &format!("money: {}, will get paid? {}", &world.money, should_receive_payment(world.cleaned, world.dirtied)));
     }
 }
