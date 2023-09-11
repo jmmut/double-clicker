@@ -1,13 +1,12 @@
 use crate::screen::Screen;
 use crate::world::World;
 
-
 mod screen;
 mod world;
 pub mod external {
     pub mod backends;
-    pub mod text_drawer;
     pub mod basic_input;
+    pub mod text_drawer;
 }
 
 /// returns if should continue looping. In other words, if there should be another future frame.

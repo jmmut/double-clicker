@@ -1,5 +1,5 @@
-use crate::external::text_drawer::TextDrawer;
 use crate::external::basic_input::BasicInput;
+use crate::external::text_drawer::TextDrawer;
 use crate::screen::Screen;
 use crate::world::World;
 

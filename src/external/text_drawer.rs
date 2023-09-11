@@ -49,13 +49,20 @@ impl DrawerTrait for TextDrawer {
         );
         root_ui().label(None, &format!("cleaned: {}", &world.cleaned));
         root_ui().label(None, &format!("dirtied: {}", &world.dirtied));
-        root_ui().label(None, &format!("money: {}, will get paid? {}", &world.money, should_receive_payment(world.cleaned, world.dirtied)));
+        root_ui().label(
+            None,
+            &format!(
+                "money: {}, will get paid? {}",
+                &world.money,
+                should_receive_payment(world.cleaned, world.dirtied)
+            ),
+        );
     }
 
-    fn get_button_pos(&self, button: Button) -> Option<Vec2> {
+    fn button(&self, button: Button) -> bool {
         match button {
-            Button::Clean => None,
-            Button::Dirty => None,
+            Button::Clean => root_ui().button(None, "Limpiar"),
+            Button::Dirty => root_ui().button(None, "Ensuciar"),
         }
     }
 }

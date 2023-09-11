@@ -57,7 +57,7 @@ impl World {
 }
 
 pub fn should_receive_payment(dirtied: i64, cleaned: i64) -> bool {
-    return if dirtied + cleaned == 0 {
+    if dirtied + cleaned == 0 {
         false
     } else {
         let percentage = dirtied * 100 / (dirtied + cleaned);

@@ -9,5 +9,6 @@ pub enum Button {
 pub trait DrawerTrait {
     fn draw(&mut self, world: &World);
 
-    fn get_button_pos(&self, button: Button) -> Option<Vec2>;
+    /// Returns true if the button was pressed this frame
+    fn button(&self, button: Button) -> bool;
 }
