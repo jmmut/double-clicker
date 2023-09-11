@@ -4,11 +4,12 @@ use crate::screen::Screen;
 use crate::world::World;
 
 pub use macroquad::prelude::Vec2;
+use crate::external::textureless_drawer::TexturelessDrawer;
 
 pub async fn factory() -> (Screen, World) {
     (
         Screen {
-            drawer: Box::new(TextDrawer::new()),
+            drawer: Box::new(TexturelessDrawer::new()),
             input_source: Box::new(BasicInput),
         },
         World::new(),
