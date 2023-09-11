@@ -38,6 +38,7 @@ impl TexturelessDrawer {
         self.previous_time = new_time;
     }
 }
+
 impl DrawerTrait for TexturelessDrawer {
     fn draw(&mut self, world: &World) {
         self.frame += 1;
@@ -52,9 +53,11 @@ impl DrawerTrait for TexturelessDrawer {
     }
 
     fn button(&self, button: Button) -> bool {
+        let width = screen_width();
+        let height = screen_height();
         match button {
-            Button::Clean => root_ui().button(None, "Limpiar"),
-            Button::Dirty => root_ui().button(None, "Ensuciar"),
+            Button::Clean => root_ui().button(Some(Vec2::new(width * 0.4, height * 0.2)), "Limpiar"),
+            Button::Dirty => root_ui().button(Some(Vec2::new(width * 0.52, height * 0.2)), "Ensuciar"),
         }
     }
 }
