@@ -1,11 +1,12 @@
 use crate::external::backends::{now, Seconds};
 use crate::screen::drawer_trait::{Button, DrawerTrait};
-use crate::world::{SALARY, should_receive_payment, World};
+use crate::world::{should_receive_payment, World, SALARY};
 use macroquad::prelude::*;
 use macroquad::ui::root_ui;
 
 const CLEAN_COLOR: Color = SKYBLUE;
 const DIRTY_COLOR: Color = PURPLE;
+const REWARDING_ZONE_COLOR: Color = Color::new(0.7, 0.8, 0.6, 0.75);
 const FONT_SIZE: f32 = 16.0;
 
 pub struct TexturelessDrawer {
@@ -55,8 +56,12 @@ impl DrawerTrait for TexturelessDrawer {
         let width = screen_width();
         let height = screen_height();
         match button {
-            Button::Clean => root_ui().button(Some(Vec2::new(width * 0.4, height * 0.2)), "Limpiar"),
-            Button::Dirty => root_ui().button(Some(Vec2::new(width * 0.52, height * 0.2)), "Ensuciar"),
+            Button::Clean => {
+                root_ui().button(Some(Vec2::new(width * 0.4, height * 0.2)), "Limpiar")
+            }
+            Button::Dirty => {
+                root_ui().button(Some(Vec2::new(width * 0.52, height * 0.2)), "Ensuciar")
+            }
         }
     }
 }
@@ -68,10 +73,38 @@ fn draw_salary(world: &World) {
 }
 
 fn draw_bar(world: &World, width: f32, height: f32) {
-    draw_rectangle(width * 0.1, height * 0.05, width * 0.8, height * 0.1, CLEAN_COLOR);
-    let dirtiness = world.dirtied as f32 / (world.cleaned + world.dirtied + 1) as f32;
+    draw_rectangle(
+        width * 0.1,
+        height * 0.05,
+        width * 0.8,
+        height * 0.1,
+        CLEAN_COLOR,
+    );
+
+    let dirtiness = if world.cleaned + world.dirtied == 0 {
+        0.0
+    } else {
+        world.dirtied as f32 / (world.cleaned + world.dirtied) as f32
+    };
     let dirtiness_screen = dirtiness * 0.8;
-    draw_rectangle(width * (0.9 - dirtiness_screen), height * 0.05, width * dirtiness_screen, height * 0.1, DIRTY_COLOR);
+    draw_rectangle(
+        width * (0.9 - dirtiness_screen),
+        height * 0.05,
+        width * dirtiness_screen,
+        height * 0.1,
+        DIRTY_COLOR,
+    );
+    let rewarding_zone_start = world.min_valid_percentage() as f32 / 100.0 * 0.8;
+    let rewarding_zone_end =
+        (world.max_valid_percentage() - world.min_valid_percentage()) as f32 / 100.0 * 0.8;
+    draw_rectangle(
+        width * (0.1 + rewarding_zone_start),
+        height * 0.05,
+        width * rewarding_zone_end,
+        height * 0.1,
+        REWARDING_ZONE_COLOR,
+    );
+
     draw_money(world, width, height);
 }
 
@@ -80,5 +113,11 @@ fn draw_money(world: &World, width: f32, height: f32) {
     let money_text = format!("{} €", world.money);
     let money_size = measure_text(&money_text, None, font_size as u16, 1.0);
     // root_ui().label(Some(Vec2::new(width * 0.5 - money_size.width * 0.5, height * 0.1 - money_size.height)), &money_text);
-    draw_text(&money_text, width * 0.5 - (money_size.width * 0.5).round(), height * 0.1 + (money_size.height * 0.5).round(), font_size, BLACK);
+    draw_text(
+        &money_text,
+        width * 0.5 - (money_size.width * 0.5).round(),
+        height * 0.1 + (money_size.height * 0.5).round(),
+        font_size,
+        BLACK,
+    );
 }

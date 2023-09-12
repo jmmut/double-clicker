@@ -54,21 +54,41 @@ impl World {
     }
 
     pub fn expected_payment(&self) -> i64 {
-        if should_receive_payment(self.dirtied, self.cleaned) {
+        if self.should_receive_payment() {
             SALARY
         } else {
             0
         }
     }
+
+    pub fn should_receive_payment(&self) -> bool {
+        should_receive_payment(
+            self.dirtied,
+            self.cleaned,
+            self.min_valid_percentage(),
+            self.max_valid_percentage(),
+        )
+    }
+
+    pub fn min_valid_percentage(&self) -> i64 {
+        40
+    }
+
+    pub fn max_valid_percentage(&self) -> i64 {
+        60
+    }
 }
 
-pub fn should_receive_payment(dirtied: i64, cleaned: i64) -> bool {
+pub fn should_receive_payment(
+    dirtied: i64,
+    cleaned: i64,
+    min_valid_percentage: i64,
+    max_valid_percentage: i64,
+) -> bool {
     if dirtied + cleaned == 0 {
         false
     } else {
         let percentage = dirtied * 100 / (dirtied + cleaned);
-        let min_valid_percentage = 40;
-        let max_valid_percentage = 60;
         if min_valid_percentage <= percentage && percentage <= max_valid_percentage {
             true
         } else {

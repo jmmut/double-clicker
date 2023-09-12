@@ -54,7 +54,7 @@ impl DrawerTrait for TextDrawer {
             &format!(
                 "money: {}, will get paid? {}",
                 &world.money,
-                should_receive_payment(world.cleaned, world.dirtied)
+                world.should_receive_payment()
             ),
         );
     }

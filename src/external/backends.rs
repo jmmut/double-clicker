@@ -3,8 +3,8 @@ use crate::external::text_drawer::TextDrawer;
 use crate::screen::Screen;
 use crate::world::World;
 
-pub use macroquad::prelude::Vec2;
 use crate::external::textureless_drawer::TexturelessDrawer;
+pub use macroquad::prelude::Vec2;
 
 pub async fn factory() -> (Screen, World) {
     (
