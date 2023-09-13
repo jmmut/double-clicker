@@ -1,15 +1,15 @@
+use double_clicker::external::backends::{factory, now, Seconds};
+use double_clicker::frame;
+use double_clicker::screen::Screen;
+use double_clicker::world::World;
+use macroquad::prelude::coroutines::{start_coroutine, wait_seconds, TimerDelayFuture};
+use macroquad::prelude::*;
+use macroquad::ui::root_ui;
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 use std::thread::sleep;
-use double_clicker::external::backends::{factory, now, Seconds};
-use double_clicker::frame;
-use macroquad::prelude::*;
 use std::time::Duration;
-use macroquad::prelude::coroutines::{start_coroutine, TimerDelayFuture, wait_seconds};
-use macroquad::ui::root_ui;
-use double_clicker::screen::Screen;
-use double_clicker::world::World;
 
 const DEFAULT_WINDOW_WIDTH: i32 = 800;
 const DEFAULT_WINDOW_HEIGHT: i32 = 450;
@@ -60,8 +60,7 @@ async fn save_texture(assets: Arc<Mutex<Option<Texture2D>>>) {
     *assets.as_ref().lock().unwrap() = Some(texture);
 }
 
-async fn load() -> (Screen, World)  {
-
+async fn load() -> (Screen, World) {
     #[cfg(not(target_family = "wasm"))]
     {
         let assets = Arc::new(Mutex::new(None));

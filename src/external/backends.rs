@@ -1,10 +1,10 @@
-use std::thread::sleep;
-use std::time::Duration;
-use macroquad::prelude::Texture2D;
 use crate::external::basic_input::BasicInput;
 use crate::external::text_drawer::TextDrawer;
 use crate::screen::Screen;
 use crate::world::World;
+use macroquad::prelude::Texture2D;
+use std::thread::sleep;
+use std::time::Duration;
 
 use crate::external::textureless_drawer::TexturelessDrawer;
 pub use macroquad::prelude::Vec2;
