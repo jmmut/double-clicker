@@ -1,8 +1,8 @@
 use crate::screen::Screen;
 use crate::world::World;
 
-mod screen;
-mod world;
+pub mod screen;
+pub mod world;
 pub mod external {
     pub mod backends;
     pub mod basic_input;

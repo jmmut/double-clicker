@@ -3,8 +3,8 @@
 # Roadmap
 
 current tasks:
-- [ ] draw bar
-- [ ] draw clean/dirty buttons
+- [x] draw bar
+- [/] draw clean/dirty buttons
 - [ ] draw buy heroes
 - [ ] draw text box
 

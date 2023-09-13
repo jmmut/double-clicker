@@ -12,6 +12,7 @@ const FONT_SIZE: f32 = 16.0;
 pub struct TexturelessDrawer {
     frame: i64,
     previous_time: Seconds,
+    t: Option<Texture2D>,
 }
 
 impl TexturelessDrawer {
@@ -19,6 +20,14 @@ impl TexturelessDrawer {
         Self {
             frame: 0,
             previous_time: now(),
+            t: None,
+        }
+    }
+    pub fn new_with_texture(t: Texture2D) -> Self {
+        Self {
+            frame: 0,
+            previous_time: now(),
+            t: Some(t),
         }
     }
 
