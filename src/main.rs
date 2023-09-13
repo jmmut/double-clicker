@@ -51,26 +51,48 @@ fn window_conf() -> Conf {
 }
 
 async fn save_texture(assets: Arc<Mutex<Option<Texture2D>>>) {
-    eprintln!("before loading");
+    trace!("before loading");
     let texture = load_texture("assets/images/ferris.png").await.unwrap();
-    eprintln!("after loading. before sleeping");
-    wait_seconds(4.0).await;
-    eprintln!("after sleeping");
+    trace!("after loading");
+    // info!("before sleeping");
+    // wait_seconds(4.0).await;
+    // info!("after sleeping");
     *assets.as_ref().lock().unwrap() = Some(texture);
 }
 
 async fn load() -> (Screen, World)  {
-    let assets = Arc::new(Mutex::new(None));
-    start_coroutine(save_texture(assets.clone()));
-    while assets.as_ref().lock().unwrap().is_none() {
-        eprintln!("frame of loading screen");
+
+    #[cfg(not(target_family = "wasm"))]
+    {
+        let assets = Arc::new(Mutex::new(None));
+        start_coroutine(save_texture(assets.clone()));
+        let mut frames = 0;
+        while assets.as_ref().lock().unwrap().is_none() {
+            // info!("frame of loading screen");
+            frames += 1;
+            clear_background(LIGHTGRAY);
+            root_ui().label(None, "Loading...");
+            next_frame().await;
+        }
+        info!("loading took {} frames", frames);
+        let x = factory(assets.as_ref().lock().unwrap().unwrap());
+        return x;
+    }
+
+    #[cfg(target_family = "wasm")]
+    {
         clear_background(LIGHTGRAY);
         root_ui().label(None, "Loading...");
         next_frame().await;
+        trace!("before loading");
+        let t = load_texture("assets/images/ferris.png").await.unwrap();
+        trace!("after loading");
+        // trace!("before sleeping");
+        // wait_seconds(4.0).await;
+        // trace!("after sleeping");
+        trace!("moving to regular game loop");
+        return factory(t);
     }
-    eprintln!("moving to regular game loop");
-    let x = factory(assets.as_ref().lock().unwrap().unwrap());
-    x
 }
 
 async fn sleep_until_next_frame(previous_time: &mut Seconds) {
@@ -82,7 +104,11 @@ async fn sleep_until_next_frame(previous_time: &mut Seconds) {
         let frame_duration = new_time - *previous_time;
         if frame_duration < FRAME_PERIOD {
             let sleep_secs = FRAME_PERIOD - frame_duration;
-            // eprintln!("sleeping for {}", sleep_secs);
+            // info!("sleeping for {}", sleep_secs);
+
+            // this is a blocking sleep on purpose. My current understanding is that macroquad
+            // relies on OS or GPU drivers to limit the FPS to ~60 on non-wasm, which doesn't always
+            // work. I was experiencing ~8000 FPS and this is the only way I know to limit them.
             std::thread::sleep(Duration::from_secs_f64(sleep_secs));
         }
     }
