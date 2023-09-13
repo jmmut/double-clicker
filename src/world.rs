@@ -46,16 +46,17 @@ impl World {
         self.remaining_until_next_trigger = trigger_time.remaining;
         if trigger_time.triggered {
             self.previous_trigger_time = trigger_time.new_time;
-            self.money += self.expected_payment();
-            self.dirtied = monotonically_decrease(self.dirtied);
-            self.cleaned = monotonically_decrease(self.cleaned);
+            let completed_cleaning = self.expected_payment();
+            self.money += completed_cleaning;
+            self.dirtied -= completed_cleaning;
+            self.cleaned -= completed_cleaning;
         }
         gui_actions.should_continue()
     }
 
     pub fn expected_payment(&self) -> i64 {
         if self.should_receive_payment() {
-            SALARY
+            self.dirtied.min(self.cleaned)
         } else {
             0
         }
@@ -164,14 +165,14 @@ mod tests {
         assert_eq!(remaining, period - extra_time)
     }
 
-    #[test]
-    fn test_decrease() {
-        assert_eq!(monotonically_decrease(0), 0);
-        assert_eq!(monotonically_decrease(1), 0);
-        assert_eq!(monotonically_decrease(2), 1);
-        assert_eq!(monotonically_decrease(3), 2);
-        assert_eq!(monotonically_decrease(9), 8);
-        assert_eq!(monotonically_decrease(10), 8);
-        assert_eq!(monotonically_decrease(100), 89);
-    }
+    // #[test]
+    // fn test_decrease() {
+    //     assert_eq!(monotonically_decrease(0), 0);
+    //     assert_eq!(monotonically_decrease(1), 0);
+    //     assert_eq!(monotonically_decrease(2), 1);
+    //     assert_eq!(monotonically_decrease(3), 2);
+    //     assert_eq!(monotonically_decrease(9), 8);
+    //     assert_eq!(monotonically_decrease(10), 8);
+    //     assert_eq!(monotonically_decrease(100), 89);
+    // }
 }

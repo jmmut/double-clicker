@@ -4,6 +4,7 @@ use crate::world::{should_receive_payment, World, SALARY};
 use macroquad::prelude::*;
 use macroquad::ui::root_ui;
 
+const EMPTY_COLOR: Color = BEIGE;
 const CLEAN_COLOR: Color = SKYBLUE;
 const DIRTY_COLOR: Color = PURPLE;
 const REWARDING_ZONE_COLOR: Color = Color::new(0.7, 0.8, 0.6, 0.75);
@@ -82,39 +83,48 @@ fn draw_salary(world: &World) {
 }
 
 fn draw_bar(world: &World, width: f32, height: f32) {
+    let bar_width = 0.8;
     draw_rectangle(
         width * 0.1,
         height * 0.05,
-        width * 0.8,
+        width * bar_width,
         height * 0.1,
-        CLEAN_COLOR,
+        EMPTY_COLOR,
     );
 
-    let dirtiness = if world.cleaned + world.dirtied == 0 {
-        0.0
-    } else {
-        world.dirtied as f32 / (world.cleaned + world.dirtied) as f32
-    };
-    let dirtiness_screen = dirtiness * 0.8;
-    draw_rectangle(
-        width * (0.9 - dirtiness_screen),
-        height * 0.05,
-        width * dirtiness_screen,
-        height * 0.1,
-        DIRTY_COLOR,
-    );
-    let rewarding_zone_start = world.min_valid_percentage() as f32 / 100.0 * 0.8;
-    let rewarding_zone_end =
-        (world.max_valid_percentage() - world.min_valid_percentage()) as f32 / 100.0 * 0.8;
+    let empty = world.cleaned + world.dirtied == 0;
+    if !empty {
+        let dirtiness = bar_width * world.dirtied as f32 / (world.cleaned + world.dirtied) as f32;
+        let cleanliness = bar_width * world.cleaned as f32 / (world.cleaned + world.dirtied) as f32;
+        draw_rectangle(
+            width * 0.1,
+            height * 0.05,
+            width * cleanliness,
+            height * 0.1,
+            CLEAN_COLOR,
+        );
+        draw_rectangle(
+            width * (0.9 - dirtiness),
+            height * 0.05,
+            width * dirtiness,
+            height * 0.1,
+            DIRTY_COLOR,
+        );
+    }
+    let rewarding_zone_start = world.min_valid_percentage() as f32 / 100.0 * bar_width;
+    let rewarding_zone_width =
+        (world.max_valid_percentage() - world.min_valid_percentage()) as f32 / 100.0 * bar_width;
     draw_rectangle(
         width * (0.1 + rewarding_zone_start),
         height * 0.05,
-        width * rewarding_zone_end,
+        width * rewarding_zone_width,
         height * 0.1,
         REWARDING_ZONE_COLOR,
     );
 
     draw_money(world, width, height);
+    draw_cleaned(world, width, height);
+    draw_dirtied(world, width, height);
 }
 
 fn draw_money(world: &World, width: f32, height: f32) {
@@ -129,4 +139,14 @@ fn draw_money(world: &World, width: f32, height: f32) {
         font_size,
         BLACK,
     );
+}
+
+fn draw_cleaned(world: &World, width: f32, height: f32) {
+    let cleaned_str = format!("{}", world.cleaned);
+    draw_text(&cleaned_str, width * 0.2, height * 0.1, FONT_SIZE, BLACK);
+}
+
+fn draw_dirtied(world: &World, width: f32, height: f32) {
+    let dirtied_str = format!("{}", world.dirtied);
+    draw_text(&dirtied_str, width * 0.8, height * 0.1, FONT_SIZE, BLACK);
 }
