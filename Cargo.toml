@@ -10,3 +10,4 @@ macroquad = "=0.3.24"
 
 [profile.release]
 strip = true
+lto = true
