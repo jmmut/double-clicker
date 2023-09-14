@@ -73,7 +73,8 @@ impl TexturelessDrawer {
             overlapping,
         } = AVAILABLE_ARRANGEMENTS[self.arrangement_index];
         let bar_width = 0.8;
-        let bar_height = 0.15;
+        let bar_height = if overlapping { 0.15 } else { 0.05 };
+
         draw_rectangle(
             width * 0.1,
             height * 0.05,
@@ -140,10 +141,10 @@ impl TexturelessDrawer {
             }
         }
 
-        draw_salary(world, width, height);
-        draw_savings(world, width, height);
-        draw_cleaned(world, width, height);
-        draw_dirtied(world, width, height);
+        draw_salary(world, width, height, overlapping);
+        draw_savings(world, width, height, overlapping);
+        draw_cleaned(world, width, height, overlapping);
+        draw_dirtied(world, width, height, overlapping);
     }
 }
 
@@ -180,7 +181,8 @@ impl DrawerTrait for TexturelessDrawer {
     }
 }
 
-fn draw_salary(world: &World, width: f32, height: f32) {
+fn draw_salary(world: &World, width: f32, height: f32, overlapping: bool) {
+    let vertical_offset = if overlapping { 0.0 } else { 0.05 };
     let font_size = FONT_SIZE;
     let money_text = format!(
         "Salario (en {:.1}): {} €",
@@ -192,13 +194,14 @@ fn draw_salary(world: &World, width: f32, height: f32) {
     draw_text(
         &money_text,
         width * 0.5 - (money_size.width * 0.5).round(),
-        (height * 0.1).round(),
+        (height * (0.1 + vertical_offset)).round(),
         font_size,
         BLACK,
     );
 }
 
-fn draw_savings(world: &World, width: f32, height: f32) {
+fn draw_savings(world: &World, width: f32, height: f32, overlapping: bool) {
+    let vertical_offset = if overlapping { 0.0 } else { 0.05 };
     let font_size = FONT_SIZE;
     let money_text = format!("Ahorros: {} €", world.money);
     let money_size = measure_text(&money_text, None, font_size as u16, 1.0);
@@ -206,29 +209,31 @@ fn draw_savings(world: &World, width: f32, height: f32) {
     draw_text(
         &money_text,
         width * 0.5 - (money_size.width * 0.5).round(),
-        (height * 0.15).round(),
+        (height * (0.15+ vertical_offset)).round(),
         font_size,
         BLACK,
     );
 }
 
-fn draw_cleaned(world: &World, width: f32, height: f32) {
+fn draw_cleaned(world: &World, width: f32, height: f32, overlapping: bool) {
+    let vertical_offset = if overlapping { 0.0 } else { 0.05 };
     let cleaned_str = format!("Tareas de limpieza: {}", world.cleaned);
     draw_text(
         &cleaned_str,
         width * 0.15,
-        (height * 0.12).round(),
+        (height * (0.12+ vertical_offset)).round(),
         FONT_SIZE,
         BLACK,
     );
 }
 
-fn draw_dirtied(world: &World, width: f32, height: f32) {
+fn draw_dirtied(world: &World, width: f32, height: f32, overlapping: bool) {
+    let vertical_offset = if overlapping { 0.0 } else { 0.05 };
     let dirtied_str = format!("Tareas de suciedad: {}", world.dirtied);
     draw_text(
         &dirtied_str,
         width * 0.65,
-        (height * 0.12).round(),
+        (height * (0.12+ vertical_offset)).round(),
         FONT_SIZE,
         BLACK,
     );
