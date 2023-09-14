@@ -26,8 +26,8 @@ struct Arrangement {
 #[rustfmt::skip]
 const AVAILABLE_ARRANGEMENTS: [Arrangement; 4] = [
     Arrangement { borders: false, overlapping: false },
-    Arrangement { borders: false, overlapping: true },
     Arrangement { borders: true, overlapping: false },
+    Arrangement { borders: false, overlapping: true },
     Arrangement { borders: true, overlapping: true },
 ];
 
