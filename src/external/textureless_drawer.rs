@@ -14,8 +14,22 @@ pub struct TexturelessDrawer {
     frame: i64,
     previous_time: Seconds,
     t: Option<Texture2D>,
-    pub borders: bool,
+    arrangement_index: usize,
 }
+
+#[derive(Copy, Clone, Debug)]
+struct Arrangement {
+    borders: bool,
+    overlapping: bool,
+}
+
+#[rustfmt::skip]
+const AVAILABLE_ARRANGEMENTS: [Arrangement; 4] = [
+    Arrangement { borders: false, overlapping: false },
+    Arrangement { borders: false, overlapping: true },
+    Arrangement { borders: true, overlapping: false },
+    Arrangement { borders: true, overlapping: true },
+];
 
 impl TexturelessDrawer {
     pub fn new() -> Self {
@@ -23,7 +37,7 @@ impl TexturelessDrawer {
             frame: 0,
             previous_time: now(),
             t: None,
-            borders: true,
+            arrangement_index: 0,
         }
     }
     pub fn new_with_texture(t: Texture2D) -> Self {
@@ -31,7 +45,7 @@ impl TexturelessDrawer {
             frame: 0,
             previous_time: now(),
             t: Some(t),
-            borders: true,
+            arrangement_index: 0,
         }
     }
 
@@ -52,6 +66,85 @@ impl TexturelessDrawer {
         );
         self.previous_time = new_time;
     }
+
+    fn draw_bar(&self, world: &World, width: f32, height: f32) {
+        let Arrangement {
+            borders,
+            overlapping,
+        } = AVAILABLE_ARRANGEMENTS[self.arrangement_index];
+        let bar_width = 0.8;
+        let bar_height = 0.15;
+        draw_rectangle(
+            width * 0.1,
+            height * 0.05,
+            width * bar_width,
+            height * bar_height,
+            EMPTY_COLOR,
+        );
+
+        let empty = world.cleaned + world.dirtied == 0;
+        let border = 0.1
+            + if !empty {
+                let cleanliness =
+                    bar_width * world.cleaned as f32 / (world.cleaned + world.dirtied) as f32;
+                let dirtiness =
+                    bar_width * world.dirtied as f32 / (world.cleaned + world.dirtied) as f32;
+                draw_rectangle(
+                    width * 0.1,
+                    height * 0.05,
+                    width * cleanliness,
+                    height * bar_height,
+                    CLEAN_COLOR,
+                );
+                draw_rectangle(
+                    width * (0.9 - dirtiness),
+                    height * 0.05,
+                    width * dirtiness,
+                    height * bar_height,
+                    DIRTY_COLOR,
+                );
+                cleanliness
+            } else {
+                0.0
+            };
+        let rewarding_zone_start = world.min_valid_percentage() as f32 / 100.0 * bar_width;
+        let rewarding_zone_width =
+            (world.max_valid_percentage() - world.min_valid_percentage()) as f32 / 100.0
+                * bar_width;
+        draw_rectangle(
+            width * (0.1 + rewarding_zone_start),
+            height * 0.05,
+            width * rewarding_zone_width,
+            height * bar_height,
+            REWARDING_ZONE_COLOR,
+        );
+
+        if borders {
+            draw_rectangle_lines(
+                width * 0.1,
+                height * 0.05,
+                width * bar_width,
+                height * bar_height,
+                2.0,
+                BLACK,
+            );
+            if !empty {
+                draw_line(
+                    width * border,
+                    height * 0.05,
+                    width * border,
+                    height * (0.05 + bar_height),
+                    1.0,
+                    BLACK,
+                )
+            }
+        }
+
+        draw_salary(world, width, height);
+        draw_savings(world, width, height);
+        draw_cleaned(world, width, height);
+        draw_dirtied(world, width, height);
+    }
 }
 
 impl DrawerTrait for TexturelessDrawer {
@@ -61,95 +154,30 @@ impl DrawerTrait for TexturelessDrawer {
         clear_background(LIGHTGRAY);
         let width = screen_width();
         let height = screen_height();
-        draw_bar(world, width, height);
+        self.draw_bar(world, width, height);
     }
 
     fn button(&self, button: Button) -> bool {
         let width = screen_width();
         let height = screen_height();
         let is_button_clicked = |x_coef: f32, y_coef: f32, label: &str| -> bool {
-            return root_ui().button(
-                Some(Vec2::new(width * x_coef, height * y_coef)),
-                label,
-            );
+            return root_ui().button(Some(Vec2::new(width * x_coef, height * y_coef)), label);
         };
         match button {
             Button::Clean => is_button_clicked(0.4, 0.25, "Limpiar"),
             Button::Dirty => is_button_clicked(0.52, 0.25, "Ensuciar"),
+            Button::Arrangement => is_button_clicked(0.1, 0.85, "Cambiar estilo"),
         }
     }
-}
 
-fn draw_bar(world: &World, width: f32, height: f32) {
-    let bar_width = 0.8;
-    let bar_height = 0.15;
-    draw_rectangle(
-        width * 0.1,
-        height * 0.05,
-        width * bar_width,
-        height * bar_height,
-        EMPTY_COLOR,
-    );
-
-    let empty = world.cleaned + world.dirtied == 0;
-    let border = 0.1
-        + if !empty {
-            let cleanliness =
-                bar_width * world.cleaned as f32 / (world.cleaned + world.dirtied) as f32;
-            let dirtiness =
-                bar_width * world.dirtied as f32 / (world.cleaned + world.dirtied) as f32;
-            draw_rectangle(
-                width * 0.1,
-                height * 0.05,
-                width * cleanliness,
-                height * bar_height,
-                CLEAN_COLOR,
-            );
-            draw_rectangle(
-                width * (0.9 - dirtiness),
-                height * 0.05,
-                width * dirtiness,
-                height * bar_height,
-                DIRTY_COLOR,
-            );
-            cleanliness
-        } else {
-            0.0
-        };
-    let rewarding_zone_start = world.min_valid_percentage() as f32 / 100.0 * bar_width;
-    let rewarding_zone_width =
-        (world.max_valid_percentage() - world.min_valid_percentage()) as f32 / 100.0 * bar_width;
-    draw_rectangle(
-        width * (0.1 + rewarding_zone_start),
-        height * 0.05,
-        width * rewarding_zone_width,
-        height * bar_height,
-        REWARDING_ZONE_COLOR,
-    );
-
-    draw_rectangle_lines(
-        width * 0.1,
-        height * 0.05,
-        width * bar_width,
-        height * bar_height,
-        2.0,
-        BLACK,
-    );
-    if !empty {
-        draw_line(
-            width * border,
-            height * 0.05,
-            width * border,
-            height * (0.05 + bar_height),
-            1.0,
-            BLACK,
-        )
+    fn next_arrangement(&mut self) {
+        self.arrangement_index += 1;
+        self.arrangement_index %= AVAILABLE_ARRANGEMENTS.len();
+        info!(
+            "using arrangement {}: {:?}",
+            self.arrangement_index, AVAILABLE_ARRANGEMENTS[self.arrangement_index]
+        );
     }
-
-    draw_salary(world, width, height);
-    draw_savings(world, width, height);
-    draw_cleaned(world, width, height);
-    draw_dirtied(world, width, height);
 }
 
 fn draw_salary(world: &World, width: f32, height: f32) {

@@ -63,6 +63,9 @@ impl DrawerTrait for TextDrawer {
         match button {
             Button::Clean => root_ui().button(None, "Limpiar"),
             Button::Dirty => root_ui().button(None, "Ensuciar"),
+            Button::Arrangement => false,
         }
+    }
+    fn next_arrangement(&mut self) {
     }
 }

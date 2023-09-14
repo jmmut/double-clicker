@@ -11,10 +11,12 @@ impl InputSourceTrait for BasicInput {
     fn get_gui_actions(&self, drawer: &dyn DrawerTrait) -> GuiActions {
         let dirty_pressed = drawer.button(Button::Dirty) || is_key_pressed(KeyCode::E);
         let clean_pressed = drawer.button(Button::Clean) || is_key_pressed(KeyCode::L);
+        let next_arrangement = drawer.button(Button::Arrangement) || is_key_pressed(KeyCode::C);
         GuiActions {
             quit: is_key_pressed(KeyCode::Escape),
             clean_pressed,
             dirty_pressed,
+            next_arrangement,
         }
     }
 }

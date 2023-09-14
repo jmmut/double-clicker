@@ -13,8 +13,12 @@ pub struct Screen {
 }
 
 impl Screen {
-    pub fn get_gui_actions(&self, _world: &World) -> GuiActions {
-        self.input_source.get_gui_actions(&*self.drawer)
+    pub fn get_gui_actions(&mut self, _world: &World) -> GuiActions {
+        let gui_actions = self.input_source.get_gui_actions(&*self.drawer);
+        if gui_actions.next_arrangement {
+            self.drawer.next_arrangement();
+        }
+        gui_actions
     }
 
     pub fn draw(&mut self, world: &mut World) {
