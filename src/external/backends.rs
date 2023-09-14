@@ -10,7 +10,6 @@ use crate::external::textureless_drawer::TexturelessDrawer;
 pub use macroquad::prelude::Vec2;
 
 pub fn factory(t: Texture2D) -> (Screen, World) {
-    // sleep(Duration::from_secs(5));
     (
         Screen {
             drawer: Box::new(TexturelessDrawer::new_with_texture(t)),
