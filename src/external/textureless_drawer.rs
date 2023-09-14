@@ -209,7 +209,7 @@ fn draw_savings(world: &World, width: f32, height: f32, overlapping: bool) {
     draw_text(
         &money_text,
         width * 0.5 - (money_size.width * 0.5).round(),
-        (height * (0.15+ vertical_offset)).round(),
+        (height * (0.15 + vertical_offset)).round(),
         font_size,
         BLACK,
     );
@@ -221,7 +221,7 @@ fn draw_cleaned(world: &World, width: f32, height: f32, overlapping: bool) {
     draw_text(
         &cleaned_str,
         width * 0.15,
-        (height * (0.12+ vertical_offset)).round(),
+        (height * (0.12 + vertical_offset)).round(),
         FONT_SIZE,
         BLACK,
     );
@@ -233,7 +233,7 @@ fn draw_dirtied(world: &World, width: f32, height: f32, overlapping: bool) {
     draw_text(
         &dirtied_str,
         width * 0.65,
-        (height * (0.12+ vertical_offset)).round(),
+        (height * (0.12 + vertical_offset)).round(),
         FONT_SIZE,
         BLACK,
     );

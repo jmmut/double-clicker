@@ -66,6 +66,5 @@ impl DrawerTrait for TextDrawer {
             Button::Arrangement => false,
         }
     }
-    fn next_arrangement(&mut self) {
-    }
+    fn next_arrangement(&mut self) {}
 }
