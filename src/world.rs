@@ -1,5 +1,9 @@
+pub mod heores;
+
 use crate::external::backends::{now, Seconds};
 use crate::screen::GuiActions;
+use crate::world::heores::{Hero, HEROES_LIST};
+use std::collections::HashMap;
 
 pub const MONEY_PERIOD: f64 = 5.0;
 pub const SALARY: i64 = 100;
@@ -13,6 +17,7 @@ pub struct World {
     pub cleaned: i64,
     pub dirtied: i64,
     pub money: i64,
+    pub heroes_count: HashMap<Hero, usize>,
 }
 
 impl World {
@@ -26,8 +31,10 @@ impl World {
             cleaned: 0,
             dirtied: 0,
             money: 0,
+            heroes_count: HashMap::from_iter(HEROES_LIST.iter().map(|h| (*h, 0))),
         }
     }
+
     pub fn update(&mut self, gui_actions: GuiActions) -> bool {
         self.frame += 1;
 

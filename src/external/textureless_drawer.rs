@@ -1,14 +1,17 @@
 use crate::external::backends::{now, Seconds};
 use crate::screen::drawer_trait::{Button, DrawerTrait};
+use crate::world::heores::{get_name, Hero};
 use crate::world::{should_receive_payment, World, SALARY};
+use macroquad::hash;
 use macroquad::prelude::*;
-use macroquad::ui::root_ui;
+use macroquad::ui::{root_ui, widgets};
 
 const EMPTY_COLOR: Color = GRAY;
 const CLEAN_COLOR: Color = SKYBLUE;
 const DIRTY_COLOR: Color = PURPLE;
 const REWARDING_ZONE_COLOR: Color = Color::new(0.7, 0.8, 0.6, 0.9);
 const FONT_SIZE: f32 = 16.0;
+const PRICE: i64 = 100;
 
 pub struct TexturelessDrawer {
     frame: i64,
@@ -25,10 +28,10 @@ struct Arrangement {
 
 #[rustfmt::skip]
 const AVAILABLE_ARRANGEMENTS: [Arrangement; 4] = [
-    Arrangement { borders: false, overlapping: false },
     Arrangement { borders: true, overlapping: false },
-    Arrangement { borders: false, overlapping: true },
+    Arrangement { borders: false, overlapping: false },
     Arrangement { borders: true, overlapping: true },
+    Arrangement { borders: false, overlapping: true },
 ];
 
 impl TexturelessDrawer {
@@ -79,6 +82,40 @@ impl TexturelessDrawer {
         draw_cleaned(world, width, height, overlapping);
         draw_dirtied(world, width, height, overlapping);
     }
+
+    fn draw_buy_heroes(&self, world: &World, width: f32, height: f32) {
+        // let Arrangement {
+        //     borders,
+        //     overlapping,
+        // } = AVAILABLE_ARRANGEMENTS[self.arrangement_index];
+
+        widgets::Window::new(
+            hash!(),
+            Vec2::new(0.05 * width, 0.4 * height),
+            Vec2::new(0.25 * width, 0.08 * height),
+        )
+        .titlebar(true)
+        .label("heroe 1")
+        .movable(false)
+        .ui(&mut root_ui(), |ui| {
+            ui.label(
+                None,
+                &format!(
+                    "Tienes: {}. Precio: {}",
+                    world.heroes_count[&Hero::Hero1],
+                    PRICE
+                ),
+            );
+            // ui.label(None, " ")
+        });
+        draw_rectangle(0.05, 0.4, 0.25, 0.1, CLEAN_COLOR);
+
+        // draw_bar(world, width, height, overlapping, borders);
+        // draw_salary(world, width, height, overlapping);
+        // draw_savings(world, width, height, overlapping);
+        // draw_cleaned(world, width, height, overlapping);
+        // draw_dirtied(world, width, height, overlapping);
+    }
 }
 
 impl DrawerTrait for TexturelessDrawer {
@@ -89,6 +126,7 @@ impl DrawerTrait for TexturelessDrawer {
         let width = screen_width();
         let height = screen_height();
         self.draw_bar_and_money(world, width, height);
+        self.draw_buy_heroes(world, width, height);
     }
 
     fn button(&self, button: Button) -> bool {
@@ -100,7 +138,9 @@ impl DrawerTrait for TexturelessDrawer {
         match button {
             Button::Clean => is_button_clicked(0.4, 0.25, "Limpiar"),
             Button::Dirty => is_button_clicked(0.52, 0.25, "Ensuciar"),
-            Button::Arrangement => is_button_clicked(0.1, 0.85, "Cambiar estilo"),
+            Button::Arrangement => is_button_clicked(0.45, 0.85, "Cambiar estilo"),
+            Button::Buy(_) => is_button_clicked(0.10, 0.5, "Comprar"),
+            Button::Sell(_) => is_button_clicked(0.20, 0.5, "Vender"),
         }
     }
 

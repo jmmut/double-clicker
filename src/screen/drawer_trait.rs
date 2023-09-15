@@ -1,10 +1,13 @@
 use crate::external::backends::Vec2;
+use crate::world::heores::Hero;
 use crate::world::World;
 
 pub enum Button {
     Clean,
     Dirty,
     Arrangement,
+    Buy(Hero),
+    Sell(Hero),
 }
 
 pub trait DrawerTrait {
