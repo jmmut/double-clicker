@@ -67,80 +67,13 @@ impl TexturelessDrawer {
         self.previous_time = new_time;
     }
 
-    fn draw_bar(&self, world: &World, width: f32, height: f32) {
+    fn draw_bar_and_money(&self, world: &World, width: f32, height: f32) {
         let Arrangement {
             borders,
             overlapping,
         } = AVAILABLE_ARRANGEMENTS[self.arrangement_index];
-        let bar_width = 0.8;
-        let bar_height = if overlapping { 0.15 } else { 0.05 };
 
-        draw_rectangle(
-            width * 0.1,
-            height * 0.05,
-            width * bar_width,
-            height * bar_height,
-            EMPTY_COLOR,
-        );
-
-        let empty = world.cleaned + world.dirtied == 0;
-        let border = 0.1
-            + if !empty {
-                let cleanliness =
-                    bar_width * world.cleaned as f32 / (world.cleaned + world.dirtied) as f32;
-                let dirtiness =
-                    bar_width * world.dirtied as f32 / (world.cleaned + world.dirtied) as f32;
-                draw_rectangle(
-                    width * 0.1,
-                    height * 0.05,
-                    width * cleanliness,
-                    height * bar_height,
-                    CLEAN_COLOR,
-                );
-                draw_rectangle(
-                    width * (0.9 - dirtiness),
-                    height * 0.05,
-                    width * dirtiness,
-                    height * bar_height,
-                    DIRTY_COLOR,
-                );
-                cleanliness
-            } else {
-                0.0
-            };
-        let rewarding_zone_start = world.min_valid_percentage() as f32 / 100.0 * bar_width;
-        let rewarding_zone_width =
-            (world.max_valid_percentage() - world.min_valid_percentage()) as f32 / 100.0
-                * bar_width;
-        draw_rectangle(
-            width * (0.1 + rewarding_zone_start),
-            height * 0.05,
-            width * rewarding_zone_width,
-            height * bar_height,
-            REWARDING_ZONE_COLOR,
-        );
-
-        if borders {
-            draw_rectangle_lines(
-                width * 0.1,
-                height * 0.05,
-                width * bar_width,
-                height * bar_height,
-                2.0,
-                BLACK,
-            );
-            if !empty {
-                draw_line(
-                    width * border,
-                    height * 0.05,
-                    width * border,
-                    height * (0.05 + bar_height),
-                    1.0,
-                    BLACK,
-                )
-            }
-        }
-
+        draw_bar(world, width, height, overlapping, borders);
         draw_salary(world, width, height, overlapping);
         draw_savings(world, width, height, overlapping);
         draw_cleaned(world, width, height, overlapping);
@@ -155,7 +88,7 @@ impl DrawerTrait for TexturelessDrawer {
         clear_background(LIGHTGRAY);
         let width = screen_width();
         let height = screen_height();
-        self.draw_bar(world, width, height);
+        self.draw_bar_and_money(world, width, height);
     }
 
     fn button(&self, button: Button) -> bool {
@@ -181,6 +114,75 @@ impl DrawerTrait for TexturelessDrawer {
     }
 }
 
+fn draw_bar(world: &World, width: f32, height: f32, overlapping: bool, borders: bool) {
+    let bar_width = 0.8;
+    let bar_height = if overlapping { 0.15 } else { 0.05 };
+
+    draw_rectangle(
+        width * 0.1,
+        height * 0.05,
+        width * bar_width,
+        height * bar_height,
+        EMPTY_COLOR,
+    );
+
+    let empty = world.cleaned + world.dirtied == 0;
+    let border = 0.1
+        + if !empty {
+            let cleanliness =
+                bar_width * world.cleaned as f32 / (world.cleaned + world.dirtied) as f32;
+            let dirtiness =
+                bar_width * world.dirtied as f32 / (world.cleaned + world.dirtied) as f32;
+            draw_rectangle(
+                width * 0.1,
+                height * 0.05,
+                width * cleanliness,
+                height * bar_height,
+                CLEAN_COLOR,
+            );
+            draw_rectangle(
+                width * (0.9 - dirtiness),
+                height * 0.05,
+                width * dirtiness,
+                height * bar_height,
+                DIRTY_COLOR,
+            );
+            cleanliness
+        } else {
+            0.0
+        };
+    let rewarding_zone_start = world.min_valid_percentage() as f32 / 100.0 * bar_width;
+    let rewarding_zone_width =
+        (world.max_valid_percentage() - world.min_valid_percentage()) as f32 / 100.0 * bar_width;
+    draw_rectangle(
+        width * (0.1 + rewarding_zone_start),
+        height * 0.05,
+        width * rewarding_zone_width,
+        height * bar_height,
+        REWARDING_ZONE_COLOR,
+    );
+
+    if borders {
+        draw_rectangle_lines(
+            width * 0.1,
+            height * 0.05,
+            width * bar_width,
+            height * bar_height,
+            2.0,
+            BLACK,
+        );
+        if !empty {
+            draw_line(
+                width * border,
+                height * 0.05,
+                width * border,
+                height * (0.05 + bar_height),
+                1.0,
+                BLACK,
+            )
+        }
+    }
+}
 fn draw_salary(world: &World, width: f32, height: f32, overlapping: bool) {
     let vertical_offset = if overlapping { 0.0 } else { 0.05 };
     let font_size = FONT_SIZE;
