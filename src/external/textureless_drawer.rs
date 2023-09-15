@@ -1,6 +1,6 @@
 use crate::external::backends::{now, Seconds};
 use crate::screen::drawer_trait::{Button, DrawerTrait};
-use crate::world::heores::{get_name, Hero};
+use crate::world::heores::Hero;
 use crate::world::{should_receive_payment, World, SALARY};
 use macroquad::hash;
 use macroquad::prelude::*;
@@ -84,37 +84,40 @@ impl TexturelessDrawer {
     }
 
     fn draw_buy_heroes(&self, world: &World, width: f32, height: f32) {
-        // let Arrangement {
-        //     borders,
-        //     overlapping,
-        // } = AVAILABLE_ARRANGEMENTS[self.arrangement_index];
-
-        widgets::Window::new(
-            hash!(),
-            Vec2::new(0.05 * width, 0.4 * height),
-            Vec2::new(0.25 * width, 0.08 * height),
+        let button_height = height * 0.15;
+        let button_width = width * 0.25;
+        draw_rectangle(
+            width * 0.05,
+            height * 0.4,
+            button_width,
+            button_height,
+            CLEAN_COLOR,
+        );
+        draw_rectangle_lines(
+            width * 0.05,
+            height * 0.4,
+            button_width,
+            button_height,
+            2.0,
+            BLACK,
+        );
+        draw_line(
+            width * 0.05,
+            height * 0.4 + FONT_SIZE * 1.2,
+            width * 0.05 + button_width,
+            height * 0.4 + FONT_SIZE * 1.2,
+            1.0,
+            BLACK,
+        );
+        root_ui().label(Vec2::new(width * 0.06, height * 0.4), Hero::Hero1.name());
+        root_ui().label(
+            Vec2::new(width * 0.06, height * 0.4 + FONT_SIZE * 1.2),
+            &format!(
+                "Tienes: {}. Precio: {}",
+                world.heroes_count[&Hero::Hero1],
+                PRICE
+            ),
         )
-        .titlebar(true)
-        .label("heroe 1")
-        .movable(false)
-        .ui(&mut root_ui(), |ui| {
-            ui.label(
-                None,
-                &format!(
-                    "Tienes: {}. Precio: {}",
-                    world.heroes_count[&Hero::Hero1],
-                    PRICE
-                ),
-            );
-            // ui.label(None, " ")
-        });
-        draw_rectangle(0.05, 0.4, 0.25, 0.1, CLEAN_COLOR);
-
-        // draw_bar(world, width, height, overlapping, borders);
-        // draw_salary(world, width, height, overlapping);
-        // draw_savings(world, width, height, overlapping);
-        // draw_cleaned(world, width, height, overlapping);
-        // draw_dirtied(world, width, height, overlapping);
     }
 }
 

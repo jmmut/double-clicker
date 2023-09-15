@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use crate::world::heores::Hero;
+use std::collections::HashMap;
 
 pub struct GuiActions {
     pub quit: bool,

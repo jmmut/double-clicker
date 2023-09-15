@@ -17,13 +17,15 @@ pub const HEROES_LIST: [Hero; 6] = [
     Hero::Hero6,
 ];
 
-pub fn get_name(hero: Hero) -> &'static str {
-    match hero {
-        Hero::Hero1 => "Heroe 1",
-        Hero::Hero2 => "Heroe 2",
-        Hero::Hero3 => "Heroe 3",
-        Hero::Hero4 => "Heroe 4",
-        Hero::Hero5 => "Heroe 5",
-        Hero::Hero6 => "Heroe 6",
+impl Hero {
+    pub fn name(&self) -> &'static str {
+        match self {
+            Hero::Hero1 => "Heroe 1",
+            Hero::Hero2 => "Heroe 2",
+            Hero::Hero3 => "Heroe 3",
+            Hero::Hero4 => "Heroe 4",
+            Hero::Hero5 => "Heroe 5",
+            Hero::Hero6 => "Heroe 6",
+        }
     }
 }
