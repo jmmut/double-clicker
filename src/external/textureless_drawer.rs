@@ -1,7 +1,7 @@
 use crate::external::backends::{now, Seconds};
 use crate::screen::drawer_trait::{Button, DrawerTrait};
 use crate::world::heores::Hero;
-use crate::world::{should_receive_payment, World, SALARY};
+use crate::world::{should_receive_payment, World, HERO_PRICE, SALARY};
 use macroquad::hash;
 use macroquad::prelude::*;
 use macroquad::ui::{root_ui, widgets};
@@ -11,7 +11,6 @@ const CLEAN_COLOR: Color = SKYBLUE;
 const DIRTY_COLOR: Color = PURPLE;
 const REWARDING_ZONE_COLOR: Color = Color::new(0.7, 0.8, 0.6, 0.9);
 const FONT_SIZE: f32 = 16.0;
-const PRICE: i64 = 100;
 
 pub struct TexturelessDrawer {
     frame: i64,
@@ -115,7 +114,7 @@ impl TexturelessDrawer {
             &format!(
                 "Tienes: {}. Precio: {}",
                 world.heroes_count[&Hero::Hero1],
-                PRICE
+                HERO_PRICE
             ),
         )
     }
@@ -142,8 +141,9 @@ impl DrawerTrait for TexturelessDrawer {
             Button::Clean => is_button_clicked(0.4, 0.25, "Limpiar"),
             Button::Dirty => is_button_clicked(0.52, 0.25, "Ensuciar"),
             Button::Arrangement => is_button_clicked(0.45, 0.85, "Cambiar estilo"),
-            Button::Buy(_) => is_button_clicked(0.10, 0.5, "Comprar"),
-            Button::Sell(_) => is_button_clicked(0.20, 0.5, "Vender"),
+            Button::Buy(Hero::Hero1) => is_button_clicked(0.10, 0.5, "Comprar"),
+            Button::Sell(Hero::Hero1) => is_button_clicked(0.20, 0.5, "Vender"),
+            _ => false,
         }
     }
 

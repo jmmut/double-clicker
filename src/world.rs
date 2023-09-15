@@ -7,6 +7,7 @@ use std::collections::HashMap;
 
 pub const MONEY_PERIOD: f64 = 5.0;
 pub const SALARY: i64 = 100;
+pub const HERO_PRICE: i64 = 5;
 
 pub struct World {
     previous_trigger_time: Seconds,
@@ -57,6 +58,19 @@ impl World {
             self.money += completed_cleaning;
             self.dirtied -= completed_cleaning;
             self.cleaned -= completed_cleaning;
+        }
+        for (hero, bought) in &gui_actions.heroes_bought {
+            if *bought && self.money >= HERO_PRICE {
+                *self.heroes_count.get_mut(&hero).unwrap() += 1;
+                self.money -= HERO_PRICE;
+            }
+        }
+        for (hero, sold) in &gui_actions.heroes_sold {
+            let count = self.heroes_count.get_mut(&hero).unwrap();
+            if *count > 0 && *sold {
+                *count -= 1;
+                self.money += HERO_PRICE;
+            }
         }
         gui_actions.should_continue()
     }
