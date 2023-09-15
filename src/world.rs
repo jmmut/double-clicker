@@ -58,6 +58,16 @@ impl World {
             self.money += completed_cleaning;
             self.dirtied -= completed_cleaning;
             self.cleaned -= completed_cleaning;
+            for (hero, count) in &self.heroes_count {
+                match hero {
+                    Hero::Hero1 => self.cleaned += 10 * *count as i64,
+                    Hero::Hero2 => {}
+                    Hero::Hero3 => {}
+                    Hero::Hero4 => {}
+                    Hero::Hero5 => {}
+                    Hero::Hero6 => {}
+                }
+            }
         }
         for (hero, bought) in &gui_actions.heroes_bought {
             if *bought && self.money >= HERO_PRICE {

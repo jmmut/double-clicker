@@ -108,7 +108,10 @@ impl TexturelessDrawer {
             1.0,
             BLACK,
         );
-        root_ui().label(Vec2::new(width * 0.06, height * 0.4), Hero::Hero1.name());
+        root_ui().label(
+            Vec2::new(width * 0.06, height * 0.4),
+            &format!("{}: Limpia 10 tareas", Hero::Hero1.name()),
+        );
         root_ui().label(
             Vec2::new(width * 0.06, height * 0.4 + FONT_SIZE * 1.2),
             &format!(
