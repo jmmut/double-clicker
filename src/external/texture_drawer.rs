@@ -105,11 +105,12 @@ impl TextureDrawer {
             if panel_rect.contains(Vec2::new(mouse_x, mouse_y)) {
                 let (horizontal_offset, vertical_offset) = Self::get_tooltip_offset(i);
 
-                root_ui().window(hash!(i), Vec2::new(
+                draw_rectangle(
                     width * (0.05 + BUY_BUTTON_WIDTH + 0.01 + horizontal_offset),
-                    height * (start_height + vertical_offset)), Vec2::new(
+                    height * (start_height + vertical_offset),
                     width * TOOLTIP_WIDTH,
-                    button_height), |ui| {}
+                    button_height,
+                    panel_color,
                 );
 
                 root_ui().label(
@@ -202,7 +203,6 @@ impl DrawerTrait for TextureDrawer {
     fn draw(&mut self, world: &World) {
         self.frame += 1;
         // self.debug_fps(world);
-        clear_background(LIGHTGRAY);
         let width = screen_width();
         let height = screen_height();
         self.draw_bar_and_money(world, width, height);
@@ -218,10 +218,16 @@ impl DrawerTrait for TextureDrawer {
             return root_ui().button(Some(Vec2::new(width * x_coef, height * y_coef)), label);
         };
         let is_texture_clicked = |x_coef: f32, y_coef: f32, texture| -> bool {
-            return widgets::Button::new(texture)
-                .position(Some(Vec2::new(width * x_coef, height * y_coef)))
-                .size(Vec2::new(width * 0.08, width * 0.08))
-                .ui(&mut root_ui());
+            let rect = Rect::new(width * x_coef, height * y_coef, width * 0.08, width * 0.08);
+            draw_texture_ex(texture, rect.x, rect.y, WHITE, DrawTextureParams {
+                dest_size: Some(rect.size()),
+                source: None,
+                rotation: 0.0,
+                flip_x: false,
+                flip_y: false,
+                pivot: None,
+            });
+            return rect.contains(Vec2::from(mouse_position())) && is_mouse_button_pressed(MouseButton::Left);
         };
         match button {
             Button::Clean => is_texture_clicked(0.419, 0.25, self.t.unwrap()),
