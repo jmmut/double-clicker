@@ -12,6 +12,7 @@ const DIRTY_COLOR: Color = PURPLE;
 const REWARDING_ZONE_COLOR: Color = Color::new(0.7, 0.8, 0.6, 0.9);
 const FONT_SIZE: f32 = 16.0;
 
+const BUY_BUTTON_START_HEIGHT: f32 = 0.3;
 const BUY_BUTTON_HEIGHT: f32 = 0.15;
 const BUY_BUTTON_WIDTH: f32 = 0.25;
 const TOOLTIP_WIDTH: f32 = 0.3;
@@ -87,6 +88,7 @@ impl TexturelessDrawer {
     }
 
     fn draw_buy_heroes(&self, world: &World, width: f32, height: f32) {
+        let start_height = 0.3;
         let button_width = width * BUY_BUTTON_WIDTH;
         let button_height = height * BUY_BUTTON_HEIGHT;
         for (i, hero) in Hero::list().iter().enumerate() {
@@ -94,7 +96,7 @@ impl TexturelessDrawer {
             let panel_color = if i % 2 == 0 { CLEAN_COLOR } else { DIRTY_COLOR };
             let panel_rect = Rect::new(
                 width * (0.05 + horizontal_offset),
-                height * (0.4 + vertical_offset),
+                height * (start_height + vertical_offset),
                 button_width,
                 button_height,
             );
@@ -104,7 +106,7 @@ impl TexturelessDrawer {
 
                 draw_rectangle(
                     width * (0.05 + BUY_BUTTON_WIDTH + 0.01 + horizontal_offset),
-                    height * (0.4 + vertical_offset),
+                    height * (start_height + vertical_offset),
                     width * TOOLTIP_WIDTH,
                     button_height,
                     panel_color,
@@ -113,19 +115,25 @@ impl TexturelessDrawer {
                 root_ui().label(
                     Vec2::new(
                         width * (0.05 + BUY_BUTTON_WIDTH + 0.01 + 0.01 + horizontal_offset),
-                        height * (0.4 + 0.01 + vertical_offset),
+                        height * (start_height + 0.01 + vertical_offset),
                     ),
                     &hero.short_description(),
                 );
                 let (production, kind) = if i % 2 == 0 {
-                    (hero.production_clean() * world.heroes_count[hero] as i64, "limpiezas")
+                    (
+                        hero.production_clean() * world.heroes_count[hero] as i64,
+                        "limpiezas",
+                    )
                 } else {
-                    (hero.production_dirty() * world.heroes_count[hero] as i64, "suciedades")
+                    (
+                        hero.production_dirty() * world.heroes_count[hero] as i64,
+                        "suciedades",
+                    )
                 };
                 root_ui().label(
                     Vec2::new(
                         width * (0.05 + BUY_BUTTON_WIDTH + 0.01 + 0.01 + horizontal_offset),
-                        height * (0.4 + 0.01 + vertical_offset) + FONT_SIZE * 1.2,
+                        height * (start_height + 0.01 + vertical_offset) + FONT_SIZE * 1.2,
                     ),
                     &format!("Produciendo {} {} por salario", production, kind),
                 );
@@ -147,21 +155,21 @@ impl TexturelessDrawer {
             );
             draw_line(
                 width * (0.05 + horizontal_offset),
-                height * (0.4 + vertical_offset) + FONT_SIZE * 1.2,
+                height * (start_height + vertical_offset) + FONT_SIZE * 1.2,
                 width * (0.05 + horizontal_offset) + button_width,
-                height * (0.4 + vertical_offset) + FONT_SIZE * 1.2,
+                height * (start_height + vertical_offset) + FONT_SIZE * 1.2,
                 1.0,
                 BLACK,
             );
             let text_pos_x = width * (0.06 + horizontal_offset);
             root_ui().label(
-                Vec2::new(text_pos_x, height * (0.4 + vertical_offset)),
+                Vec2::new(text_pos_x, height * (start_height + vertical_offset)),
                 &hero.name(),
             );
             root_ui().label(
                 Vec2::new(
                     text_pos_x,
-                    height * (0.4 + vertical_offset) + FONT_SIZE * 1.2,
+                    height * (start_height + vertical_offset) + FONT_SIZE * 1.2,
                 ),
                 &format!(
                     "Tienes: {}. Precio: {}",
@@ -199,6 +207,7 @@ impl DrawerTrait for TexturelessDrawer {
         let height = screen_height();
         self.draw_bar_and_money(world, width, height);
         self.draw_buy_heroes(world, width, height);
+        draw_text_bar(world, width, height);
     }
 
     fn button(&self, button: Button) -> bool {
@@ -215,12 +224,20 @@ impl DrawerTrait for TexturelessDrawer {
             Button::Buy(hero) => {
                 let (horizontal_offset, vertical_offset) =
                     TexturelessDrawer::get_buy_button_offset(hero.index());
-                is_button_clicked(0.10 + horizontal_offset, 0.5 + vertical_offset, "Comprar")
+                is_button_clicked(
+                    0.10 + horizontal_offset,
+                    BUY_BUTTON_START_HEIGHT + 0.1 + vertical_offset,
+                    "Comprar",
+                )
             }
             Button::Sell(hero) => {
                 let (horizontal_offset, vertical_offset) =
                     TexturelessDrawer::get_buy_button_offset(hero.index());
-                is_button_clicked(0.20 + horizontal_offset, 0.5 + vertical_offset, "Vender")
+                is_button_clicked(
+                    0.20 + horizontal_offset,
+                    BUY_BUTTON_START_HEIGHT + 0.1 + vertical_offset,
+                    "Vender",
+                )
             }
         }
     }
@@ -360,4 +377,15 @@ fn draw_dirtied(world: &World, width: f32, height: f32, overlapping: bool) {
         FONT_SIZE,
         BLACK,
     );
+}
+
+fn draw_text_bar(world: &World, width: f32, height: f32) {
+    draw_line(
+        width * 0.0,
+        height * 0.9,
+        width * 1.0,
+        height * 0.9,
+        2.0,
+        BLACK,
+    )
 }
