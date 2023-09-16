@@ -12,6 +12,8 @@ const DIRTY_COLOR: Color = PURPLE;
 const REWARDING_ZONE_COLOR: Color = Color::new(0.7, 0.8, 0.6, 0.9);
 const FONT_SIZE: f32 = 16.0;
 
+const BUY_BUTTON_HEIGHT: f32 = 0.15;
+
 pub struct TexturelessDrawer {
     frame: i64,
     previous_time: Seconds,
@@ -83,43 +85,56 @@ impl TexturelessDrawer {
     }
 
     fn draw_buy_heroes(&self, world: &World, width: f32, height: f32) {
-        let button_height = height * 0.15;
         let button_width = width * 0.25;
-        draw_rectangle(
-            width * 0.05,
-            height * 0.4,
-            button_width,
-            button_height,
-            CLEAN_COLOR,
-        );
-        draw_rectangle_lines(
-            width * 0.05,
-            height * 0.4,
-            button_width,
-            button_height,
-            2.0,
-            BLACK,
-        );
-        draw_line(
-            width * 0.05,
-            height * 0.4 + FONT_SIZE * 1.2,
-            width * 0.05 + button_width,
-            height * 0.4 + FONT_SIZE * 1.2,
-            1.0,
-            BLACK,
-        );
-        root_ui().label(
-            Vec2::new(width * 0.06, height * 0.4),
-            &format!("{}: Limpia 10 tareas", Hero::Hero1.name()),
-        );
-        root_ui().label(
-            Vec2::new(width * 0.06, height * 0.4 + FONT_SIZE * 1.2),
-            &format!(
-                "Tienes: {}. Precio: {}",
-                world.heroes_count[&Hero::Hero1],
-                HERO_PRICE
-            ),
-        )
+        let button_height = height * BUY_BUTTON_HEIGHT;
+        for (i, hero) in Hero::list().iter().enumerate() {
+            let (horizontal_offset, vertical_offset) = Self::get_buy_button_offset(i);
+            let panel_color = if i % 2 == 0 { CLEAN_COLOR } else { DIRTY_COLOR };
+            draw_rectangle(
+                width * (0.05 + horizontal_offset),
+                height * (0.4 + vertical_offset),
+                button_width,
+                button_height,
+                panel_color,
+            );
+            draw_rectangle_lines(
+                width * (0.05 + horizontal_offset),
+                height * (0.4 + vertical_offset),
+                button_width,
+                button_height,
+                2.0,
+                BLACK,
+            );
+            draw_line(
+                width * (0.05 + horizontal_offset),
+                height * (0.4 + vertical_offset) + FONT_SIZE * 1.2,
+                width * (0.05 + horizontal_offset) + button_width,
+                height * (0.4 + vertical_offset) + FONT_SIZE * 1.2,
+                1.0,
+                BLACK,
+            );
+            let text_pos_x = width * (0.06 + horizontal_offset);
+            root_ui().label(
+                Vec2::new(text_pos_x, height * (0.4 + vertical_offset)),
+                &hero.short_description(),
+            );
+            root_ui().label(
+                Vec2::new(
+                    text_pos_x,
+                    height * (0.4 + vertical_offset) + FONT_SIZE * 1.2,
+                ),
+                &format!(
+                    "Tienes: {}. Precio: {}",
+                    world.heroes_count[&hero], HERO_PRICE
+                ),
+            );
+        }
+    }
+
+    fn get_buy_button_offset(hero_index: usize) -> (f32, f32) {
+        let horizontal_offset = if hero_index % 2 == 0 { 0.0 } else { 0.65 };
+        let vertical_offset = (hero_index / 2) as f32 * (BUY_BUTTON_HEIGHT + 0.05);
+        (horizontal_offset, vertical_offset)
     }
 }
 
@@ -144,9 +159,16 @@ impl DrawerTrait for TexturelessDrawer {
             Button::Clean => is_button_clicked(0.4, 0.25, "Limpiar"),
             Button::Dirty => is_button_clicked(0.52, 0.25, "Ensuciar"),
             Button::Arrangement => is_button_clicked(0.45, 0.85, "Cambiar estilo"),
-            Button::Buy(Hero::Hero1) => is_button_clicked(0.10, 0.5, "Comprar"),
-            Button::Sell(Hero::Hero1) => is_button_clicked(0.20, 0.5, "Vender"),
-            _ => false,
+            Button::Buy(hero) => {
+                let (horizontal_offset, vertical_offset) =
+                    TexturelessDrawer::get_buy_button_offset(hero.index());
+                is_button_clicked(0.10 + horizontal_offset, 0.5 + vertical_offset, "Comprar")
+            }
+            Button::Sell(hero) => {
+                let (horizontal_offset, vertical_offset) =
+                    TexturelessDrawer::get_buy_button_offset(hero.index());
+                is_button_clicked(0.20 + horizontal_offset, 0.5 + vertical_offset, "Vender")
+            }
         }
     }
 

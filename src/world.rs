@@ -2,7 +2,7 @@ pub mod heores;
 
 use crate::external::backends::{now, Seconds};
 use crate::screen::GuiActions;
-use crate::world::heores::{Hero, HEROES_LIST};
+use crate::world::heores::Hero;
 use std::collections::HashMap;
 
 pub const MONEY_PERIOD: f64 = 5.0;
@@ -32,7 +32,7 @@ impl World {
             cleaned: 0,
             dirtied: 0,
             money: 0,
-            heroes_count: HashMap::from_iter(HEROES_LIST.iter().map(|h| (*h, 0))),
+            heroes_count: HashMap::from_iter(Hero::list().iter().map(|h| (*h, 0))),
         }
     }
 
@@ -61,7 +61,7 @@ impl World {
             for (hero, count) in &self.heroes_count {
                 match hero {
                     Hero::Hero1 => self.cleaned += 10 * *count as i64,
-                    Hero::Hero2 => {}
+                    Hero::Hero2 => self.dirtied += 12 * *count as i64,
                     Hero::Hero3 => {}
                     Hero::Hero4 => {}
                     Hero::Hero5 => {}
