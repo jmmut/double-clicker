@@ -11,8 +11,8 @@ use std::sync::{Arc, Mutex};
 use std::thread::sleep;
 use std::time::Duration;
 
-const DEFAULT_WINDOW_WIDTH: i32 = 800;
-const DEFAULT_WINDOW_HEIGHT: i32 = 450;
+const DEFAULT_WINDOW_WIDTH: i32 = 1200;
+const DEFAULT_WINDOW_HEIGHT: i32 = 675;
 const DEFAULT_WINDOW_TITLE: &str = "Double Clicker";
 const MAX_FPS: f64 = 80.0;
 const FRAME_PERIOD: f64 = 1.0 / MAX_FPS;

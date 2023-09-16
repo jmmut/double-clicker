@@ -110,10 +110,25 @@ impl TexturelessDrawer {
                     panel_color,
                 );
 
-            root_ui().label(
-                Vec2::new(width * (0.05 + BUY_BUTTON_WIDTH + 0.01 + horizontal_offset), height * (0.4 + vertical_offset)),
-                &hero.short_description(),
-            );
+                root_ui().label(
+                    Vec2::new(
+                        width * (0.05 + BUY_BUTTON_WIDTH + 0.01 + 0.01 + horizontal_offset),
+                        height * (0.4 + 0.01 + vertical_offset),
+                    ),
+                    &hero.short_description(),
+                );
+                let (production, kind) = if i % 2 == 0 {
+                    (hero.production_clean() * world.heroes_count[hero] as i64, "limpiezas")
+                } else {
+                    (hero.production_dirty() * world.heroes_count[hero] as i64, "suciedades")
+                };
+                root_ui().label(
+                    Vec2::new(
+                        width * (0.05 + BUY_BUTTON_WIDTH + 0.01 + 0.01 + horizontal_offset),
+                        height * (0.4 + 0.01 + vertical_offset) + FONT_SIZE * 1.2,
+                    ),
+                    &format!("Produciendo {} {} por salario", production, kind),
+                );
             }
             draw_rectangle(
                 panel_rect.x,
@@ -166,7 +181,11 @@ impl TexturelessDrawer {
     /// Returns coefficients [0, 1] that you have to multiply by screen_width and screen_height.
     fn get_tooltip_offset(hero_index: usize) -> (f32, f32) {
         let (horizontal_button_offset, vertical_offset) = Self::get_buy_button_offset(hero_index);
-        let horizontal_offset = if hero_index % 2 == 0 { 0.0 } else { horizontal_button_offset - BUY_BUTTON_WIDTH - TOOLTIP_WIDTH - 0.02};
+        let horizontal_offset = if hero_index % 2 == 0 {
+            0.0
+        } else {
+            horizontal_button_offset - BUY_BUTTON_WIDTH - TOOLTIP_WIDTH - 0.02
+        };
         (horizontal_offset, vertical_offset)
     }
 }

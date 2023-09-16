@@ -59,14 +59,8 @@ impl World {
             self.dirtied -= completed_cleaning;
             self.cleaned -= completed_cleaning;
             for (hero, count) in &self.heroes_count {
-                match hero {
-                    Hero::Hero1 => self.cleaned += 10 * *count as i64,
-                    Hero::Hero2 => self.dirtied += 12 * *count as i64,
-                    Hero::Hero3 => self.cleaned += 1000 * *count as i64,
-                    Hero::Hero4 => self.dirtied += 1100 * *count as i64,
-                    Hero::Hero5 => {}
-                    Hero::Hero6 => {}
-                }
+                self.cleaned += hero.production_clean() * *count as i64;
+                self.dirtied += hero.production_dirty() * *count as i64;
             }
         }
         for (hero, bought) in &gui_actions.heroes_bought {
