@@ -2,6 +2,7 @@ use crate::external::backends::{now, Seconds};
 use crate::screen::drawer_trait::{Button, DrawerTrait};
 use crate::world::heores::Hero;
 use crate::world::{should_receive_payment, World, HERO_PRICE, SALARY};
+use crate::GIT_VERSION;
 use macroquad::hash;
 use macroquad::prelude::*;
 use macroquad::ui::{root_ui, widgets};
@@ -208,6 +209,7 @@ impl DrawerTrait for TexturelessDrawer {
         self.draw_bar_and_money(world, width, height);
         self.draw_buy_heroes(world, width, height);
         draw_text_bar(world, width, height);
+        draw_version(width, height);
     }
 
     fn button(&self, button: Button) -> bool {
@@ -390,5 +392,18 @@ fn draw_text_bar(world: &World, width: f32, height: f32) {
     );
     let text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
     let dimensions = measure_text(text, None, FONT_SIZE as u16, 1.0);
-    root_ui().label(Vec2::new(width * 0.5 - (dimensions.width*0.5).round(), height * (0.9 + 0.01)), text);
+    root_ui().label(
+        Vec2::new(
+            width * 0.5 - (dimensions.width * 0.5).round(),
+            height * (0.9 + 0.01),
+        ),
+        text,
+    );
+}
+
+fn draw_version(width: f32, height: f32) {
+    root_ui().label(
+        Vec2::new(0.0, height - FONT_SIZE),
+        &format!("v{}", GIT_VERSION),
+    );
 }
