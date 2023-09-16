@@ -210,7 +210,8 @@ impl DrawerTrait for TexturelessDrawer {
         match button {
             Button::Clean => is_button_clicked(0.4, 0.25, "Limpiar"),
             Button::Dirty => is_button_clicked(0.52, 0.25, "Ensuciar"),
-            Button::Arrangement => is_button_clicked(0.0, 0.0, "Cambiar estilo"),
+            Button::Arrangement => root_ui().button(None, "Cambiar estilo"),
+            Button::Restart => root_ui().button(None, "Reiniciar"),
             Button::Buy(hero) => {
                 let (horizontal_offset, vertical_offset) =
                     TexturelessDrawer::get_buy_button_offset(hero.index());

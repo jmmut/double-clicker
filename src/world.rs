@@ -76,6 +76,9 @@ impl World {
                 self.money += hero.price();
             }
         }
+        if gui_actions.restart {
+            *self = Self::new();
+        }
         gui_actions.should_continue()
     }
 

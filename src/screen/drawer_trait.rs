@@ -6,6 +6,7 @@ pub enum Button {
     Clean,
     Dirty,
     Arrangement,
+    Restart,
     Buy(Hero),
     Sell(Hero),
 }

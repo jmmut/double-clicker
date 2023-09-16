@@ -64,6 +64,7 @@ impl DrawerTrait for TextDrawer {
             Button::Clean => root_ui().button(None, "Limpiar"),
             Button::Dirty => root_ui().button(None, "Ensuciar"),
             Button::Arrangement => false,
+            Button::Restart => root_ui().button(None, "Reiniciar"),
             Button::Buy(_) => false,
             Button::Sell(_) => false,
         }
