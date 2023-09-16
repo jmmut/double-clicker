@@ -387,5 +387,8 @@ fn draw_text_bar(world: &World, width: f32, height: f32) {
         height * 0.9,
         2.0,
         BLACK,
-    )
+    );
+    let text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
+    let dimensions = measure_text(text, None, FONT_SIZE as u16, 1.0);
+    root_ui().label(Vec2::new(width * 0.5 - (dimensions.width*0.5).round(), height * (0.9 + 0.01)), text);
 }
