@@ -13,6 +13,8 @@ const REWARDING_ZONE_COLOR: Color = Color::new(0.7, 0.8, 0.6, 0.9);
 const FONT_SIZE: f32 = 16.0;
 
 const BUY_BUTTON_HEIGHT: f32 = 0.15;
+const BUY_BUTTON_WIDTH: f32 = 0.25;
+const TOOLTIP_WIDTH: f32 = 0.3;
 
 pub struct TexturelessDrawer {
     frame: i64,
@@ -85,23 +87,46 @@ impl TexturelessDrawer {
     }
 
     fn draw_buy_heroes(&self, world: &World, width: f32, height: f32) {
-        let button_width = width * 0.25;
+        let button_width = width * BUY_BUTTON_WIDTH;
         let button_height = height * BUY_BUTTON_HEIGHT;
         for (i, hero) in Hero::list().iter().enumerate() {
             let (horizontal_offset, vertical_offset) = Self::get_buy_button_offset(i);
             let panel_color = if i % 2 == 0 { CLEAN_COLOR } else { DIRTY_COLOR };
-            draw_rectangle(
+            let panel_rect = Rect::new(
                 width * (0.05 + horizontal_offset),
                 height * (0.4 + vertical_offset),
                 button_width,
                 button_height,
+            );
+            let (mouse_x, mouse_y) = mouse_position();
+            if panel_rect.contains(Vec2::new(mouse_x, mouse_y)) {
+                let (horizontal_offset, vertical_offset) = Self::get_tooltip_offset(i);
+
+                draw_rectangle(
+                    width * (0.05 + BUY_BUTTON_WIDTH + 0.01 + horizontal_offset),
+                    height * (0.4 + vertical_offset),
+                    width * TOOLTIP_WIDTH,
+                    button_height,
+                    panel_color,
+                );
+
+            root_ui().label(
+                Vec2::new(width * (0.05 + BUY_BUTTON_WIDTH + 0.01 + horizontal_offset), height * (0.4 + vertical_offset)),
+                &hero.short_description(),
+            );
+            }
+            draw_rectangle(
+                panel_rect.x,
+                panel_rect.y,
+                panel_rect.w,
+                panel_rect.h,
                 panel_color,
             );
             draw_rectangle_lines(
-                width * (0.05 + horizontal_offset),
-                height * (0.4 + vertical_offset),
-                button_width,
-                button_height,
+                panel_rect.x,
+                panel_rect.y,
+                panel_rect.w,
+                panel_rect.h,
                 2.0,
                 BLACK,
             );
@@ -116,7 +141,7 @@ impl TexturelessDrawer {
             let text_pos_x = width * (0.06 + horizontal_offset);
             root_ui().label(
                 Vec2::new(text_pos_x, height * (0.4 + vertical_offset)),
-                &hero.short_description(),
+                &hero.name(),
             );
             root_ui().label(
                 Vec2::new(
@@ -131,9 +156,17 @@ impl TexturelessDrawer {
         }
     }
 
+    /// Returns coefficients [0, 1] that you have to multiply by screen_width and screen_height.
     fn get_buy_button_offset(hero_index: usize) -> (f32, f32) {
         let horizontal_offset = if hero_index % 2 == 0 { 0.0 } else { 0.65 };
         let vertical_offset = (hero_index / 2) as f32 * (BUY_BUTTON_HEIGHT + 0.05);
+        (horizontal_offset, vertical_offset)
+    }
+
+    /// Returns coefficients [0, 1] that you have to multiply by screen_width and screen_height.
+    fn get_tooltip_offset(hero_index: usize) -> (f32, f32) {
+        let (horizontal_button_offset, vertical_offset) = Self::get_buy_button_offset(hero_index);
+        let horizontal_offset = if hero_index % 2 == 0 { 0.0 } else { horizontal_button_offset - BUY_BUTTON_WIDTH - TOOLTIP_WIDTH - 0.02};
         (horizontal_offset, vertical_offset)
     }
 }
@@ -158,7 +191,7 @@ impl DrawerTrait for TexturelessDrawer {
         match button {
             Button::Clean => is_button_clicked(0.4, 0.25, "Limpiar"),
             Button::Dirty => is_button_clicked(0.52, 0.25, "Ensuciar"),
-            Button::Arrangement => is_button_clicked(0.45, 0.85, "Cambiar estilo"),
+            Button::Arrangement => is_button_clicked(0.0, 0.0, "Cambiar estilo"),
             Button::Buy(hero) => {
                 let (horizontal_offset, vertical_offset) =
                     TexturelessDrawer::get_buy_button_offset(hero.index());

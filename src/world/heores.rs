@@ -43,12 +43,12 @@ impl Hero {
     }
     pub fn short_description(&self) -> &'static str {
         match self {
-            Hero::Hero1 => "Heroe 1: Hace 10 tareas de limpieza por cada salario",
-            Hero::Hero2 => "Heroe 2: Hace 12 tareas de ensuciar por cada salario",
-            Hero::Hero3 => "Heroe 3: Hace 1000 tareas de limpieza por cada salario",
-            Hero::Hero4 => "Heroe 4: Hace 1100 tareas de ensuciar por cada salario",
-            Hero::Hero5 => "Heroe 5: ???",
-            Hero::Hero6 => "Heroe 6: ???",
+            Hero::Hero1 => "Hace 10 tareas de limpieza por cada salario",
+            Hero::Hero2 => "Hace 12 tareas de ensuciar por cada salario",
+            Hero::Hero3 => "Hace 1000 tareas de limpieza por cada salario",
+            Hero::Hero4 => "Hace 1100 tareas de ensuciar por cada salario",
+            Hero::Hero5 => "???",
+            Hero::Hero6 => "???",
         }
     }
 
