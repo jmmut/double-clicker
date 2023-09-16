@@ -105,12 +105,11 @@ impl TextureDrawer {
             if panel_rect.contains(Vec2::new(mouse_x, mouse_y)) {
                 let (horizontal_offset, vertical_offset) = Self::get_tooltip_offset(i);
 
-                draw_rectangle(
+                root_ui().window(hash!(i), Vec2::new(
                     width * (0.05 + BUY_BUTTON_WIDTH + 0.01 + horizontal_offset),
-                    height * (start_height + vertical_offset),
+                    height * (start_height + vertical_offset)), Vec2::new(
                     width * TOOLTIP_WIDTH,
-                    button_height,
-                    panel_color,
+                    button_height), |ui| {}
                 );
 
                 root_ui().label(
@@ -354,6 +353,34 @@ fn draw_savings(world: &World, width: f32, height: f32, overlapping: bool) {
     let money_text = format!("Ahorros: {} €", world.money);
     let money_size = measure_text(&money_text, None, font_size as u16, 1.0);
     // root_ui().label(Some(Vec2::new(width * 0.5 - money_size.width * 0.5, height * 0.1 - money_size.height)), &money_text);
+    draw_text(
+        &money_text,
+        width * 0.5 - (money_size.width * 0.5).round() + 1.0,
+        (height * (0.15 + vertical_offset)).round() + 1.0,
+        font_size,
+        WHITE,
+    );
+    draw_text(
+        &money_text,
+        width * 0.5 - (money_size.width * 0.5).round() + 1.0,
+        (height * (0.15 + vertical_offset)).round() - 1.0,
+        font_size,
+        WHITE,
+    );
+    draw_text(
+        &money_text,
+        width * 0.5 - (money_size.width * 0.5).round() - 1.0,
+        (height * (0.15 + vertical_offset)).round() + 1.0,
+        font_size,
+        WHITE,
+    );
+    draw_text(
+        &money_text,
+        width * 0.5 - (money_size.width * 0.5).round() - 1.0,
+        (height * (0.15 + vertical_offset)).round() - 1.0,
+        font_size,
+        WHITE,
+    );
     draw_text(
         &money_text,
         width * 0.5 - (money_size.width * 0.5).round(),
