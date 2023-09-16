@@ -1,6 +1,7 @@
 pub mod drawer_trait;
 mod gui_actions;
-pub(crate) mod input_source_trait;
+pub mod input_source_trait;
+pub mod textures;
 
 use crate::screen::drawer_trait::DrawerTrait;
 pub use crate::screen::gui_actions::GuiActions;

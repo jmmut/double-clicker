@@ -1,5 +1,6 @@
 use double_clicker::external::backends::{factory, now, Seconds};
 use double_clicker::frame;
+use double_clicker::screen::textures::load_textures;
 use double_clicker::screen::Screen;
 use double_clicker::world::World;
 use macroquad::prelude::coroutines::{start_coroutine, wait_seconds, TimerDelayFuture};
@@ -50,14 +51,12 @@ fn window_conf() -> Conf {
     }
 }
 
-async fn save_texture(assets: Arc<Mutex<Option<Texture2D>>>) {
-    trace!("before loading");
-    let texture = load_texture("assets/images/buttons/buttonBLU-256-yes.png").await.unwrap();
-    trace!("after loading");
+async fn save_texture(assets: Arc<Mutex<Option<Vec<Texture2D>>>>) {
+    let textures = load_textures().await;
     // info!("before sleeping");
     // wait_seconds(4.0).await;
     // info!("after sleeping");
-    *assets.as_ref().lock().unwrap() = Some(texture);
+    *assets.as_ref().lock().unwrap() = Some(textures);
 }
 
 async fn load() -> (Screen, World) {
@@ -74,8 +73,7 @@ async fn load() -> (Screen, World) {
             next_frame().await;
         }
         info!("loading took {} frames", frames);
-        let x = factory(assets.as_ref().lock().unwrap().unwrap());
-        return x;
+        return factory(assets.as_ref().lock().unwrap().clone().unwrap());
     }
 
     #[cfg(target_family = "wasm")]
@@ -84,7 +82,7 @@ async fn load() -> (Screen, World) {
         root_ui().label(None, "Loading...");
         next_frame().await;
         trace!("before loading");
-        let t = load_texture("assets/images/ferris.png").await.unwrap();
+        let t = load_textures();
         trace!("after loading");
         // trace!("before sleeping");
         // wait_seconds(4.0).await;

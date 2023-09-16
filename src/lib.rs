@@ -8,8 +8,8 @@ pub mod external {
     pub mod backends;
     pub mod basic_input;
     pub mod text_drawer;
-    pub mod textureless_drawer;
     pub mod texture_drawer;
+    pub mod textureless_drawer;
 }
 
 pub const GIT_VERSION: &str = git_version!(args = ["--tags"]);

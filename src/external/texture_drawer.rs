@@ -1,5 +1,6 @@
 use crate::external::backends::{now, Seconds};
 use crate::screen::drawer_trait::{Button, DrawerTrait};
+use crate::screen::textures::Texture;
 use crate::world::heores::Hero;
 use crate::world::{should_receive_payment, World, HERO_PRICE, SALARY};
 use crate::GIT_VERSION;
@@ -21,7 +22,7 @@ const TOOLTIP_WIDTH: f32 = 0.3;
 pub struct TextureDrawer {
     frame: i64,
     previous_time: Seconds,
-    t: Option<Texture2D>,
+    textures: Vec<Texture2D>,
     arrangement_index: usize,
 }
 
@@ -40,19 +41,11 @@ const AVAILABLE_ARRANGEMENTS: [Arrangement; 4] = [
 ];
 
 impl TextureDrawer {
-    pub fn new() -> Self {
+    pub fn new(textures: Vec<Texture2D>) -> Self {
         Self {
             frame: 0,
             previous_time: now(),
-            t: None,
-            arrangement_index: 0,
-        }
-    }
-    pub fn new_with_texture(t: Texture2D) -> Self {
-        Self {
-            frame: 0,
-            previous_time: now(),
-            t: Some(t),
+            textures,
             arrangement_index: 0,
         }
     }
@@ -214,24 +207,42 @@ impl DrawerTrait for TextureDrawer {
     fn button(&self, button: Button) -> bool {
         let width = screen_width();
         let height = screen_height();
-        let is_button_clicked = |x_coef: f32, y_coef: f32, label :&str| -> bool {
+        let is_button_clicked = |x_coef: f32, y_coef: f32, label: &str| -> bool {
             return root_ui().button(Some(Vec2::new(width * x_coef, height * y_coef)), label);
         };
         let is_texture_clicked = |x_coef: f32, y_coef: f32, texture| -> bool {
             let rect = Rect::new(width * x_coef, height * y_coef, width * 0.08, width * 0.08);
-            draw_texture_ex(texture, rect.x, rect.y, WHITE, DrawTextureParams {
-                dest_size: Some(rect.size()),
-                source: None,
-                rotation: 0.0,
-                flip_x: false,
-                flip_y: false,
-                pivot: None,
-            });
-            return rect.contains(Vec2::from(mouse_position())) && is_mouse_button_pressed(MouseButton::Left);
+            draw_texture_ex(
+                texture,
+                rect.x,
+                rect.y,
+                WHITE,
+                DrawTextureParams {
+                    dest_size: Some(rect.size()),
+                    source: None,
+                    rotation: 0.0,
+                    flip_x: false,
+                    flip_y: false,
+                    pivot: None,
+                },
+            );
+            return rect.contains(Vec2::from(mouse_position()))
+                && is_mouse_button_pressed(MouseButton::Left);
         };
         match button {
-            Button::Clean => is_texture_clicked(0.419, 0.25, self.t.unwrap()),
-            Button::Dirty => is_texture_clicked(0.501, 0.25, self.t.unwrap()),
+            Button::Clean => is_texture_clicked(
+                0.419,
+                0.25,
+                self.textures[Texture::CleanBackground as usize],
+            ),
+            Button::Dirty => {
+                is_texture_clicked(
+                    0.501,
+                    0.25,
+                    self.textures[Texture::CleanBackground as usize],
+                );
+                is_texture_clicked(0.501, 0.25, self.textures[Texture::DirtyFgFish as usize])
+            }
             Button::Arrangement => root_ui().button(None, "Cambiar estilo"),
             Button::Restart => root_ui().button(None, "Reiniciar"),
             Button::Buy(hero) => {
