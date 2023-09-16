@@ -52,7 +52,7 @@ fn window_conf() -> Conf {
 
 async fn save_texture(assets: Arc<Mutex<Option<Texture2D>>>) {
     trace!("before loading");
-    let texture = load_texture("assets/images/ferris.png").await.unwrap();
+    let texture = load_texture("assets/images/buttons/buttonBLU-256-yes.png").await.unwrap();
     trace!("after loading");
     // info!("before sleeping");
     // wait_seconds(4.0).await;

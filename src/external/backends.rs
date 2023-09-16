@@ -6,11 +6,13 @@ use macroquad::prelude::Texture2D;
 
 use crate::external::textureless_drawer::TexturelessDrawer;
 pub use macroquad::prelude::Vec2;
+use crate::external::texture_drawer::TextureDrawer;
 
 pub fn factory(t: Texture2D) -> (Screen, World) {
     (
         Screen {
-            drawer: Box::new(TexturelessDrawer::new_with_texture(t)),
+            drawer: Box::new(TextureDrawer::new_with_texture(t)),
+            // drawer: Box::new(TexturelessDrawer::new_with_texture(t)),
             // drawer: Box::new(TextDrawer::new()),
             input_source: Box::new(BasicInput),
         },
