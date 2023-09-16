@@ -62,8 +62,8 @@ impl World {
                 match hero {
                     Hero::Hero1 => self.cleaned += 10 * *count as i64,
                     Hero::Hero2 => self.dirtied += 12 * *count as i64,
-                    Hero::Hero3 => {}
-                    Hero::Hero4 => {}
+                    Hero::Hero3 => self.cleaned += 1000 * *count as i64,
+                    Hero::Hero4 => self.dirtied += 1100 * *count as i64,
                     Hero::Hero5 => {}
                     Hero::Hero6 => {}
                 }
@@ -72,14 +72,14 @@ impl World {
         for (hero, bought) in &gui_actions.heroes_bought {
             if *bought && self.money >= HERO_PRICE {
                 *self.heroes_count.get_mut(&hero).unwrap() += 1;
-                self.money -= HERO_PRICE;
+                self.money -= hero.price();
             }
         }
         for (hero, sold) in &gui_actions.heroes_sold {
             let count = self.heroes_count.get_mut(&hero).unwrap();
             if *count > 0 && *sold {
                 *count -= 1;
-                self.money += HERO_PRICE;
+                self.money += hero.price();
             }
         }
         gui_actions.should_continue()

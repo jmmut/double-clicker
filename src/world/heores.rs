@@ -45,10 +45,8 @@ impl Hero {
         match self {
             Hero::Hero1 => "Heroe 1: Hace 10 tareas de limpieza por cada salario",
             Hero::Hero2 => "Heroe 2: Hace 12 tareas de ensuciar por cada salario",
-            // Hero::Hero3 => "Heroe 3: Hace 500 tareas de limpieza, 1 vez",
-            Hero::Hero3 => "Heroe 3: ???",
-            // Hero::Hero4 => "Heroe 4: Hace 550 tareas de ensuciar, 1 vez",
-            Hero::Hero4 => "Heroe 4: ???",
+            Hero::Hero3 => "Heroe 3: Hace 1000 tareas de limpieza por cada salario",
+            Hero::Hero4 => "Heroe 4: Hace 1100 tareas de ensuciar por cada salario",
             Hero::Hero5 => "Heroe 5: ???",
             Hero::Hero6 => "Heroe 6: ???",
         }
