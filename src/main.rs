@@ -1,7 +1,7 @@
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
-use macroquad::prelude::coroutines::start_coroutine;
+use macroquad::prelude::coroutines::{start_coroutine, wait_seconds};
 use macroquad::prelude::*;
 use macroquad::ui::root_ui;
 
@@ -65,10 +65,10 @@ async fn load() -> (Screen, World) {
         start_coroutine(save_texture(assets.clone()));
         let mut frames = 0;
         while assets.as_ref().lock().unwrap().is_none() {
-            // info!("frame of loading screen");
             frames += 1;
             clear_background(LIGHTGRAY);
             root_ui().label(None, "Loading...");
+            trace!("painted frame of loading screen");
             next_frame().await;
         }
         info!("loading took {} frames", frames);
@@ -81,7 +81,7 @@ async fn load() -> (Screen, World) {
         root_ui().label(None, "Loading...");
         next_frame().await;
         trace!("before loading");
-        let t = load_textures();
+        let t = load_textures().await;
         trace!("after loading");
         // trace!("before sleeping");
         // wait_seconds(4.0).await;

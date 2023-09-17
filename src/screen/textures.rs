@@ -16,7 +16,7 @@ pub async fn load_textures() -> Vec<Texture2D> {
         "assets/images/buttons/buttonBLU-1.png",
         "assets/images/buttons/buttonPUR-1.png",
     ] {
-        let mut t = load_texture(path).await.unwrap();
+        let t = load_texture(path).await.unwrap();
         t.set_filter(FilterMode::Nearest);
         textures.push(t);
     }

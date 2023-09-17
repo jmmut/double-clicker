@@ -21,7 +21,6 @@ const TOOLTIP_WIDTH: f32 = 0.3;
 pub struct TexturelessDrawer {
     frame: i64,
     previous_time: Seconds,
-    t: Option<Texture2D>,
     arrangement_index: usize,
 }
 
@@ -44,15 +43,6 @@ impl TexturelessDrawer {
         Self {
             frame: 0,
             previous_time: now(),
-            t: None,
-            arrangement_index: 0,
-        }
-    }
-    pub fn new_with_texture(t: Texture2D) -> Self {
-        Self {
-            frame: 0,
-            previous_time: now(),
-            t: Some(t),
             arrangement_index: 0,
         }
     }
@@ -381,7 +371,7 @@ fn draw_dirtied(world: &World, width: f32, height: f32, overlapping: bool) {
     );
 }
 
-fn draw_text_bar(world: &World, width: f32, height: f32) {
+fn draw_text_bar(_world: &World, width: f32, height: f32) {
     draw_line(
         width * 0.0,
         height * 0.9,
@@ -401,7 +391,7 @@ fn draw_text_bar(world: &World, width: f32, height: f32) {
     );
 }
 
-fn draw_version(width: f32, height: f32) {
+fn draw_version(_width: f32, height: f32) {
     root_ui().label(
         Vec2::new(0.0, height - FONT_SIZE),
         &format!("v{}", GIT_VERSION),

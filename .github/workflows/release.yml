@@ -58,6 +58,7 @@ jobs:
           cp -r export_html/* ${PROJECT_NAME}_html/
           cp -r assets/ ${PROJECT_NAME}_html/
           cp -r target/wasm32-unknown-unknown/release/*.wasm ${PROJECT_NAME}_html/
+          # for running manually a local web server: $ basic-http-server double-clicker_html/
           zip -FS -r wasm.zip ${PROJECT_NAME}_html/*
           sha512sum wasm.zip
 

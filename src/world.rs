@@ -127,6 +127,7 @@ pub fn should_receive_payment(
     }
 }
 
+#[allow(unused)]
 fn monotonically_decrease(x: i64) -> i64 {
     let decreased = x - (x * 10 + 100) / 100;
     decreased.max(0)
