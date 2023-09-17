@@ -2,9 +2,11 @@ use macroquad::prelude::{load_texture, trace, FilterMode, Texture2D};
 
 pub enum Texture {
     CleanBackground = 0,
-    DirtyBackground = 1,
-    CleanFgBroom = 2,
-    DirtyFgFish = 3,
+    CleanBackgroundOff = 1,
+    DirtyBackground = 2,
+    DirtyBackgroundOff = 3,
+    CleanFgBroom = 4,
+    DirtyFgFish = 5,
 }
 
 pub async fn load_textures() -> Vec<Texture2D> {
@@ -12,7 +14,9 @@ pub async fn load_textures() -> Vec<Texture2D> {
     let mut textures = Vec::new();
     for path in [
         "assets/images/buttons/buttonBLU-256-yes.png",
+        "assets/images/buttons/buttonBLU-256-no.png",
         "assets/images/buttons/buttonPUR-256-yes.png",
+        "assets/images/buttons/buttonPUR-256-no.png",
         "assets/images/buttons/buttonBLU-1.png",
         "assets/images/buttons/buttonPUR-1.png",
     ] {
