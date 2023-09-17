@@ -1,3 +1,5 @@
+mod draw;
+
 use macroquad::prelude::*;
 use macroquad::ui::root_ui;
 
@@ -49,7 +51,81 @@ impl TextureDrawer {
             arrangement_index: 0,
         }
     }
+}
 
+impl DrawerTrait for TextureDrawer {
+    fn draw(&mut self, world: &World) {
+        self.frame += 1;
+        // self.debug_fps(world);
+        let width = screen_width();
+        let height = screen_height();
+        self.draw_bar_and_money(world, width, height);
+        self.draw_buy_heroes(world, width, height);
+        draw_text_bar(world, width, height);
+        draw_version(width, height);
+    }
+
+    fn button(&self, button: Button) -> bool {
+        let width = screen_width();
+        let height = screen_height();
+        let is_button_clicked = |x_coef: f32, y_coef: f32, label: &str| -> bool {
+            return root_ui().button(Some(Vec2::new(width * x_coef, height * y_coef)), label);
+        };
+        let is_texture_clicked = |rect, texture: Texture, texture_pressed: Option<Texture>| {
+            draw::is_texture_clicked(
+                rect,
+                self.textures[texture as usize],
+                texture_pressed.map(|t| self.textures[t as usize]),
+            )
+        };
+        use Texture::*;
+        match button {
+            Button::Clean => {
+                let size = (width * 0.1).min(height * 0.2);
+                let rect = Rect::new(width * (0.5 - 0.001) - size, height * 0.25, size, size);
+                is_texture_clicked(rect, CleanBackground, Some(CleanBackgroundOff));
+                is_texture_clicked(rect, CleanFgBroom, None)
+            }
+            Button::Dirty => {
+                let size = (width * 0.1).min(height * 0.2);
+                let rect = Rect::new(width * (0.5 + 0.001), height * 0.25, size, size);
+                is_texture_clicked(rect, DirtyBackground, Some(DirtyBackgroundOff));
+                is_texture_clicked(rect, DirtyFgFish, None)
+            }
+            Button::Arrangement => root_ui().button(None, "Cambiar estilo"),
+            Button::Restart => root_ui().button(None, "Reiniciar"),
+            Button::Buy(hero) => {
+                let (horizontal_offset, vertical_offset) =
+                    TextureDrawer::get_buy_button_offset(hero.index());
+                is_button_clicked(
+                    0.10 + horizontal_offset,
+                    BUY_BUTTON_START_HEIGHT + 0.1 + vertical_offset,
+                    "Comprar",
+                )
+            }
+            Button::Sell(hero) => {
+                let (horizontal_offset, vertical_offset) =
+                    TextureDrawer::get_buy_button_offset(hero.index());
+                is_button_clicked(
+                    0.20 + horizontal_offset,
+                    BUY_BUTTON_START_HEIGHT + 0.1 + vertical_offset,
+                    "Vender",
+                )
+            }
+        }
+    }
+
+    fn next_arrangement(&mut self) {
+        self.arrangement_index += 1;
+        self.arrangement_index %= AVAILABLE_ARRANGEMENTS.len();
+        info!(
+            "using arrangement {}: {:?}",
+            self.arrangement_index, AVAILABLE_ARRANGEMENTS[self.arrangement_index]
+        );
+    }
+}
+
+impl TextureDrawer {
     #[allow(unused)]
     fn debug_fps(&mut self, world: &World) {
         let new_time = now();
@@ -189,120 +265,6 @@ impl TextureDrawer {
             horizontal_button_offset - BUY_BUTTON_WIDTH - TOOLTIP_WIDTH - 0.02
         };
         (horizontal_offset, vertical_offset)
-    }
-}
-
-impl DrawerTrait for TextureDrawer {
-    fn draw(&mut self, world: &World) {
-        self.frame += 1;
-        // self.debug_fps(world);
-        let width = screen_width();
-        let height = screen_height();
-        self.draw_bar_and_money(world, width, height);
-        self.draw_buy_heroes(world, width, height);
-        draw_text_bar(world, width, height);
-        draw_version(width, height);
-    }
-
-    fn button(&self, button: Button) -> bool {
-        let width = screen_width();
-        let height = screen_height();
-        let is_button_clicked = |x_coef: f32, y_coef: f32, label: &str| -> bool {
-            return root_ui().button(Some(Vec2::new(width * x_coef, height * y_coef)), label);
-        };
-        let is_texture_clicked = |x_coef: f32,
-                                  y_coef: f32,
-                                  x_size_pixels: f32,
-                                  y_size_pixels: f32,
-                                  texture: Texture,
-                                  texture_pressed: Option<Texture>|
-         -> bool {
-            let rect = Rect::new(
-                width * x_coef,
-                height * y_coef,
-                x_size_pixels,
-                y_size_pixels,
-            );
-            let clicking = rect.contains(Vec2::from(mouse_position()))
-                && is_mouse_button_down(MouseButton::Left);
-            let mut chosen_texture = texture;
-            if clicking {
-                if let Some(tp) = texture_pressed {
-                    chosen_texture = tp
-                }
-            }
-            draw_texture_ex(
-                self.textures[chosen_texture as usize],
-                rect.x,
-                rect.y,
-                WHITE,
-                DrawTextureParams {
-                    dest_size: Some(rect.size()),
-                    source: None,
-                    rotation: 0.0,
-                    flip_x: false,
-                    flip_y: false,
-                    pivot: None,
-                },
-            );
-            return rect.contains(Vec2::from(mouse_position()))
-                && is_mouse_button_pressed(MouseButton::Left);
-        };
-        match button {
-            Button::Clean => {
-                let size = (width * 0.1).min(height * 0.2);
-                is_texture_clicked(
-                    0.5 - 0.001 - size / width,
-                    0.25,
-                    size,
-                    size,
-                    Texture::CleanBackground,
-                    Some(Texture::CleanBackgroundOff),
-                );
-                is_texture_clicked(0.4 - 0.001, 0.25, size, size, Texture::CleanFgBroom, None)
-            }
-            Button::Dirty => {
-                let size = (width * 0.1).min(height * 0.2);
-                is_texture_clicked(
-                    0.5 + 0.001,
-                    0.25,
-                    size,
-                    size,
-                    Texture::DirtyBackground,
-                    Some(Texture::DirtyBackgroundOff),
-                );
-                is_texture_clicked(0.5 + 0.001, 0.25, size, size, Texture::DirtyFgFish, None)
-            }
-            Button::Arrangement => root_ui().button(None, "Cambiar estilo"),
-            Button::Restart => root_ui().button(None, "Reiniciar"),
-            Button::Buy(hero) => {
-                let (horizontal_offset, vertical_offset) =
-                    TextureDrawer::get_buy_button_offset(hero.index());
-                is_button_clicked(
-                    0.10 + horizontal_offset,
-                    BUY_BUTTON_START_HEIGHT + 0.1 + vertical_offset,
-                    "Comprar",
-                )
-            }
-            Button::Sell(hero) => {
-                let (horizontal_offset, vertical_offset) =
-                    TextureDrawer::get_buy_button_offset(hero.index());
-                is_button_clicked(
-                    0.20 + horizontal_offset,
-                    BUY_BUTTON_START_HEIGHT + 0.1 + vertical_offset,
-                    "Vender",
-                )
-            }
-        }
-    }
-
-    fn next_arrangement(&mut self) {
-        self.arrangement_index += 1;
-        self.arrangement_index %= AVAILABLE_ARRANGEMENTS.len();
-        info!(
-            "using arrangement {}: {:?}",
-            self.arrangement_index, AVAILABLE_ARRANGEMENTS[self.arrangement_index]
-        );
     }
 }
 
