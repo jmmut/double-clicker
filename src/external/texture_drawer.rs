@@ -210,10 +210,10 @@ impl DrawerTrait for TextureDrawer {
         let is_button_clicked = |x_coef: f32, y_coef: f32, label: &str| -> bool {
             return root_ui().button(Some(Vec2::new(width * x_coef, height * y_coef)), label);
         };
-        let is_texture_clicked = |x_coef: f32, y_coef: f32, texture| -> bool {
+        let is_texture_clicked = |x_coef: f32, y_coef: f32, texture: Texture| -> bool {
             let rect = Rect::new(width * x_coef, height * y_coef, width * 0.08, width * 0.08);
             draw_texture_ex(
-                texture,
+                self.textures[texture as usize],
                 rect.x,
                 rect.y,
                 WHITE,
@@ -230,18 +230,13 @@ impl DrawerTrait for TextureDrawer {
                 && is_mouse_button_pressed(MouseButton::Left);
         };
         match button {
-            Button::Clean => is_texture_clicked(
-                0.419,
-                0.25,
-                self.textures[Texture::CleanBackground as usize],
-            ),
+            Button::Clean => {
+                is_texture_clicked(0.419, 0.25, Texture::CleanBackground);
+                is_texture_clicked(0.419, 0.25, Texture::CleanFgBroom)
+            }
             Button::Dirty => {
-                is_texture_clicked(
-                    0.501,
-                    0.25,
-                    self.textures[Texture::CleanBackground as usize],
-                );
-                is_texture_clicked(0.501, 0.25, self.textures[Texture::DirtyFgFish as usize])
+                is_texture_clicked(0.501, 0.25, Texture::DirtyBackground);
+                is_texture_clicked(0.501, 0.25, Texture::DirtyFgFish)
             }
             Button::Arrangement => root_ui().button(None, "Cambiar estilo"),
             Button::Restart => root_ui().button(None, "Reiniciar"),
