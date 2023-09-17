@@ -212,10 +212,17 @@ impl DrawerTrait for TextureDrawer {
         };
         let is_texture_clicked = |x_coef: f32,
                                   y_coef: f32,
+                                  x_size_pixels: f32,
+                                  y_size_pixels: f32,
                                   texture: Texture,
                                   texture_pressed: Option<Texture>|
          -> bool {
-            let rect = Rect::new(width * x_coef, height * y_coef, width * 0.08, width * 0.08);
+            let rect = Rect::new(
+                width * x_coef,
+                height * y_coef,
+                x_size_pixels,
+                y_size_pixels,
+            );
             let clicking = rect.contains(Vec2::from(mouse_position()))
                 && is_mouse_button_down(MouseButton::Left);
             let mut chosen_texture = texture;
@@ -243,22 +250,28 @@ impl DrawerTrait for TextureDrawer {
         };
         match button {
             Button::Clean => {
+                let size = (width * 0.1).min(height * 0.2);
                 is_texture_clicked(
-                    0.419,
+                    0.5 - 0.001 - size / width,
                     0.25,
+                    size,
+                    size,
                     Texture::CleanBackground,
                     Some(Texture::CleanBackgroundOff),
                 );
-                is_texture_clicked(0.419, 0.25, Texture::CleanFgBroom, None)
+                is_texture_clicked(0.4 - 0.001, 0.25, size, size, Texture::CleanFgBroom, None)
             }
             Button::Dirty => {
+                let size = (width * 0.1).min(height * 0.2);
                 is_texture_clicked(
-                    0.501,
+                    0.5 + 0.001,
                     0.25,
+                    size,
+                    size,
                     Texture::DirtyBackground,
                     Some(Texture::DirtyBackgroundOff),
                 );
-                is_texture_clicked(0.501, 0.25, Texture::DirtyFgFish, None)
+                is_texture_clicked(0.5 + 0.001, 0.25, size, size, Texture::DirtyFgFish, None)
             }
             Button::Arrangement => root_ui().button(None, "Cambiar estilo"),
             Button::Restart => root_ui().button(None, "Reiniciar"),
