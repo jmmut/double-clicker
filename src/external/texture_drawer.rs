@@ -388,7 +388,7 @@ fn draw_savings(world: &World, width: f32, height: f32, overlapping: bool) {
     let money_size = measure_text(&money_text, None, font_size as u16, 1.0);
     let text_rect = Rect::new(
         width * 0.5 - (money_size.width * 0.5).round(),
-        (height * (0.15 + vertical_offset)).round(),
+        (height * (0.16 + vertical_offset)).round(),
         money_size.width,
         money_size.height,
     );
@@ -468,7 +468,7 @@ fn draw_cleaned(world: &World, width: f32, height: f32, overlapping: bool) {
     let cleaned_str = format!("Tareas de limpieza: {}", world.cleaned);
     draw_text(
         &cleaned_str,
-        width * 0.15,
+        (width * 0.15).round(),
         (height * (0.12 + vertical_offset)).round(),
         FONT_SIZE,
         BLACK,
@@ -480,7 +480,7 @@ fn draw_dirtied(world: &World, width: f32, height: f32, overlapping: bool) {
     let dirtied_str = format!("Tareas de suciedad: {}", world.dirtied);
     draw_text(
         &dirtied_str,
-        width * 0.65,
+        (width * 0.65).round(),
         (height * (0.12 + vertical_offset)).round(),
         FONT_SIZE,
         BLACK,
