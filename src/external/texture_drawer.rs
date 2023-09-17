@@ -383,45 +383,84 @@ fn draw_salary(world: &World, width: f32, height: f32, overlapping: bool) {
 
 fn draw_savings(world: &World, width: f32, height: f32, overlapping: bool) {
     let vertical_offset = if overlapping { 0.0 } else { 0.05 };
-    let font_size = FONT_SIZE;
-    let money_text = format!("Ahorros: {} €", world.money);
+    let font_size = FONT_SIZE * 2.0;
+    let money_text = format!("{} €", world.money);
     let money_size = measure_text(&money_text, None, font_size as u16, 1.0);
-    // root_ui().label(Some(Vec2::new(width * 0.5 - money_size.width * 0.5, height * 0.1 - money_size.height)), &money_text);
-    draw_text(
-        &money_text,
-        width * 0.5 - (money_size.width * 0.5).round() + 1.0,
-        (height * (0.15 + vertical_offset)).round() + 1.0,
-        font_size,
-        WHITE,
-    );
-    draw_text(
-        &money_text,
-        width * 0.5 - (money_size.width * 0.5).round() + 1.0,
-        (height * (0.15 + vertical_offset)).round() - 1.0,
-        font_size,
-        WHITE,
-    );
-    draw_text(
-        &money_text,
-        width * 0.5 - (money_size.width * 0.5).round() - 1.0,
-        (height * (0.15 + vertical_offset)).round() + 1.0,
-        font_size,
-        WHITE,
-    );
-    draw_text(
-        &money_text,
-        width * 0.5 - (money_size.width * 0.5).round() - 1.0,
-        (height * (0.15 + vertical_offset)).round() - 1.0,
-        font_size,
-        WHITE,
-    );
-    draw_text(
-        &money_text,
+    let text_rect = Rect::new(
         width * 0.5 - (money_size.width * 0.5).round(),
         (height * (0.15 + vertical_offset)).round(),
-        font_size,
-        BLACK,
+        money_size.width,
+        money_size.height,
     );
+    // root_ui().label(Some(Vec2::new(width * 0.5 - money_size.width * 0.5, height * 0.1 - money_size.height)), &money_text);
+    // draw_text(
+    //     &money_text,
+    //     width * 0.5 - (money_size.width * 0.5).round() + 1.0,
+    //     (height * (0.15 + vertical_offset)).round() + 1.0,
+    //     font_size,
+    //     WHITE,
+    // );
+    // draw_text(
+    //     &money_text,
+    //     width * 0.5 - (money_size.width * 0.5).round() + 1.0,
+    //     (height * (0.15 + vertical_offset)).round() - 1.0,
+    //     font_size,
+    //     WHITE,
+    // );
+    // draw_text(
+    //     &money_text,
+    //     width * 0.5 - (money_size.width * 0.5).round() - 1.0,
+    //     (height * (0.15 + vertical_offset)).round() + 1.0,
+    //     font_size,
+    //     WHITE,
+    // );
+    // draw_text(
+    //     &money_text,
+    //     width * 0.5 - (money_size.width * 0.5).round() - 1.0,
+    //     (height * (0.15 + vertical_offset)).round() - 1.0,
+    //     font_size,
+    //     WHITE,
+    // );
+    draw_text(
+        &money_text,
+        text_rect.x - 1.0,
+        text_rect.y - 1.0,
+        font_size,
+        WHITE,
+    );
+    draw_text(
+        &money_text,
+        text_rect.x + 1.0,
+        text_rect.y + 1.0,
+        font_size,
+        WHITE,
+    );
+    draw_text(&money_text, text_rect.x, text_rect.y, font_size, BLACK);
+
+    let text_top_left = Rect {
+        y: text_rect.y - text_rect.h,
+        ..text_rect
+    };
+    let (mouse_x, mouse_y) = mouse_position();
+    if text_top_left.contains(Vec2::new(mouse_x, mouse_y)) {
+        let pad = FONT_SIZE * 0.5;
+        let tooltip_text = "Ahorros";
+        let tooltip_dimensions = measure_text(tooltip_text, None, FONT_SIZE as u16, 1.0);
+        draw_rectangle(
+            mouse_x,
+            mouse_y - tooltip_dimensions.height - pad * 2.0,
+            tooltip_dimensions.width + pad * 2.0,
+            tooltip_dimensions.height + pad * 2.0,
+            LIGHTGRAY,
+        );
+        draw_text(
+            tooltip_text,
+            (mouse_x + pad).round(),
+            (mouse_y - pad).round(),
+            FONT_SIZE,
+            BLACK,
+        );
+    }
 }
 
 fn draw_cleaned(world: &World, width: f32, height: f32, overlapping: bool) {
