@@ -1,16 +1,15 @@
+use std::sync::{Arc, Mutex};
+use std::time::Duration;
+
+use macroquad::prelude::coroutines::start_coroutine;
+use macroquad::prelude::*;
+use macroquad::ui::root_ui;
+
 use double_clicker::external::backends::{factory, now, Seconds};
 use double_clicker::frame;
 use double_clicker::screen::textures::load_textures;
 use double_clicker::screen::Screen;
 use double_clicker::world::World;
-use macroquad::prelude::coroutines::{start_coroutine, wait_seconds, TimerDelayFuture};
-use macroquad::prelude::*;
-use macroquad::ui::root_ui;
-use std::cell::RefCell;
-use std::rc::Rc;
-use std::sync::{Arc, Mutex};
-use std::thread::sleep;
-use std::time::Duration;
 
 const DEFAULT_WINDOW_WIDTH: i32 = 1200;
 const DEFAULT_WINDOW_HEIGHT: i32 = 675;

@@ -1,8 +1,9 @@
-use crate::external::backends::{now, Seconds};
-use crate::screen::drawer_trait::{Button, DrawerTrait};
-use crate::world::{should_receive_payment, World};
 use macroquad::prelude::*;
 use macroquad::ui::root_ui;
+
+use crate::external::backends::{now, Seconds};
+use crate::screen::drawer_trait::{Button, DrawerTrait};
+use crate::world::World;
 
 pub struct TextDrawer {
     frame: i64,

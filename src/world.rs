@@ -1,9 +1,10 @@
-pub mod heores;
+use std::collections::HashMap;
 
 use crate::external::backends::{now, Seconds};
 use crate::screen::GuiActions;
 use crate::world::heores::Hero;
-use std::collections::HashMap;
+
+pub mod heores;
 
 pub const MONEY_PERIOD: f64 = 5.0;
 pub const SALARY: i64 = 100;

@@ -1,12 +1,10 @@
+use macroquad::prelude::Texture2D;
+pub use macroquad::prelude::Vec2;
+
 use crate::external::basic_input::BasicInput;
-use crate::external::text_drawer::TextDrawer;
+use crate::external::texture_drawer::TextureDrawer;
 use crate::screen::Screen;
 use crate::world::World;
-use macroquad::prelude::Texture2D;
-
-use crate::external::texture_drawer::TextureDrawer;
-use crate::external::textureless_drawer::TexturelessDrawer;
-pub use macroquad::prelude::Vec2;
 
 pub fn factory(textures: Vec<Texture2D>) -> (Screen, World) {
     (

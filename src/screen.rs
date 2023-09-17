@@ -1,12 +1,12 @@
-pub mod drawer_trait;
-mod gui_actions;
-pub mod input_source_trait;
-pub mod textures;
-
 use crate::screen::drawer_trait::DrawerTrait;
 pub use crate::screen::gui_actions::GuiActions;
 use crate::screen::input_source_trait::InputSourceTrait;
 use crate::world::World;
+
+pub mod drawer_trait;
+mod gui_actions;
+pub mod input_source_trait;
+pub mod textures;
 
 pub struct Screen {
     pub drawer: Box<dyn DrawerTrait>,

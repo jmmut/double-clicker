@@ -1,6 +1,7 @@
+use std::collections::HashMap;
+
 use macroquad::input::is_key_pressed;
 use macroquad::prelude::{clear_background, KeyCode, LIGHTGRAY};
-use std::collections::HashMap;
 
 use crate::screen::drawer_trait::{Button, DrawerTrait};
 use crate::screen::input_source_trait::InputSourceTrait;

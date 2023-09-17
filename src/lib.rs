@@ -1,6 +1,7 @@
+use git_version::git_version;
+
 use crate::screen::Screen;
 use crate::world::World;
-use git_version::git_version;
 
 pub mod screen;
 pub mod world;
