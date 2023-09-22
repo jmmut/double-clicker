@@ -112,7 +112,7 @@ impl DrawerTrait for TextureDrawer {
                     TextureDrawer::get_buy_panel_offset(hero.index());
                 let texture_offset = self.get_buy_text_offset(hero.index(), width, height);
                 is_button_clicked(
-                    BUY_PANEL_HORIZONTAL_PAD + 0.08 + horizontal_offset+ texture_offset,
+                    BUY_PANEL_HORIZONTAL_PAD + 0.08 + horizontal_offset + texture_offset,
                     BUY_PANEL_START_HEIGHT + 0.1 + vertical_offset,
                     "Vender",
                 )
@@ -129,8 +129,6 @@ impl DrawerTrait for TextureDrawer {
         );
     }
 }
-
-
 
 impl TextureDrawer {
     #[allow(unused)]
@@ -191,7 +189,12 @@ impl TextureDrawer {
 
                 root_ui().label(
                     Vec2::new(
-                        width * (BUY_PANEL_HORIZONTAL_PAD + BUY_PANEL_WIDTH + 0.01 + 0.01 + horizontal_offset),
+                        width
+                            * (BUY_PANEL_HORIZONTAL_PAD
+                                + BUY_PANEL_WIDTH
+                                + 0.01
+                                + 0.01
+                                + horizontal_offset),
                         height * (start_height + 0.01 + vertical_offset),
                     ),
                     &hero.short_description(),
@@ -209,7 +212,12 @@ impl TextureDrawer {
                 };
                 root_ui().label(
                     Vec2::new(
-                        width * (BUY_PANEL_HORIZONTAL_PAD + BUY_PANEL_WIDTH + 0.01 + 0.01 + horizontal_offset),
+                        width
+                            * (BUY_PANEL_HORIZONTAL_PAD
+                                + BUY_PANEL_WIDTH
+                                + 0.01
+                                + 0.01
+                                + horizontal_offset),
                         height * (start_height + 0.01 + vertical_offset) + FONT_SIZE * 1.2,
                     ),
                     &format!("Produciendo {} {} por salario", production, kind),
@@ -238,11 +246,22 @@ impl TextureDrawer {
             //     1.0,
             //     BLACK,
             // );
-            let character_texture = self.textures[if i % 2 == 0 { Texture::Hero1 } else { Texture::Villain1 } as usize];
-            let texture_size = Vec2::new(panel_rect.h * character_texture.width() / character_texture.height(), panel_rect.h);
-            let text_pos_x = width * (BUY_PANEL_HORIZONTAL_PAD + 0.01 + horizontal_offset) + if i %2 == 0 {0.0} else {texture_size.x};
+            let character_texture = self.textures[if i % 2 == 0 {
+                Texture::Hero1
+            } else {
+                Texture::Villain1
+            } as usize];
+            let texture_size = Vec2::new(
+                panel_rect.h * character_texture.width() / character_texture.height(),
+                panel_rect.h,
+            );
+            let text_pos_x = width * (BUY_PANEL_HORIZONTAL_PAD + 0.01 + horizontal_offset)
+                + if i % 2 == 0 { 0.0 } else { texture_size.x };
             root_ui().label(
-                Vec2::new(text_pos_x, height * (start_height + vertical_offset)  + FONT_SIZE * 0.2),
+                Vec2::new(
+                    text_pos_x,
+                    height * (start_height + vertical_offset) + FONT_SIZE * 0.2,
+                ),
                 &hero.name(),
             );
             root_ui().label(
@@ -260,16 +279,8 @@ impl TextureDrawer {
             } else {
                 panel_rect.x
             };
-            let texture_rect = Rect::new(texture_x,
-                                         panel_rect.y,
-                                         texture_size.x,
-                                         texture_size.y);
-            draw::is_texture_clicked(
-                texture_rect,
-                character_texture,
-                None,
-            );
-
+            let texture_rect = Rect::new(texture_x, panel_rect.y, texture_size.x, texture_size.y);
+            draw::is_texture_clicked(texture_rect, character_texture, None);
         }
     }
 
@@ -284,7 +295,9 @@ impl TextureDrawer {
             0.0
         } else {
             let character_texture = self.textures[Texture::Villain1 as usize];
-            BUY_PANEL_HEIGHT * height * character_texture.width() / character_texture.height() / width
+            BUY_PANEL_HEIGHT * height * character_texture.width()
+                / character_texture.height()
+                / width
         };
         texture_offset
     }
@@ -496,7 +509,7 @@ fn draw_dirtied(world: &World, width: f32, height: f32, overlapping: bool) {
 }
 
 fn draw_text_bar(_world: &World, width: f32, height: f32) {
-    let bar_height = BUY_PANEL_START_HEIGHT + 3.0 * (BUY_PANEL_HEIGHT +BUY_PANEL_VERTICAL_PAD);
+    let bar_height = BUY_PANEL_START_HEIGHT + 3.0 * (BUY_PANEL_HEIGHT + BUY_PANEL_VERTICAL_PAD);
     draw_line(
         width * 0.0,
         height * bar_height,
