@@ -1,5 +1,6 @@
 use macroquad::prelude::{load_texture, trace, FilterMode, Texture2D};
 
+#[derive(Copy, Clone)]
 pub enum Texture {
     CleanBackground = 0,
     CleanBackgroundOff = 1,

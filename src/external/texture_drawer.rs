@@ -29,6 +29,8 @@ pub struct TextureDrawer {
     previous_time: Seconds,
     textures: Vec<Texture2D>,
     arrangement_index: usize,
+    clean_index: usize,
+    dirty_index: usize,
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -52,6 +54,8 @@ impl TextureDrawer {
             previous_time: now(),
             textures,
             arrangement_index: 0,
+            clean_index: 0,
+            dirty_index: 0,
         }
     }
 }
@@ -87,13 +91,13 @@ impl DrawerTrait for TextureDrawer {
                 let size = (width * 0.1).min(height * 0.2);
                 let rect = Rect::new(width * (0.5 - 0.001) - size, height * 0.25, size, size);
                 is_texture_clicked(rect, CleanBackground, Some(CleanBackgroundOff));
-                is_texture_clicked(rect, CleanFgBroom, None)
+                is_texture_clicked(rect, self.clean_texture(), None)
             }
             Button::Dirty => {
                 let size = (width * 0.1).min(height * 0.2);
                 let rect = Rect::new(width * (0.5 + 0.001), height * 0.25, size, size);
                 is_texture_clicked(rect, DirtyBackground, Some(DirtyBackgroundOff));
-                is_texture_clicked(rect, DirtyFgFish, None)
+                is_texture_clicked(rect, self.dirty_texture(), None)
             }
             Button::Arrangement => root_ui().button(None, "Cambiar estilo"),
             Button::Restart => root_ui().button(None, "Reiniciar"),
@@ -127,6 +131,14 @@ impl DrawerTrait for TextureDrawer {
             "using arrangement {}: {:?}",
             self.arrangement_index, AVAILABLE_ARRANGEMENTS[self.arrangement_index]
         );
+    }
+
+    fn next_clean(&mut self) {
+        self.clean_index = (self.clean_index + 1) % 3;
+    }
+
+    fn next_dirty(&mut self) {
+        self.dirty_index = (self.dirty_index + 1) % 3;
     }
 }
 
@@ -311,6 +323,15 @@ impl TextureDrawer {
             horizontal_button_offset - BUY_PANEL_WIDTH - TOOLTIP_WIDTH - 0.02
         };
         (horizontal_offset, vertical_offset)
+    }
+
+    fn clean_texture(&self) -> Texture {
+        use Texture::*;
+        [CleanFgBroom, CleanFgSpray, CleanFgSponge][self.clean_index]
+    }
+    fn dirty_texture(&self) -> Texture {
+        use Texture::*;
+        [DirtyFgFish, DirtyFgBanana, DirtyFgCigar][self.dirty_index]
     }
 }
 

@@ -17,4 +17,6 @@ pub trait DrawerTrait {
     fn button(&self, button: Button) -> bool;
 
     fn next_arrangement(&mut self) {}
+    fn next_clean(&mut self) {}
+    fn next_dirty(&mut self) {}
 }

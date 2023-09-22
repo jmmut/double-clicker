@@ -19,6 +19,12 @@ impl Screen {
         if gui_actions.next_arrangement {
             self.drawer.next_arrangement();
         }
+        if gui_actions.clean_pressed {
+            self.drawer.next_clean();
+        }
+        if gui_actions.dirty_pressed {
+            self.drawer.next_dirty();
+        }
         gui_actions
     }
 
