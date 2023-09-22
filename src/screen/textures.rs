@@ -5,10 +5,18 @@ pub enum Texture {
     CleanBackgroundOff = 1,
     DirtyBackground = 2,
     DirtyBackgroundOff = 3,
-    CleanFgBroom = 4,
-    DirtyFgFish = 5,
-    Hero1 = 6,
-    Villain1 = 7,
+    Hero1 = 4,
+    Villain1 = 5,
+    Hero2 = 6,
+    Villain2 = 7,
+    Hero3 = 8,
+    Villain3 = 9,
+    CleanFgBroom = 10,
+    CleanFgSpray = 11,
+    CleanFgSponge = 12,
+    DirtyFgFish = 13,
+    DirtyFgBanana = 14,
+    DirtyFgCigar = 15,
 }
 
 pub async fn load_textures() -> Vec<Texture2D> {
@@ -19,10 +27,18 @@ pub async fn load_textures() -> Vec<Texture2D> {
         "assets/images/buttons/buttonBLU-256-no.png",
         "assets/images/buttons/buttonPUR-256-yes.png",
         "assets/images/buttons/buttonPUR-256-no.png",
-        "assets/images/buttons/buttonBLU-1.png",
-        "assets/images/buttons/buttonPUR-1.png",
         "assets/images/characters/heroe1.png",
         "assets/images/characters/villano1.png",
+        "assets/images/characters/heroe1.png",
+        "assets/images/characters/villano1.png",
+        "assets/images/characters/heroe1.png",
+        "assets/images/characters/villano1.png",
+        "assets/images/buttons/buttonBLU256-1.png",
+        "assets/images/buttons/buttonBLU256-2.png",
+        "assets/images/buttons/buttonBLU256-3.png",
+        "assets/images/buttons/buttonPUR256-1.png",
+        "assets/images/buttons/buttonPUR256-2.png",
+        "assets/images/buttons/buttonPUR256-3.png",
     ] {
         let t = load_texture(path).await.unwrap();
         t.set_filter(FilterMode::Linear);
