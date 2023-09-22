@@ -33,12 +33,12 @@ impl Hero {
     }
     pub fn name(&self) -> &'static str {
         match self {
-            Hero::Hero1 => "Heroe 1",
-            Hero::Hero2 => "Heroe 2",
-            Hero::Hero3 => "Heroe 3",
-            Hero::Hero4 => "Heroe 4",
-            Hero::Hero5 => "Heroe 5",
-            Hero::Hero6 => "Heroe 6",
+            Hero::Hero1 => "Técnico Operario de Cepillo",
+            Hero::Hero2 => "Saboteador",
+            Hero::Hero3 => "Encerador de Calles",
+            Hero::Hero4 => "Maestro del Desorden",
+            Hero::Hero5 => "Bot Limpium 2000",
+            Hero::Hero6 => "Lord de la Mugre",
         }
     }
     pub fn short_description(&self) -> &'static str {

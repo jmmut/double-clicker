@@ -242,13 +242,13 @@ impl TextureDrawer {
             let texture_size = Vec2::new(panel_rect.h * character_texture.width() / character_texture.height(), panel_rect.h);
             let text_pos_x = width * (BUY_PANEL_HORIZONTAL_PAD + 0.01 + horizontal_offset) + if i %2 == 0 {0.0} else {texture_size.x};
             root_ui().label(
-                Vec2::new(text_pos_x, height * (start_height + vertical_offset)),
+                Vec2::new(text_pos_x, height * (start_height + vertical_offset)  + FONT_SIZE * 0.2),
                 &hero.name(),
             );
             root_ui().label(
                 Vec2::new(
                     text_pos_x,
-                    height * (start_height + vertical_offset) + FONT_SIZE * 1.2,
+                    height * (start_height + vertical_offset) + FONT_SIZE * 1.4,
                 ),
                 &format!(
                     "Tienes: {}. Precio: {}",
@@ -496,11 +496,12 @@ fn draw_dirtied(world: &World, width: f32, height: f32, overlapping: bool) {
 }
 
 fn draw_text_bar(_world: &World, width: f32, height: f32) {
+    let bar_height = BUY_PANEL_START_HEIGHT + 3.0 * (BUY_PANEL_HEIGHT +BUY_PANEL_VERTICAL_PAD);
     draw_line(
         width * 0.0,
-        height * 0.9,
+        height * bar_height,
         width * 1.0,
-        height * 0.9,
+        height * bar_height,
         2.0,
         BLACK,
     );
@@ -509,7 +510,7 @@ fn draw_text_bar(_world: &World, width: f32, height: f32) {
     root_ui().label(
         Vec2::new(
             width * 0.5 - (dimensions.width * 0.5).round(),
-            height * (0.9 + 0.01),
+            height * (bar_height + 0.01),
         ),
         text,
     );
