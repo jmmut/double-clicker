@@ -16,9 +16,12 @@ const DIRTY_COLOR: Color = PURPLE;
 const REWARDING_ZONE_COLOR: Color = Color::new(0.7, 0.8, 0.6, 0.9);
 const FONT_SIZE: f32 = 16.0;
 
-const BUY_PANEL_START_HEIGHT: f32 = 0.3;
-const BUY_PANEL_HEIGHT: f32 = 0.15;
+const BUY_PANEL_START_HEIGHT: f32 = 0.25;
+const BUY_PANEL_HEIGHT: f32 = 0.2;
 const BUY_PANEL_WIDTH: f32 = 0.25;
+const BUY_PANEL_HORIZONTAL_PAD: f32 = 0.05;
+const BUY_PANEL_VERTICAL_PAD: f32 = 0.02;
+
 const TOOLTIP_WIDTH: f32 = 0.3;
 
 pub struct TextureDrawer {
@@ -96,18 +99,20 @@ impl DrawerTrait for TextureDrawer {
             Button::Restart => root_ui().button(None, "Reiniciar"),
             Button::Buy(hero) => {
                 let (horizontal_offset, vertical_offset) =
-                    TextureDrawer::get_buy_button_offset(hero.index());
+                    TextureDrawer::get_buy_panel_offset(hero.index());
+                let texture_offset = self.get_buy_text_offset(hero.index(), width, height);
                 is_button_clicked(
-                    0.10 + horizontal_offset,
+                    BUY_PANEL_HORIZONTAL_PAD + 0.02 + horizontal_offset + texture_offset,
                     BUY_PANEL_START_HEIGHT + 0.1 + vertical_offset,
                     "Comprar",
                 )
             }
             Button::Sell(hero) => {
                 let (horizontal_offset, vertical_offset) =
-                    TextureDrawer::get_buy_button_offset(hero.index());
+                    TextureDrawer::get_buy_panel_offset(hero.index());
+                let texture_offset = self.get_buy_text_offset(hero.index(), width, height);
                 is_button_clicked(
-                    0.20 + horizontal_offset,
+                    BUY_PANEL_HORIZONTAL_PAD + 0.08 + horizontal_offset+ texture_offset,
                     BUY_PANEL_START_HEIGHT + 0.1 + vertical_offset,
                     "Vender",
                 )
@@ -124,6 +129,8 @@ impl DrawerTrait for TextureDrawer {
         );
     }
 }
+
+
 
 impl TextureDrawer {
     #[allow(unused)]
@@ -158,14 +165,14 @@ impl TextureDrawer {
     }
 
     fn draw_buy_heroes(&self, world: &World, width: f32, height: f32) {
-        let start_height = 0.3;
+        let start_height = BUY_PANEL_START_HEIGHT;
         let button_width = width * BUY_PANEL_WIDTH;
         let button_height = height * BUY_PANEL_HEIGHT;
         for (i, hero) in Hero::list().iter().enumerate() {
-            let (horizontal_offset, vertical_offset) = Self::get_buy_button_offset(i);
+            let (horizontal_offset, vertical_offset) = Self::get_buy_panel_offset(i);
             let panel_color = if i % 2 == 0 { CLEAN_COLOR } else { DIRTY_COLOR };
             let panel_rect = Rect::new(
-                width * (0.05 + horizontal_offset),
+                width * (BUY_PANEL_HORIZONTAL_PAD + horizontal_offset),
                 height * (start_height + vertical_offset),
                 button_width,
                 button_height,
@@ -175,7 +182,7 @@ impl TextureDrawer {
                 let (horizontal_offset, vertical_offset) = Self::get_tooltip_offset(i);
 
                 draw_rectangle(
-                    width * (0.05 + BUY_PANEL_WIDTH + 0.01 + horizontal_offset),
+                    width * (BUY_PANEL_HORIZONTAL_PAD + BUY_PANEL_WIDTH + 0.01 + horizontal_offset),
                     height * (start_height + vertical_offset),
                     width * TOOLTIP_WIDTH,
                     button_height,
@@ -184,7 +191,7 @@ impl TextureDrawer {
 
                 root_ui().label(
                     Vec2::new(
-                        width * (0.05 + BUY_PANEL_WIDTH + 0.01 + 0.01 + horizontal_offset),
+                        width * (BUY_PANEL_HORIZONTAL_PAD + BUY_PANEL_WIDTH + 0.01 + 0.01 + horizontal_offset),
                         height * (start_height + 0.01 + vertical_offset),
                     ),
                     &hero.short_description(),
@@ -202,7 +209,7 @@ impl TextureDrawer {
                 };
                 root_ui().label(
                     Vec2::new(
-                        width * (0.05 + BUY_PANEL_WIDTH + 0.01 + 0.01 + horizontal_offset),
+                        width * (BUY_PANEL_HORIZONTAL_PAD + BUY_PANEL_WIDTH + 0.01 + 0.01 + horizontal_offset),
                         height * (start_height + 0.01 + vertical_offset) + FONT_SIZE * 1.2,
                     ),
                     &format!("Produciendo {} {} por salario", production, kind),
@@ -231,7 +238,9 @@ impl TextureDrawer {
             //     1.0,
             //     BLACK,
             // );
-            let text_pos_x = width * (0.06 + horizontal_offset);
+            let character_texture = self.textures[if i % 2 == 0 { Texture::Hero1 } else { Texture::Villain1 } as usize];
+            let texture_size = Vec2::new(panel_rect.h * character_texture.width() / character_texture.height(), panel_rect.h);
+            let text_pos_x = width * (BUY_PANEL_HORIZONTAL_PAD + 0.01 + horizontal_offset) + if i %2 == 0 {0.0} else {texture_size.x};
             root_ui().label(
                 Vec2::new(text_pos_x, height * (start_height + vertical_offset)),
                 &hero.name(),
@@ -246,14 +255,18 @@ impl TextureDrawer {
                     world.heroes_count[&hero], HERO_PRICE
                 ),
             );
-            let texture_size = Vec2::new(panel_rect.h * 200.0 / 250.0, panel_rect.h);
-            let texture_rect = Rect::new(panel_rect.x + panel_rect.w - texture_size.x,
+            let texture_x = if i % 2 == 0 {
+                panel_rect.x + panel_rect.w - texture_size.x
+            } else {
+                panel_rect.x
+            };
+            let texture_rect = Rect::new(texture_x,
                                          panel_rect.y,
                                          texture_size.x,
                                          texture_size.y);
             draw::is_texture_clicked(
                 texture_rect,
-                self.textures[Texture::Hero1 as usize],
+                character_texture,
                 None,
             );
 
@@ -261,15 +274,24 @@ impl TextureDrawer {
     }
 
     /// Returns coefficients [0, 1] that you have to multiply by screen_width and screen_height.
-    fn get_buy_button_offset(hero_index: usize) -> (f32, f32) {
+    fn get_buy_panel_offset(hero_index: usize) -> (f32, f32) {
         let horizontal_offset = if hero_index % 2 == 0 { 0.0 } else { 0.65 };
-        let vertical_offset = (hero_index / 2) as f32 * (BUY_PANEL_HEIGHT + 0.05);
+        let vertical_offset = (hero_index / 2) as f32 * (BUY_PANEL_HEIGHT + BUY_PANEL_VERTICAL_PAD);
         (horizontal_offset, vertical_offset)
+    }
+    fn get_buy_text_offset(&self, hero_index: usize, width: f32, height: f32) -> f32 {
+        let texture_offset = if hero_index % 2 == 0 {
+            0.0
+        } else {
+            let character_texture = self.textures[Texture::Villain1 as usize];
+            BUY_PANEL_HEIGHT * height * character_texture.width() / character_texture.height() / width
+        };
+        texture_offset
     }
 
     /// Returns coefficients [0, 1] that you have to multiply by screen_width and screen_height.
     fn get_tooltip_offset(hero_index: usize) -> (f32, f32) {
-        let (horizontal_button_offset, vertical_offset) = Self::get_buy_button_offset(hero_index);
+        let (horizontal_button_offset, vertical_offset) = Self::get_buy_panel_offset(hero_index);
         let horizontal_offset = if hero_index % 2 == 0 {
             0.0
         } else {
