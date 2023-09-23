@@ -6,18 +6,17 @@ use crate::world::heores::Hero;
 
 pub mod heores;
 
-pub const MONEY_PERIOD: f64 = 5.0;
-pub const SALARY: i64 = 100;
 pub const HERO_PRICE: i64 = 5;
+
+pub const CLEANING_REWARD: i64 = 10;
 
 pub struct World {
     previous_trigger_time: Seconds,
-    pub remaining_until_next_trigger: Seconds,
     pub frame: i64,
     pub previous_frame_timestamp: Seconds,
     pub time_since_last_frame: Seconds,
-    pub cleaned: i64,
-    pub dirtied: i64,
+    pub dirtiness: i64,
+    pub max_dirtiness: i64,
     pub money: i64,
     pub heroes_count: HashMap<Hero, usize>,
 }
@@ -27,11 +26,10 @@ impl World {
         Self {
             previous_trigger_time: now(),
             previous_frame_timestamp: now(),
-            remaining_until_next_trigger: MONEY_PERIOD,
             frame: 0,
             time_since_last_frame: 0.0,
-            cleaned: 0,
-            dirtied: 0,
+            dirtiness: 50,
+            max_dirtiness: 1000,
             money: 0,
             heroes_count: HashMap::from_iter(Hero::list().iter().map(|h| (*h, 0))),
         }
@@ -41,40 +39,42 @@ impl World {
         self.frame += 1;
 
         if gui_actions.dirty_pressed {
-            self.dirtied += 1;
+            self.dirtiness += 10;
         }
-        if gui_actions.clean_pressed {
-            self.cleaned += 1;
+        if gui_actions.clean_pressed && self.dirtiness > 0 {
+            self.dirtiness -= 10;
+            self.money += 10;
         }
 
         let now_time = now();
         self.time_since_last_frame = now_time - self.previous_frame_timestamp;
         self.previous_frame_timestamp = now_time;
 
-        let trigger_time = try_trigger_timer(self.previous_trigger_time, now_time, MONEY_PERIOD);
-        self.remaining_until_next_trigger = trigger_time.remaining;
-        if trigger_time.triggered {
-            self.previous_trigger_time = trigger_time.new_time;
-            let completed_cleaning = self.expected_payment();
-            self.money += completed_cleaning;
-            self.dirtied -= completed_cleaning;
-            self.cleaned -= completed_cleaning;
-            for (hero, count) in &self.heroes_count {
-                self.cleaned += hero.production_clean() * *count as i64;
-                self.dirtied += hero.production_dirty() * *count as i64;
-            }
+        for villain in [Hero::Villain1, Hero::Villain2, Hero::Villain3] {
+            let count = self.heroes_count[&villain] as i64;
+            self.dirtiness += count * villain.production_dirty();
         }
+        let mut cleaned = 0;
+        for hero in [Hero::Hero1, Hero::Hero2, Hero::Hero3] {
+            let count = self.heroes_count[&hero] as i64;
+            cleaned += count * hero.production_clean();
+        }
+        cleaned = cleaned.min(self.dirtiness);
+        self.money += cleaned;
+        self.dirtiness -= cleaned;
+        self.dirtiness = self.max_dirtiness.min(self.dirtiness);
+
         for (hero, bought) in &gui_actions.heroes_bought {
             if *bought && self.money >= HERO_PRICE {
                 *self.heroes_count.get_mut(&hero).unwrap() += 1;
-                self.money -= hero.price();
+                self.money -= hero.price() * 10;
             }
         }
         for (hero, sold) in &gui_actions.heroes_sold {
             let count = self.heroes_count.get_mut(&hero).unwrap();
             if *count > 0 && *sold {
                 *count -= 1;
-                self.money += hero.price();
+                self.money += hero.price() * 10;
             }
         }
         if gui_actions.restart {
@@ -83,79 +83,13 @@ impl World {
         gui_actions.should_continue()
     }
 
-    pub fn expected_payment(&self) -> i64 {
-        if self.should_receive_payment() {
-            self.dirtied.min(self.cleaned)
-        } else {
-            0
-        }
-    }
-
-    pub fn should_receive_payment(&self) -> bool {
-        should_receive_payment(
-            self.dirtied,
-            self.cleaned,
-            self.min_valid_percentage(),
-            self.max_valid_percentage(),
-        )
-    }
 
     pub fn min_valid_percentage(&self) -> i64 {
-        40
+        0
     }
 
     pub fn max_valid_percentage(&self) -> i64 {
-        60
-    }
-}
-
-pub fn should_receive_payment(
-    dirtied: i64,
-    cleaned: i64,
-    min_valid_percentage: i64,
-    max_valid_percentage: i64,
-) -> bool {
-    if dirtied + cleaned == 0 {
-        false
-    } else {
-        let percentage = dirtied * 100 / (dirtied + cleaned);
-        if min_valid_percentage <= percentage && percentage <= max_valid_percentage {
-            true
-        } else {
-            false
-        }
-    }
-}
-
-#[allow(unused)]
-fn monotonically_decrease(x: i64) -> i64 {
-    let decreased = x - (x * 10 + 100) / 100;
-    decreased.max(0)
-}
-struct TriggerTime {
-    triggered: bool,
-    new_time: Seconds,
-    remaining: Seconds,
-}
-fn try_trigger_timer(
-    previous_trigger_time: Seconds,
-    now_time: Seconds,
-    period: Seconds,
-) -> TriggerTime {
-    let diff = now_time - previous_trigger_time;
-    let remaining = period - diff % period;
-    if diff >= period {
-        TriggerTime {
-            triggered: true,
-            new_time: now_time,
-            remaining,
-        }
-    } else {
-        TriggerTime {
-            triggered: false,
-            new_time: previous_trigger_time,
-            remaining,
-        }
+        0
     }
 }
 
@@ -163,46 +97,4 @@ fn try_trigger_timer(
 mod tests {
     use super::*;
 
-    #[test]
-    fn test_payment_timer_triggered() {
-        let previous_trigger_time: Seconds = now();
-        let period: Seconds = 5.0;
-        let extra_time: Seconds = 1.0;
-        let now_time: Seconds = previous_trigger_time + period + extra_time;
-        let TriggerTime {
-            triggered,
-            new_time,
-            remaining,
-        } = try_trigger_timer(previous_trigger_time, now_time, period);
-        assert_eq!(triggered, true);
-        assert_eq!(new_time, now_time);
-        assert_eq!(remaining, period - extra_time)
-    }
-
-    #[test]
-    fn test_payment_timer() {
-        let previous_trigger_time: Seconds = now();
-        let period: Seconds = 5.0;
-        let extra_time: Seconds = 1.0;
-        let now_time: Seconds = previous_trigger_time + extra_time;
-        let TriggerTime {
-            triggered,
-            new_time,
-            remaining,
-        } = try_trigger_timer(previous_trigger_time, now_time, period);
-        assert_eq!(triggered, false);
-        assert_eq!(new_time, previous_trigger_time);
-        assert_eq!(remaining, period - extra_time)
-    }
-
-    // #[test]
-    // fn test_decrease() {
-    //     assert_eq!(monotonically_decrease(0), 0);
-    //     assert_eq!(monotonically_decrease(1), 0);
-    //     assert_eq!(monotonically_decrease(2), 1);
-    //     assert_eq!(monotonically_decrease(3), 2);
-    //     assert_eq!(monotonically_decrease(9), 8);
-    //     assert_eq!(monotonically_decrease(10), 8);
-    //     assert_eq!(monotonically_decrease(100), 89);
-    // }
 }

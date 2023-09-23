@@ -65,22 +65,22 @@ impl Hero {
 
     pub fn production_clean(&self) -> i64 {
         match self {
-            Hero::Hero1 => 10,
+            Hero::Hero1 => 1,
             Hero::Villain1 => 0,
-            Hero::Hero2 => 1000,
+            Hero::Hero2 => 10,
             Hero::Villain2 => 0,
-            Hero::Hero3 => 0,
+            Hero::Hero3 => 100,
             Hero::Villain3 => 0,
         }
     }
     pub fn production_dirty(&self) -> i64 {
         match self {
             Hero::Hero1 => 0,
-            Hero::Villain1 => 12,
+            Hero::Villain1 => 2,
             Hero::Hero2 => 0,
-            Hero::Villain2 => 1100,
+            Hero::Villain2 => 13,
             Hero::Hero3 => 0,
-            Hero::Villain3 => 0,
+            Hero::Villain3 => 111,
         }
     }
 }
