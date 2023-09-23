@@ -72,12 +72,12 @@ pub struct CenteredButton {
 }
 
 impl CenteredButton {
-    pub fn from_pos(text: &str, center: Vec2) -> Self {
+    pub fn from_pos(text: &str, center_pixel: Vec2) -> Self {
         let text_dimensions = measure_text(text, None, FONT_SIZE as u16, 1.0);
         let pad = Vec2::new(FONT_SIZE, FONT_SIZE * 0.5);
         let rect = Rect::new(
-            (center.x - text_dimensions.width * 0.5 - pad.x).round(),
-            (center.y - text_dimensions.offset_y * 0.5 - pad.y).round(),
+            (center_pixel.x - text_dimensions.width * 0.5 - pad.x).round(),
+            (center_pixel.y - text_dimensions.offset_y * 0.5 - pad.y).round(),
             (text_dimensions.width + pad.x * 2.0).round(),
             (FONT_SIZE + pad.y).round(),
         );
@@ -130,12 +130,12 @@ pub struct Button {
 }
 
 impl Button {
-    pub fn from_pos(text: &str, top_left: Vec2) -> Self {
+    pub fn from_pos(text: &str, top_left_pixel: Vec2) -> Self {
         let text_dimensions = measure_text(text, None, FONT_SIZE as u16, 1.0);
         let pad = Vec2::new(FONT_SIZE, FONT_SIZE * 0.5);
         let rect = Rect::new(
-            (top_left.x).round(),
-            (top_left.y).round(),
+            (top_left_pixel.x).round(),
+            (top_left_pixel.y).round(),
             (text_dimensions.width + pad.x * 2.0).round(),
             (FONT_SIZE + pad.y).round(),
         );

@@ -11,7 +11,7 @@ pub enum Button {
 }
 
 pub trait DrawerTrait {
-    fn draw(&mut self, world: &World);
+    fn draw(&mut self, world: &mut World); // TODO: remove mut for world
 
     /// Returns true if the button was pressed this frame
     fn button(&mut self, button: Button) -> bool;

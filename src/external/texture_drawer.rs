@@ -66,7 +66,7 @@ impl TextureDrawer {
 }
 
 impl DrawerTrait for TextureDrawer {
-    fn draw(&mut self, world: &World) {
+    fn draw(&mut self, world: &mut World) {
         self.frame += 1;
         // self.debug_fps(world);
         let width = screen_width();
@@ -76,6 +76,7 @@ impl DrawerTrait for TextureDrawer {
         draw_text_bar(world, width, height);
         draw_version(width, height);
         draw_alerts(world, width, height);
+        draw_game_over(world, width, height);
     }
 
     fn button(&mut self, button: Button) -> bool {
@@ -636,6 +637,71 @@ fn draw_tooltip_centered(text: &str, position: Vec2, width: f32, height: f32, fo
         text_rect.h,
         2.0,
         BLACK,
+    );
+    draw_text(
+        &text,
+        text_rect.x + pad,
+        text_rect.y + pad + tooltip_size.offset_y,
+        font_size,
+        BLACK,
+    );
+}
+
+fn draw_game_over(world: &mut World, width: f32, height: f32) {
+    if world.game_over {
+        let text_rect = Rect::new(
+            (width * 0.35).round(),
+            (height * 0.5).round(),
+            (width * 0.3).round(),
+            (height * 0.25).round(),
+        );
+        draw_rectangle(
+            text_rect.x,
+            text_rect.y,
+            text_rect.w,
+            text_rect.h,
+            Color::new(0.7, 0.7, 0.7, 1.00),
+        );
+        draw_rectangle_lines(
+            text_rect.x,
+            text_rect.y,
+            text_rect.w,
+            text_rect.h,
+            2.0,
+            BLACK,
+        );
+        draw_text_centered("GAME OVER", Vec2::new(0.5, 0.57), width, height, FONT_SIZE);
+        draw_text_centered(
+            "Te has pasado de avaricioso.",
+            Vec2::new(0.5, 0.64),
+            width,
+            height,
+            FONT_SIZE,
+        );
+        draw_text_centered(
+            "La suciedad se ha apoderado de ti.",
+            Vec2::new(0.5, 0.67),
+            width,
+            height,
+            FONT_SIZE,
+        );
+        let mut button =
+            draw::CenteredButton::from_pos("Reiniciar", Vec2::new(width * 0.5, height * 0.7));
+        if button.interact().is_clicked() {
+            world.restart(); // TODO: move this somehow to basic_input
+        }
+        button.render();
+    }
+}
+
+fn draw_text_centered(text: &str, position: Vec2, width: f32, height: f32, font_size: f32) {
+    let pad = FONT_SIZE * 0.5;
+    let tooltip_size = measure_text(&text, None, font_size as u16, 1.0);
+    let text_rect = Rect::new(
+        (width * position.x - tooltip_size.width * 0.5 - pad).round(),
+        (height * position.y - tooltip_size.height - pad * 2.0).round(),
+        tooltip_size.width + pad * 2.0,
+        tooltip_size.height + pad * 2.0,
     );
     draw_text(
         &text,
