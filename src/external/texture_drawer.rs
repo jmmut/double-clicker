@@ -282,7 +282,7 @@ impl TextureDrawer {
                 ),
                 &format!(
                     "Tienes: {}. Precio: {}",
-                    world.heroes_count[&hero], hero.price()
+                    world.heroes_count[&hero], world.price(hero)
                 ),
             );
             let texture_x = if i % 2 == 0 {
@@ -345,7 +345,7 @@ fn draw_bar(world: &World, width: f32, height: f32, overlapping: bool) {
         height * bar_height,
         CLEAN_COLOR,
     );
-    let dirtiness_coef = world.dirtiness as f32 / world.max_dirtiness as f32;
+    let dirtiness_coef = world.dirtiness_units() as f32 / world.max_dirtiness_units() as f32;
     draw_rectangle(
         width * (1.0 - BAR_HORIZONTAL_PAD - bar_width * dirtiness_coef),
         height * BAR_VERTICAL_PAD,
@@ -366,7 +366,7 @@ fn draw_bar(world: &World, width: f32, height: f32, overlapping: bool) {
 fn draw_savings(world: &World, width: f32, height: f32, overlapping: bool) {
     let vertical_offset = if overlapping { 0.0 } else { 0.05 };
     let font_size = FONT_SIZE * 2.0;
-    let money_text = format!("{} €", world.money/10);
+    let money_text = format!("{} €", world.money_euros());
     let money_size = measure_text(&money_text, None, font_size as u16, 1.0);
     let text_rect = Rect::new(
         width * 0.5 - (money_size.width * 0.5).round(),
@@ -473,7 +473,7 @@ fn draw_speeds(world: &World, width: f32, height: f32, overlapping: bool) {
 
 fn draw_dirtiness(world: &World, width: f32, height: f32, overlapping: bool) {
     let vertical_offset = if overlapping { 0.0 } else { 0.05 };
-    let dirtied_str = format!("Suciedades: {}/{}", world.dirtiness/10, world.max_dirtiness/10);
+    let dirtied_str = format!("Suciedades: {}/{}", world.dirtiness_units(), world.max_dirtiness_units());
     let text_size = measure_text(&dirtied_str, None, FONT_SIZE as u16, 1.0);
     draw_text(
         &dirtied_str,

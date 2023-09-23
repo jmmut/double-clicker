@@ -6,6 +6,8 @@ use crate::world::heores::Hero;
 
 pub mod heores;
 
+type Cents = i64;
+type Units = i64;
 
 pub const CLEANING_REWARD: i64 = 10;
 
@@ -14,10 +16,11 @@ pub struct World {
     pub frame: i64,
     pub previous_frame_timestamp: Seconds,
     pub time_since_last_frame: Seconds,
-    pub dirtiness: i64,
-    pub max_dirtiness: i64,
-    pub money: i64,
-    pub heroes_count: HashMap<Hero, usize>,
+    dirtiness: Cents,
+    max_dirtiness: Units,
+    money: Cents,
+    total_money: Cents,
+    pub heroes_count: HashMap<Hero, i64>,
 }
 
 impl World {
@@ -27,22 +30,24 @@ impl World {
             previous_frame_timestamp: now(),
             frame: 0,
             time_since_last_frame: 0.0,
-            dirtiness: 50,
-            max_dirtiness: 1000,
+            dirtiness: to_cents(5),
+            max_dirtiness: 100,
             money: 0,
+            total_money: 0,
             heroes_count: HashMap::from_iter(Hero::list().iter().map(|h| (*h, 0))),
         }
     }
 
     pub fn update(&mut self, gui_actions: GuiActions) -> bool {
         self.frame += 1;
-        self.max_dirtiness = 1000 + self.money / 100;
+        self.max_dirtiness = 100 + self.total_money_euros();
         if gui_actions.dirty_pressed {
-            self.dirtiness += 10;
+            self.dirtiness += to_cents(1);
         }
-        if gui_actions.clean_pressed && self.dirtiness > 0 {
-            self.dirtiness -= 10;
-            self.money += 10;
+        if gui_actions.clean_pressed && self.dirtiness >= to_cents(1) {
+            self.dirtiness -= to_cents(1);
+            self.money += to_cents(1);
+            self.total_money += to_cents(1);
         }
 
         let now_time = now();
@@ -50,30 +55,30 @@ impl World {
         self.previous_frame_timestamp = now_time;
 
         for villain in [Hero::Villain1, Hero::Villain2, Hero::Villain3] {
-            let count = self.heroes_count[&villain] as i64;
+            let count = self.heroes_count[&villain];
             self.dirtiness += count * villain.production_dirty();
         }
         let mut cleaned = 0;
         for hero in [Hero::Hero1, Hero::Hero2, Hero::Hero3] {
-            let count = self.heroes_count[&hero] as i64;
+            let count = self.heroes_count[&hero];
             cleaned += count * hero.production_clean();
         }
         cleaned = cleaned.min(self.dirtiness);
         self.money += cleaned;
         self.dirtiness -= cleaned;
-        self.dirtiness = self.max_dirtiness.min(self.dirtiness);
+        self.dirtiness = to_cents(self.max_dirtiness).min(self.dirtiness);
 
         for (hero, bought) in &gui_actions.heroes_bought {
-            if *bought && self.money >= hero.price() * 10 {
+            if *bought && self.money_euros() >= self.price(hero) {
+                self.money -= to_cents(self.price(hero));
                 *self.heroes_count.get_mut(&hero).unwrap() += 1;
-                self.money -= hero.price() * 10;
             }
         }
         for (hero, sold) in &gui_actions.heroes_sold {
             let count = self.heroes_count.get_mut(&hero).unwrap();
             if *count > 0 && *sold {
                 *count -= 1;
-                self.money += hero.price() * 10;
+                self.money += to_cents(self.price(hero));
             }
         }
         if gui_actions.restart {
@@ -83,6 +88,29 @@ impl World {
     }
 
 
+    pub fn price(&self, hero: &Hero) -> Units {
+        (self.heroes_count[&hero] +1) * match hero {
+            Hero::Hero1 => 5,
+            Hero::Villain1 => 7,
+            Hero::Hero2 => 2000,
+            Hero::Villain2 => 5000,
+            Hero::Hero3 => 1000000,
+            Hero::Villain3 => 1500000,
+        }
+    }
+
+    pub fn money_euros(&self) -> Units {
+        self.money / 100
+    }
+    pub fn total_money_euros(&self) -> Units {
+        self.total_money / 100
+    }
+    pub fn dirtiness_units(&self) -> Units {
+        self.dirtiness / 100
+    }
+    pub fn max_dirtiness_units(&self) -> Units {
+        self.max_dirtiness
+    }
     pub fn min_valid_percentage(&self) -> i64 {
         0
     }
@@ -91,6 +119,10 @@ impl World {
         0
     }
 }
+pub fn to_cents(unit: Units) -> Cents {
+    unit * 100
+}
+
 
 #[cfg(test)]
 mod tests {

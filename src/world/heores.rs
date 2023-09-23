@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum Hero {
     Hero1,
@@ -51,18 +53,7 @@ impl Hero {
             Hero::Villain3 => "Hace 111 tareas de ensuciar por unidad de tiempo",
         }
     }
-
-    pub fn price(&self) -> i64 {
-        match self {
-            Hero::Hero1 => 5,
-            Hero::Villain1 => 7,
-            Hero::Hero2 => 200,
-            Hero::Villain2 => 500,
-            Hero::Hero3 => 10000,
-            Hero::Villain3 => 15000,
-        }
-    }
-
+    
     pub fn production_clean(&self) -> i64 {
         match self {
             Hero::Hero1 => 1,
