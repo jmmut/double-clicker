@@ -7,7 +7,7 @@ use crate::external::backends::{now, Seconds};
 use crate::screen::drawer_trait::{Button, DrawerTrait};
 use crate::screen::textures::Texture;
 use crate::world::heores::Hero;
-use crate::world::{World, HERO_PRICE};
+use crate::world::{World};
 use crate::GIT_VERSION;
 
 const EMPTY_COLOR: Color = GRAY;
@@ -284,7 +284,7 @@ impl TextureDrawer {
                 ),
                 &format!(
                     "Tienes: {}. Precio: {}",
-                    world.heroes_count[&hero], HERO_PRICE
+                    world.heroes_count[&hero], hero.price()
                 ),
             );
             let texture_x = if i % 2 == 0 {

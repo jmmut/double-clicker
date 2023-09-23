@@ -43,23 +43,23 @@ impl Hero {
     }
     pub fn short_description(&self) -> &'static str {
         match self {
-            Hero::Hero1 => "Hace 10 tareas de limpieza por cada salario",
-            Hero::Villain1 => "Hace 12 tareas de ensuciar por cada salario",
-            Hero::Hero2 => "Hace 1000 tareas de limpieza por cada salario",
-            Hero::Villain2 => "Hace 1100 tareas de ensuciar por cada salario",
-            Hero::Hero3 => "???",
-            Hero::Villain3 => "???",
+            Hero::Hero1 => "Hace 1 tarea de limpieza por unidad de tiempo",
+            Hero::Villain1 => "Hace 2 tareas de ensuciar por unidad de tiempo",
+            Hero::Hero2 => "Hace 10 tareas de limpieza por unidad de tiempo",
+            Hero::Villain2 => "Hace 13 tareas de ensuciar por unidad de tiempo",
+            Hero::Hero3 => "Hace 100 tareas de limpieza por unidad de tiempo",
+            Hero::Villain3 => "Hace 111 tareas de ensuciar por unidad de tiempo",
         }
     }
 
     pub fn price(&self) -> i64 {
         match self {
             Hero::Hero1 => 5,
-            Hero::Villain1 => 5,
-            Hero::Hero2 => 5,
-            Hero::Villain2 => 5,
-            Hero::Hero3 => 5,
-            Hero::Villain3 => 5,
+            Hero::Villain1 => 7,
+            Hero::Hero2 => 200,
+            Hero::Villain2 => 500,
+            Hero::Hero3 => 10000,
+            Hero::Villain3 => 15000,
         }
     }
 

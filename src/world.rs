@@ -6,7 +6,6 @@ use crate::world::heores::Hero;
 
 pub mod heores;
 
-pub const HERO_PRICE: i64 = 5;
 
 pub const CLEANING_REWARD: i64 = 10;
 
@@ -37,7 +36,7 @@ impl World {
 
     pub fn update(&mut self, gui_actions: GuiActions) -> bool {
         self.frame += 1;
-
+        self.max_dirtiness = 1000 + self.money / 100;
         if gui_actions.dirty_pressed {
             self.dirtiness += 10;
         }
@@ -65,7 +64,7 @@ impl World {
         self.dirtiness = self.max_dirtiness.min(self.dirtiness);
 
         for (hero, bought) in &gui_actions.heroes_bought {
-            if *bought && self.money >= HERO_PRICE {
+            if *bought && self.money >= hero.price() * 10 {
                 *self.heroes_count.get_mut(&hero).unwrap() += 1;
                 self.money -= hero.price() * 10;
             }
