@@ -4,6 +4,7 @@ use macroquad::prelude::*;
 use macroquad::ui::root_ui;
 
 use crate::external::backends::{now, Seconds};
+use crate::external::texture_drawer::draw::CenteredButton;
 use crate::screen::drawer_trait::{Button, DrawerTrait};
 use crate::screen::textures::Texture;
 use crate::world::heores::Hero;
@@ -16,12 +17,14 @@ const DIRTY_COLOR: Color = PURPLE;
 const REWARDING_ZONE_COLOR: Color = Color::new(0.7, 0.8, 0.6, 0.9);
 const FONT_SIZE: f32 = 16.0;
 
-const BAR_HORIZONTAL_PAD: f32 = 0.05;
+const BAR_HORIZONTAL_PAD: f32 = 0.04;
 const BAR_VERTICAL_PAD: f32 = 0.05;
 
-const BUY_PANEL_START_HEIGHT: f32 = 0.25;
+const SAVINGS_HEIGHT: f32 = 0.14;
+
+const BUY_PANEL_START_HEIGHT: f32 = 0.22;
 const BUY_PANEL_HEIGHT: f32 = 0.2;
-const BUY_PANEL_WIDTH: f32 = 0.25;
+const BUY_PANEL_WIDTH: f32 = 0.3;
 const BUY_PANEL_HORIZONTAL_PAD: f32 = BAR_HORIZONTAL_PAD;
 const BUY_PANEL_VERTICAL_PAD: f32 = 0.02;
 
@@ -34,6 +37,7 @@ pub struct TextureDrawer {
     arrangement_index: usize,
     clean_index: usize,
     dirty_index: usize,
+    buttons: Vec<draw::Button>,
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -56,6 +60,7 @@ impl TextureDrawer {
             arrangement_index: 0,
             clean_index: 0,
             dirty_index: 0,
+            buttons: Vec::new(),
         }
     }
 }
@@ -73,12 +78,9 @@ impl DrawerTrait for TextureDrawer {
         draw_alerts(world, width, height);
     }
 
-    fn button(&self, button: Button) -> bool {
+    fn button(&mut self, button: Button) -> bool {
         let width = screen_width();
         let height = screen_height();
-        let is_button_clicked = |x_coef: f32, y_coef: f32, label: &str| -> bool {
-            return root_ui().button(Some(Vec2::new(width * x_coef, height * y_coef)), label);
-        };
         let is_texture_clicked = |rect, texture: Texture, texture_pressed: Option<Texture>| {
             draw::is_texture_clicked(
                 rect,
@@ -90,13 +92,23 @@ impl DrawerTrait for TextureDrawer {
         match button {
             Button::Clean => {
                 let size = (width * 0.1).min(height * 0.2);
-                let rect = Rect::new(width * (0.5 - 0.001) - size, height * 0.25, size, size);
+                let rect = Rect::new(
+                    width * (0.5 - 0.001) - size,
+                    height * BUY_PANEL_START_HEIGHT,
+                    size,
+                    size,
+                );
                 is_texture_clicked(rect, CleanBackground, Some(CleanBackgroundOff));
                 is_texture_clicked(rect, self.clean_texture(), None)
             }
             Button::Dirty => {
                 let size = (width * 0.1).min(height * 0.2);
-                let rect = Rect::new(width * (0.5 + 0.001), height * 0.25, size, size);
+                let rect = Rect::new(
+                    width * (0.5 + 0.001),
+                    height * BUY_PANEL_START_HEIGHT,
+                    size,
+                    size,
+                );
                 is_texture_clicked(rect, DirtyBackground, Some(DirtyBackgroundOff));
                 is_texture_clicked(rect, self.dirty_texture(), None)
             }
@@ -106,20 +118,22 @@ impl DrawerTrait for TextureDrawer {
                 let (horizontal_offset, vertical_offset) =
                     TextureDrawer::get_buy_panel_offset(hero.index());
                 let texture_offset = self.get_buy_text_offset(hero.index(), width, height);
-                is_button_clicked(
+                self.is_button_clicked(
                     BUY_PANEL_HORIZONTAL_PAD + 0.02 + horizontal_offset + texture_offset,
-                    BUY_PANEL_START_HEIGHT + 0.1 + vertical_offset,
+                    BUY_PANEL_START_HEIGHT + 0.12 + vertical_offset,
                     "Comprar",
+                    width, height
                 )
             }
             Button::Sell(hero) => {
                 let (horizontal_offset, vertical_offset) =
                     TextureDrawer::get_buy_panel_offset(hero.index());
                 let texture_offset = self.get_buy_text_offset(hero.index(), width, height);
-                is_button_clicked(
-                    BUY_PANEL_HORIZONTAL_PAD + 0.08 + horizontal_offset + texture_offset,
-                    BUY_PANEL_START_HEIGHT + 0.1 + vertical_offset,
+                self.is_button_clicked(
+                    BUY_PANEL_HORIZONTAL_PAD + 0.1 + horizontal_offset + texture_offset,
+                    BUY_PANEL_START_HEIGHT + 0.12 + vertical_offset,
                     "Vender",
+                    width, height
                 )
             }
         }
@@ -162,6 +176,15 @@ impl TextureDrawer {
         self.previous_time = new_time;
     }
 
+    fn is_button_clicked(&mut self, x_coef: f32, y_coef: f32, label: & str, width: f32, height: f32) -> bool {
+        let mut button =
+            draw::Button::from_pos(label, Vec2::new(width * x_coef, height * y_coef));
+        let interaction = button.interact();
+        self.buttons.push(button);
+        interaction.is_clicked()
+        // return root_ui().button(Some(Vec2::new(width * x_coef, height * y_coef)), label);
+    }
+
     fn draw_bar_and_money(&self, world: &World, width: f32, height: f32) {
         let Arrangement { overlapping } = AVAILABLE_ARRANGEMENTS[self.arrangement_index];
 
@@ -172,7 +195,7 @@ impl TextureDrawer {
         draw_dirtiness(world, width, height, overlapping);
     }
 
-    fn draw_buy_heroes(&self, world: &World, width: f32, height: f32) {
+    fn draw_buy_heroes(&mut self, world: &World, width: f32, height: f32) {
         let start_height = BUY_PANEL_START_HEIGHT;
         let button_width = width * BUY_PANEL_WIDTH;
         let button_height = height * BUY_PANEL_HEIGHT;
@@ -326,11 +349,19 @@ impl TextureDrawer {
             let texture_rect = Rect::new(texture_x, panel_rect.y, texture_size.x, texture_size.y);
             draw::is_texture_clicked(texture_rect, character_texture, None);
         }
+        for button in &self.buttons {
+            button.render();
+        }
+        self.buttons.clear();
     }
 
     /// Returns coefficients [0, 1] that you have to multiply by screen_width and screen_height.
     fn get_buy_panel_offset(hero_index: usize) -> (f32, f32) {
-        let horizontal_offset = if hero_index % 2 == 0 { 0.0 } else { 0.65 };
+        let horizontal_offset = if hero_index % 2 == 0 {
+            0.0
+        } else {
+            1.0 - 2.0 * BAR_HORIZONTAL_PAD - BUY_PANEL_WIDTH
+        };
         let vertical_offset = (hero_index / 2) as f32 * (BUY_PANEL_HEIGHT + BUY_PANEL_VERTICAL_PAD);
         (horizontal_offset, vertical_offset)
     }
@@ -407,7 +438,7 @@ fn draw_savings(world: &World, width: f32, height: f32, overlapping: bool) {
     let money_size = measure_text(&money_text, None, font_size as u16, 1.0);
     let text_rect = Rect::new(
         width * 0.5 - (money_size.width * 0.5).round(),
-        (height * (0.16 + vertical_offset)).round(),
+        (height * (SAVINGS_HEIGHT + vertical_offset)).round(),
         money_size.width,
         money_size.height,
     );
@@ -490,7 +521,7 @@ fn draw_speeds(world: &World, width: f32, height: f32, overlapping: bool) {
     let cleaning_text = format!("Velocidad de limpieza: {}", speed);
     let text_pos = Vec2::new(
         (width * BAR_HORIZONTAL_PAD + FONT_SIZE).round(),
-        (height * (0.16 + vertical_offset)).round(),
+        (height * (SAVINGS_HEIGHT + vertical_offset)).round(),
     );
     draw_text(&cleaning_text, text_pos.x, text_pos.y, FONT_SIZE, BLACK);
 
@@ -503,7 +534,7 @@ fn draw_speeds(world: &World, width: f32, height: f32, overlapping: bool) {
 
     let text_pos = Vec2::new(
         (width * (1.0 - BAR_HORIZONTAL_PAD) - text_size.width - FONT_SIZE).round(),
-        (height * (0.16 + vertical_offset)).round(),
+        (height * (SAVINGS_HEIGHT + vertical_offset)).round(),
     );
     draw_text(&dirtiying_text, text_pos.x, text_pos.y, FONT_SIZE, BLACK);
 }
@@ -519,7 +550,7 @@ fn draw_dirtiness(world: &World, width: f32, height: f32, overlapping: bool) {
     draw_text(
         &dirtied_str,
         (width * (1.0 - BAR_HORIZONTAL_PAD) - text_size.width - FONT_SIZE).round(),
-        (height * (0.12 + vertical_offset)).round(),
+        (height * (SAVINGS_HEIGHT - 0.03 + vertical_offset)).round(),
         FONT_SIZE,
         BLACK,
     );
@@ -529,9 +560,9 @@ fn draw_text_bar(_world: &World, width: f32, height: f32) {
     let bar_height = BUY_PANEL_START_HEIGHT + 3.0 * (BUY_PANEL_HEIGHT + BUY_PANEL_VERTICAL_PAD);
     draw_line(
         width * 0.0,
-        height * bar_height,
+        height * bar_height + 2.0,
         width * 1.0,
-        height * bar_height,
+        height * bar_height + 2.0,
         2.0,
         BLACK,
     );

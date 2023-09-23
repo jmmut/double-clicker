@@ -14,7 +14,7 @@ pub trait DrawerTrait {
     fn draw(&mut self, world: &World);
 
     /// Returns true if the button was pressed this frame
-    fn button(&self, button: Button) -> bool;
+    fn button(&mut self, button: Button) -> bool;
 
     fn next_arrangement(&mut self) {}
     fn next_clean(&mut self) {}

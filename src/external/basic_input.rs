@@ -11,7 +11,7 @@ use crate::world::heores::Hero;
 pub struct BasicInput;
 
 impl InputSourceTrait for BasicInput {
-    fn get_gui_actions(&self, drawer: &dyn DrawerTrait) -> GuiActions {
+    fn get_gui_actions(&self, drawer: &mut dyn DrawerTrait) -> GuiActions {
         clear_background(LIGHTGRAY);
         let dirty_pressed = drawer.button(Button::Dirty) || is_key_pressed(KeyCode::E);
         let clean_pressed = drawer.button(Button::Clean) || is_key_pressed(KeyCode::L);
