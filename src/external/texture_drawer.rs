@@ -210,12 +210,12 @@ impl TextureDrawer {
                 );
                 let (production, kind) = if i % 2 == 0 {
                     (
-                        hero.production_clean() * world.heroes_count[hero] as i64,
+                        hero.production_clean() * world.heroes_count[hero],
                         "limpiezas",
                     )
                 } else {
                     (
-                        hero.production_dirty() * world.heroes_count[hero] as i64,
+                        hero.production_dirty() * world.heroes_count[hero],
                         "suciedades",
                     )
                 };
@@ -229,7 +229,19 @@ impl TextureDrawer {
                                 + horizontal_offset),
                         height * (start_height + 0.01 + vertical_offset) + FONT_SIZE * 1.2,
                     ),
-                    &format!("Produciendo {} {} por salario", production, kind),
+                    &format!("Has contratado {}",  world.heroes_count[hero]),
+                );
+                root_ui().label(
+                    Vec2::new(
+                        width
+                            * (BUY_PANEL_HORIZONTAL_PAD
+                                + BUY_PANEL_WIDTH
+                                + 0.01
+                                + 0.01
+                                + horizontal_offset),
+                        height * (start_height + 0.01 + vertical_offset) + FONT_SIZE * 2.4,
+                    ),
+                    &format!("Produciendo {} {} por segundo", production, kind),
                 );
             }
             draw_rectangle(
@@ -278,10 +290,26 @@ impl TextureDrawer {
                     text_pos_x,
                     height * (start_height + vertical_offset) + FONT_SIZE * 1.4,
                 ),
+                &format!("Precio: {} €", world.price(hero)),
+            );
+            root_ui().label(
+                Vec2::new(
+                    text_pos_x,
+                    height * (start_height + vertical_offset) + FONT_SIZE * 2.6,
+                ),
                 &format!(
-                    "Tienes: {}. Precio: {}",
+                    "{}: {} x {}",
+                    if i % 2 == 0 {
+                        "Limpiando"
+                    } else {
+                        "Ensuciando"
+                    },
+                    if i % 2 == 0 {
+                        hero.production_clean()
+                    } else {
+                        hero.production_dirty()
+                    },
                     world.heroes_count[&hero],
-                    world.price(hero)
                 ),
             );
             let texture_x = if i % 2 == 0 {
@@ -451,7 +479,7 @@ fn draw_speeds(world: &World, width: f32, height: f32, overlapping: bool) {
     let vertical_offset = if overlapping { 0.0 } else { 0.05 };
     let mut speed = 0;
     for hero in [Hero::Hero1, Hero::Hero2, Hero::Hero3] {
-        speed += hero.production_clean() * world.heroes_count[&hero] as i64;
+        speed += hero.production_clean() * world.heroes_count[&hero];
     }
     let cleaning_text = format!("Velocidad de limpieza: {}", speed);
     let text_pos = Vec2::new(
@@ -462,7 +490,7 @@ fn draw_speeds(world: &World, width: f32, height: f32, overlapping: bool) {
 
     let mut speed = 0;
     for hero in [Hero::Villain1, Hero::Villain2, Hero::Villain3] {
-        speed += hero.production_dirty() * world.heroes_count[&hero] as i64;
+        speed += hero.production_dirty() * world.heroes_count[&hero];
     }
     let dirtiying_text = format!("Velocidad de ensuciamiento: {}", speed);
     let text_size = measure_text(&dirtiying_text, None, FONT_SIZE as u16, 1.0);

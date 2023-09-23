@@ -45,12 +45,12 @@ impl Hero {
     }
     pub fn short_description(&self) -> &'static str {
         match self {
-            Hero::Hero1 => "Hace 1 tarea de limpieza por unidad de tiempo",
-            Hero::Villain1 => "Hace 2 tareas de ensuciar por unidad de tiempo",
-            Hero::Hero2 => "Hace 10 tareas de limpieza por unidad de tiempo",
-            Hero::Villain2 => "Hace 13 tareas de ensuciar por unidad de tiempo",
-            Hero::Hero3 => "Hace 100 tareas de limpieza por unidad de tiempo",
-            Hero::Villain3 => "Hace 111 tareas de ensuciar por unidad de tiempo",
+            Hero::Hero1 => "Hace 1 tarea de limpieza por segundo",
+            Hero::Villain1 => "Hace 2 tareas de ensuciar por segundo",
+            Hero::Hero2 => "Hace 10 tareas de limpieza por segundo",
+            Hero::Villain2 => "Hace 13 tareas de ensuciar por segundo",
+            Hero::Hero3 => "Hace 100 tareas de limpieza por segundo",
+            Hero::Villain3 => "Hace 111 tareas de ensuciar por segundo",
         }
     }
 

@@ -126,7 +126,7 @@ impl TexturelessDrawer {
                         width * (0.05 + BUY_BUTTON_WIDTH + 0.01 + 0.01 + horizontal_offset),
                         height * (start_height + 0.01 + vertical_offset) + FONT_SIZE * 1.2,
                     ),
-                    &format!("Produciendo {} {} por salario", production, kind),
+                    &format!("Produciendo {} {} por segundo", production, kind),
                 );
             }
             draw_rectangle(
