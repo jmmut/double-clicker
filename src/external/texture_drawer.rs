@@ -70,6 +70,7 @@ impl DrawerTrait for TextureDrawer {
         self.draw_buy_heroes(world, width, height);
         draw_text_bar(world, width, height);
         draw_version(width, height);
+        draw_alerts(world, width, height);
     }
 
     fn button(&self, button: Button) -> bool {
@@ -185,6 +186,8 @@ impl TextureDrawer {
                 button_height,
             );
             let (mouse_x, mouse_y) = mouse_position();
+
+            // draw tooltip
             if panel_rect.contains(Vec2::new(mouse_x, mouse_y)) {
                 let (horizontal_offset, vertical_offset) = Self::get_tooltip_offset(i);
 
@@ -195,19 +198,20 @@ impl TextureDrawer {
                     button_height,
                     panel_color,
                 );
-
-                root_ui().label(
-                    Vec2::new(
-                        width
-                            * (BUY_PANEL_HORIZONTAL_PAD
-                                + BUY_PANEL_WIDTH
-                                + 0.01
-                                + 0.01
-                                + horizontal_offset),
-                        height * (start_height + 0.01 + vertical_offset),
-                    ),
+                draw_text(
                     &hero.short_description(),
+                    (width
+                        * (BUY_PANEL_HORIZONTAL_PAD
+                            + BUY_PANEL_WIDTH
+                            + 0.01
+                            + 0.01
+                            + horizontal_offset))
+                        .round(),
+                    (height * (start_height + 0.01 + vertical_offset) + FONT_SIZE).round(),
+                    FONT_SIZE,
+                    BLACK,
                 );
+
                 let (production, kind) = if i % 2 == 0 {
                     (
                         hero.production_clean() * world.heroes_count[hero],
@@ -219,29 +223,31 @@ impl TextureDrawer {
                         "suciedades",
                     )
                 };
-                root_ui().label(
-                    Vec2::new(
-                        width
-                            * (BUY_PANEL_HORIZONTAL_PAD
-                                + BUY_PANEL_WIDTH
-                                + 0.01
-                                + 0.01
-                                + horizontal_offset),
-                        height * (start_height + 0.01 + vertical_offset) + FONT_SIZE * 1.2,
-                    ),
-                    &format!("Has contratado {}",  world.heroes_count[hero]),
+                draw_text(
+                    &format!("Has contratado {}", world.heroes_count[hero]),
+                    (width
+                        * (BUY_PANEL_HORIZONTAL_PAD
+                            + BUY_PANEL_WIDTH
+                            + 0.01
+                            + 0.01
+                            + horizontal_offset))
+                        .round(),
+                    (height * (start_height + 0.01 + vertical_offset) + FONT_SIZE * 2.2).round(),
+                    FONT_SIZE,
+                    BLACK,
                 );
-                root_ui().label(
-                    Vec2::new(
-                        width
-                            * (BUY_PANEL_HORIZONTAL_PAD
-                                + BUY_PANEL_WIDTH
-                                + 0.01
-                                + 0.01
-                                + horizontal_offset),
-                        height * (start_height + 0.01 + vertical_offset) + FONT_SIZE * 2.4,
-                    ),
+                draw_text(
                     &format!("Produciendo {} {} por segundo", production, kind),
+                    (width
+                        * (BUY_PANEL_HORIZONTAL_PAD
+                            + BUY_PANEL_WIDTH
+                            + 0.01
+                            + 0.01
+                            + horizontal_offset))
+                        .round(),
+                    (height * (start_height + 0.01 + vertical_offset) + FONT_SIZE * 3.4).round(),
+                    FONT_SIZE,
+                    BLACK,
                 );
             }
             draw_rectangle(
@@ -531,12 +537,12 @@ fn draw_text_bar(_world: &World, width: f32, height: f32) {
     );
     let text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
     let dimensions = measure_text(text, None, FONT_SIZE as u16, 1.0);
-    root_ui().label(
-        Vec2::new(
-            width * 0.5 - (dimensions.width * 0.5).round(),
-            height * (bar_height + 0.01),
-        ),
+    draw_text(
         text,
+        (width * 0.5 - dimensions.width * 0.5).round(),
+        (height * (bar_height + 0.01) + dimensions.offset_y).round(),
+        FONT_SIZE,
+        BLACK,
     );
 }
 
@@ -544,5 +550,49 @@ fn draw_version(_width: f32, height: f32) {
     root_ui().label(
         Vec2::new(0.0, height - FONT_SIZE),
         &format!("v{}", GIT_VERSION),
+    );
+}
+
+fn draw_alerts(world: &World, width: f32, height: f32) {
+    for (i, (_, message)) in world.alerts.iter().enumerate() {
+        draw_tooltip_centered(
+            &message,
+            Vec2::new(0.5, 0.5 + (i as f32 * 2.0 * FONT_SIZE) / height),
+            width,
+            height,
+            FONT_SIZE,
+        );
+    }
+}
+fn draw_tooltip_centered(text: &str, position: Vec2, width: f32, height: f32, font_size: f32) {
+    let pad = FONT_SIZE * 0.5;
+    let tooltip_size = measure_text(&text, None, font_size as u16, 1.0);
+    let text_rect = Rect::new(
+        (width * position.x - tooltip_size.width * 0.5 - pad).round(),
+        (height * position.y - tooltip_size.height - pad * 2.0).round(),
+        tooltip_size.width + pad * 2.0,
+        tooltip_size.height + pad * 2.0,
+    );
+    draw_rectangle(
+        text_rect.x,
+        text_rect.y,
+        text_rect.w,
+        text_rect.h,
+        LIGHTGRAY,
+    );
+    draw_rectangle_lines(
+        text_rect.x,
+        text_rect.y,
+        text_rect.w,
+        text_rect.h,
+        2.0,
+        BLACK,
+    );
+    draw_text(
+        &text,
+        text_rect.x + pad,
+        text_rect.y + pad + tooltip_size.offset_y,
+        font_size,
+        BLACK,
     );
 }

@@ -9,7 +9,7 @@ pub mod heores;
 type Cents = i64;
 type Units = i64;
 
-pub const CLEANING_REWARD: i64 = 10;
+const ALERT_PERSISTENCE: Seconds = 5.0;
 
 pub struct World {
     previous_trigger_time: Seconds,
@@ -21,6 +21,7 @@ pub struct World {
     money: Cents,
     total_money: Cents,
     pub heroes_count: HashMap<Hero, i64>,
+    pub alerts: Vec<(Seconds, String)>,
 }
 
 impl World {
@@ -35,24 +36,33 @@ impl World {
             money: 0,
             total_money: 0,
             heroes_count: HashMap::from_iter(Hero::list().iter().map(|h| (*h, 0))),
+            alerts: Vec::new(),
         }
     }
 
     pub fn update(&mut self, gui_actions: GuiActions) -> bool {
         self.frame += 1;
+        let now_time = now();
+        self.time_since_last_frame = now_time - self.previous_frame_timestamp;
+        self.previous_frame_timestamp = now_time;
+        self.remove_old_alerts(now_time);
+
         self.max_dirtiness = 100 + self.total_money_euros();
         if gui_actions.dirty_pressed {
             self.dirtiness += to_cents(1);
         }
-        if gui_actions.clean_pressed && self.dirtiness >= to_cents(1) {
-            self.dirtiness -= to_cents(1);
-            self.money += to_cents(1);
-            self.total_money += to_cents(1);
+        if gui_actions.clean_pressed {
+            if self.dirtiness >= to_cents(1) {
+                self.dirtiness -= to_cents(1);
+                self.money += to_cents(1);
+                self.total_money += to_cents(1);
+            } else {
+                self.alerts.push((
+                    now_time,
+                    "No se puede limpiar si no hay nada sucio".to_string(),
+                ));
+            }
         }
-
-        let now_time = now();
-        self.time_since_last_frame = now_time - self.previous_frame_timestamp;
-        self.previous_frame_timestamp = now_time;
 
         for villain in [Hero::Villain1, Hero::Villain2, Hero::Villain3] {
             let count = self.heroes_count[&villain];
@@ -69,16 +79,30 @@ impl World {
         self.dirtiness = to_cents(self.max_dirtiness).min(self.dirtiness);
 
         for (hero, bought) in &gui_actions.heroes_bought {
-            if *bought && self.money_euros() >= self.price(hero) {
-                self.money -= to_cents(self.price(hero));
-                *self.heroes_count.get_mut(&hero).unwrap() += 1;
+            if *bought {
+                if self.money_euros() >= self.price(hero) {
+                    self.money -= to_cents(self.price(hero));
+                    *self.heroes_count.get_mut(&hero).unwrap() += 1;
+                } else {
+                    self.alerts.push((
+                        now_time,
+                        "No tienes suficiente dinero para comprar esto".to_string(),
+                    ))
+                }
             }
         }
         for (hero, sold) in &gui_actions.heroes_sold {
             let count = self.heroes_count.get_mut(&hero).unwrap();
-            if *count > 0 && *sold {
-                *count -= 1;
-                self.money += to_cents(self.price(hero));
+            if *sold {
+                if *count > 0 {
+                    *count -= 1;
+                    self.money += to_cents(self.price(hero));
+                } else {
+                    self.alerts.push((
+                        now_time,
+                        "No puedes vender porque tienes 0 unidades".to_string(),
+                    ))
+                }
             }
         }
         if gui_actions.restart {
@@ -86,7 +110,11 @@ impl World {
         }
         gui_actions.should_continue()
     }
-
+    fn remove_old_alerts(&mut self, now_time: Seconds) {
+        self.alerts.retain(|(time_alert_was_raised, _message)| {
+            time_alert_was_raised + ALERT_PERSISTENCE >= now_time
+        });
+    }
     pub fn price(&self, hero: &Hero) -> Units {
         (self.heroes_count[&hero] + 1)
             * match hero {
