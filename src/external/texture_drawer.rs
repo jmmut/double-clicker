@@ -603,9 +603,9 @@ fn draw_version(_width: f32, height: f32) {
 }
 
 fn draw_alerts(world: &World, width: f32, height: f32) {
-    for (i, (_, message)) in world.alerts.iter().enumerate() {
+    for (i, (_, alert)) in world.alerts.iter().enumerate() {
         draw_tooltip_centered(
-            &message,
+            &alert.to_string(),
             Vec2::new(0.5, 0.5 + (i as f32 * 2.0 * FONT_SIZE) / height),
             width,
             height,
