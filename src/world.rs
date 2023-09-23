@@ -87,16 +87,16 @@ impl World {
         gui_actions.should_continue()
     }
 
-
     pub fn price(&self, hero: &Hero) -> Units {
-        (self.heroes_count[&hero] +1) * match hero {
-            Hero::Hero1 => 5,
-            Hero::Villain1 => 7,
-            Hero::Hero2 => 2000,
-            Hero::Villain2 => 5000,
-            Hero::Hero3 => 1000000,
-            Hero::Villain3 => 1500000,
-        }
+        (self.heroes_count[&hero] + 1)
+            * match hero {
+                Hero::Hero1 => 5,
+                Hero::Villain1 => 7,
+                Hero::Hero2 => 2000,
+                Hero::Villain2 => 5000,
+                Hero::Hero3 => 1000000,
+                Hero::Villain3 => 1500000,
+            }
     }
 
     pub fn money_euros(&self) -> Units {
@@ -123,9 +123,7 @@ pub fn to_cents(unit: Units) -> Cents {
     unit * 100
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
-
 }

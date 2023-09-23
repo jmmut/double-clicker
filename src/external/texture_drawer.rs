@@ -7,7 +7,7 @@ use crate::external::backends::{now, Seconds};
 use crate::screen::drawer_trait::{Button, DrawerTrait};
 use crate::screen::textures::Texture;
 use crate::world::heores::Hero;
-use crate::world::{World};
+use crate::world::World;
 use crate::GIT_VERSION;
 
 const EMPTY_COLOR: Color = GRAY;
@@ -162,9 +162,7 @@ impl TextureDrawer {
     }
 
     fn draw_bar_and_money(&self, world: &World, width: f32, height: f32) {
-        let Arrangement {
-            overlapping,
-        } = AVAILABLE_ARRANGEMENTS[self.arrangement_index];
+        let Arrangement { overlapping } = AVAILABLE_ARRANGEMENTS[self.arrangement_index];
 
         draw_bar(world, width, height, overlapping);
         // draw_salary(world, width, height, overlapping);
@@ -282,7 +280,8 @@ impl TextureDrawer {
                 ),
                 &format!(
                     "Tienes: {}. Precio: {}",
-                    world.heroes_count[&hero], world.price(hero)
+                    world.heroes_count[&hero],
+                    world.price(hero)
                 ),
             );
             let texture_x = if i % 2 == 0 {
@@ -335,8 +334,12 @@ impl TextureDrawer {
 }
 
 fn draw_bar(world: &World, width: f32, height: f32, overlapping: bool) {
-    let bar_width = 1.0 - BAR_HORIZONTAL_PAD* 2.0;
-    let bar_height = if overlapping { 0.1 + BAR_VERTICAL_PAD } else { BAR_VERTICAL_PAD };
+    let bar_width = 1.0 - BAR_HORIZONTAL_PAD * 2.0;
+    let bar_height = if overlapping {
+        0.1 + BAR_VERTICAL_PAD
+    } else {
+        BAR_VERTICAL_PAD
+    };
 
     draw_rectangle(
         width * BAR_HORIZONTAL_PAD,
@@ -473,7 +476,11 @@ fn draw_speeds(world: &World, width: f32, height: f32, overlapping: bool) {
 
 fn draw_dirtiness(world: &World, width: f32, height: f32, overlapping: bool) {
     let vertical_offset = if overlapping { 0.0 } else { 0.05 };
-    let dirtied_str = format!("Suciedades: {}/{}", world.dirtiness_units(), world.max_dirtiness_units());
+    let dirtied_str = format!(
+        "Suciedades: {}/{}",
+        world.dirtiness_units(),
+        world.max_dirtiness_units()
+    );
     let text_size = measure_text(&dirtied_str, None, FONT_SIZE as u16, 1.0);
     draw_text(
         &dirtied_str,

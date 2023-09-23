@@ -53,7 +53,7 @@ impl Hero {
             Hero::Villain3 => "Hace 111 tareas de ensuciar por unidad de tiempo",
         }
     }
-    
+
     pub fn production_clean(&self) -> i64 {
         match self {
             Hero::Hero1 => 1,
