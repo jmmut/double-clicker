@@ -16,10 +16,13 @@ const DIRTY_COLOR: Color = PURPLE;
 const REWARDING_ZONE_COLOR: Color = Color::new(0.7, 0.8, 0.6, 0.9);
 const FONT_SIZE: f32 = 16.0;
 
+const BAR_HORIZONTAL_PAD: f32 = 0.05;
+const BAR_VERTICAL_PAD: f32 = 0.05;
+
 const BUY_PANEL_START_HEIGHT: f32 = 0.25;
 const BUY_PANEL_HEIGHT: f32 = 0.2;
 const BUY_PANEL_WIDTH: f32 = 0.25;
-const BUY_PANEL_HORIZONTAL_PAD: f32 = 0.05;
+const BUY_PANEL_HORIZONTAL_PAD: f32 = BAR_HORIZONTAL_PAD;
 const BUY_PANEL_VERTICAL_PAD: f32 = 0.02;
 
 const TOOLTIP_WIDTH: f32 = 0.3;
@@ -170,8 +173,7 @@ impl TextureDrawer {
         draw_bar(world, width, height, overlapping, borders);
         // draw_salary(world, width, height, overlapping);
         draw_savings(world, width, height, overlapping);
-        // draw_cleaned(world, width, height, overlapping);
-        // draw_dirtied(world, width, height, overlapping);
+        draw_speeds(world, width, height, overlapping);
         draw_dirtiness(world, width, height, overlapping);
     }
 
@@ -337,27 +339,27 @@ impl TextureDrawer {
 }
 
 fn draw_bar(world: &World, width: f32, height: f32, overlapping: bool, borders: bool) {
-    let bar_width = 0.8;
-    let bar_height = if overlapping { 0.15 } else { 0.05 };
+    let bar_width = 1.0 - BAR_HORIZONTAL_PAD* 2.0;
+    let bar_height = if overlapping { 0.1 + BAR_VERTICAL_PAD } else { BAR_VERTICAL_PAD };
 
     draw_rectangle(
-        width * 0.1,
-        height * 0.05,
+        width * BAR_HORIZONTAL_PAD,
+        height * BAR_VERTICAL_PAD,
         width * bar_width,
         height * bar_height,
         CLEAN_COLOR,
     );
     let dirtiness_coef = world.dirtiness as f32 / world.max_dirtiness as f32;
     draw_rectangle(
-        width * (0.9 - bar_width * dirtiness_coef),
-        height * 0.05,
+        width * (1.0 - BAR_HORIZONTAL_PAD - bar_width * dirtiness_coef),
+        height * BAR_VERTICAL_PAD,
         width * bar_width * dirtiness_coef,
         height * bar_height,
         DIRTY_COLOR,
     );
     draw_rectangle_lines(
-        width * 0.1,
-        height * 0.05,
+        width * BAR_HORIZONTAL_PAD,
+        height * BAR_VERTICAL_PAD,
         width * bar_width,
         height * bar_height,
         2.0,
@@ -446,13 +448,40 @@ fn draw_savings(world: &World, width: f32, height: f32, overlapping: bool) {
         );
     }
 }
+fn draw_speeds(world: &World, width: f32, height: f32, overlapping: bool) {
+    let vertical_offset = if overlapping { 0.0 } else { 0.05 };
+    let mut speed = 0;
+    for hero in [Hero::Hero1, Hero::Hero2, Hero::Hero3] {
+        speed += hero.production_clean() * world.heroes_count[&hero] as i64;
+    }
+    let cleaning_text = format!("Velocidad de limpieza: {}", speed);
+    let text_pos = Vec2::new(
+        (width * BAR_HORIZONTAL_PAD).round(),
+        (height * (0.16 + vertical_offset)).round(),
+    );
+    draw_text(&cleaning_text, text_pos.x, text_pos.y, FONT_SIZE, BLACK);
+
+    let mut speed = 0;
+    for hero in [Hero::Villain1, Hero::Villain2, Hero::Villain3] {
+        speed += hero.production_dirty() * world.heroes_count[&hero] as i64;
+    }
+    let dirtiying_text = format!("Velocidad de ensuciamiento: {}", speed);
+    let text_size = measure_text(&dirtiying_text, None, FONT_SIZE as u16, 1.0);
+
+    let text_pos = Vec2::new(
+        (width * (1.0 - BAR_HORIZONTAL_PAD) - text_size.width).round(),
+        (height * (0.16 + vertical_offset)).round(),
+    );
+    draw_text(&dirtiying_text, text_pos.x, text_pos.y, FONT_SIZE, BLACK);
+}
 
 fn draw_dirtiness(world: &World, width: f32, height: f32, overlapping: bool) {
     let vertical_offset = if overlapping { 0.0 } else { 0.05 };
-    let dirtied_str = format!("suciedades: {}/{}", world.dirtiness/10, world.max_dirtiness/10);
+    let dirtied_str = format!("Suciedades: {}/{}", world.dirtiness/10, world.max_dirtiness/10);
+    let text_size = measure_text(&dirtied_str, None, FONT_SIZE as u16, 1.0);
     draw_text(
         &dirtied_str,
-        (width * 0.65).round(),
+        (width * (1.0 - BAR_HORIZONTAL_PAD) - text_size.width).round(),
         (height * (0.12 + vertical_offset)).round(),
         FONT_SIZE,
         BLACK,
