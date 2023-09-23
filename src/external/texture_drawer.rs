@@ -38,16 +38,13 @@ pub struct TextureDrawer {
 
 #[derive(Copy, Clone, Debug)]
 struct Arrangement {
-    borders: bool,
     overlapping: bool,
 }
 
 #[rustfmt::skip]
-const AVAILABLE_ARRANGEMENTS: [Arrangement; 4] = [
-    Arrangement { borders: true, overlapping: false },
-    Arrangement { borders: false, overlapping: false },
-    Arrangement { borders: true, overlapping: true },
-    Arrangement { borders: false, overlapping: true },
+const AVAILABLE_ARRANGEMENTS: [Arrangement; 2] = [
+    Arrangement { overlapping: false },
+    Arrangement { overlapping: true },
 ];
 
 impl TextureDrawer {
@@ -166,11 +163,10 @@ impl TextureDrawer {
 
     fn draw_bar_and_money(&self, world: &World, width: f32, height: f32) {
         let Arrangement {
-            borders,
             overlapping,
         } = AVAILABLE_ARRANGEMENTS[self.arrangement_index];
 
-        draw_bar(world, width, height, overlapping, borders);
+        draw_bar(world, width, height, overlapping);
         // draw_salary(world, width, height, overlapping);
         draw_savings(world, width, height, overlapping);
         draw_speeds(world, width, height, overlapping);
@@ -338,7 +334,7 @@ impl TextureDrawer {
     }
 }
 
-fn draw_bar(world: &World, width: f32, height: f32, overlapping: bool, borders: bool) {
+fn draw_bar(world: &World, width: f32, height: f32, overlapping: bool) {
     let bar_width = 1.0 - BAR_HORIZONTAL_PAD* 2.0;
     let bar_height = if overlapping { 0.1 + BAR_VERTICAL_PAD } else { BAR_VERTICAL_PAD };
 
@@ -456,7 +452,7 @@ fn draw_speeds(world: &World, width: f32, height: f32, overlapping: bool) {
     }
     let cleaning_text = format!("Velocidad de limpieza: {}", speed);
     let text_pos = Vec2::new(
-        (width * BAR_HORIZONTAL_PAD).round(),
+        (width * BAR_HORIZONTAL_PAD + FONT_SIZE).round(),
         (height * (0.16 + vertical_offset)).round(),
     );
     draw_text(&cleaning_text, text_pos.x, text_pos.y, FONT_SIZE, BLACK);
@@ -469,7 +465,7 @@ fn draw_speeds(world: &World, width: f32, height: f32, overlapping: bool) {
     let text_size = measure_text(&dirtiying_text, None, FONT_SIZE as u16, 1.0);
 
     let text_pos = Vec2::new(
-        (width * (1.0 - BAR_HORIZONTAL_PAD) - text_size.width).round(),
+        (width * (1.0 - BAR_HORIZONTAL_PAD) - text_size.width - FONT_SIZE).round(),
         (height * (0.16 + vertical_offset)).round(),
     );
     draw_text(&dirtiying_text, text_pos.x, text_pos.y, FONT_SIZE, BLACK);
@@ -481,7 +477,7 @@ fn draw_dirtiness(world: &World, width: f32, height: f32, overlapping: bool) {
     let text_size = measure_text(&dirtied_str, None, FONT_SIZE as u16, 1.0);
     draw_text(
         &dirtied_str,
-        (width * (1.0 - BAR_HORIZONTAL_PAD) - text_size.width).round(),
+        (width * (1.0 - BAR_HORIZONTAL_PAD) - text_size.width - FONT_SIZE).round(),
         (height * (0.12 + vertical_offset)).round(),
         FONT_SIZE,
         BLACK,
