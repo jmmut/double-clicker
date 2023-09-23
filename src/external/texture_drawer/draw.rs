@@ -13,13 +13,15 @@ use macroquad::prelude::{
 pub fn is_texture_clicked(
     rect_pixels: Rect,
     texture: Texture2D,
-    texture_pressed: Option<Texture2D>,
+    texture_highlighted: Option<Texture2D>,
 ) -> bool {
+    let hovered = rect_pixels.contains(Vec2::from(mouse_position()));
     let clicking = rect_pixels.contains(Vec2::from(mouse_position()))
         && is_mouse_button_down(MouseButton::Left);
+
     let mut chosen_texture = texture;
-    if clicking {
-        if let Some(tp) = texture_pressed {
+    if hovered && !clicking {
+        if let Some(tp) = texture_highlighted {
             chosen_texture = tp
         }
     }
@@ -34,7 +36,7 @@ pub fn is_texture_clicked(
         },
     );
     return rect_pixels.contains(Vec2::from(mouse_position()))
-        && is_mouse_button_pressed(MouseButton::Left);
+        && is_mouse_button_released(MouseButton::Left);
 }
 
 #[derive(Eq, PartialEq, Copy, Clone)]
@@ -132,8 +134,8 @@ impl Button {
         let text_dimensions = measure_text(text, None, FONT_SIZE as u16, 1.0);
         let pad = Vec2::new(FONT_SIZE, FONT_SIZE * 0.5);
         let rect = Rect::new(
-            (top_left.x ).round(),
-            (top_left.y ).round(),
+            (top_left.x).round(),
+            (top_left.y).round(),
             (text_dimensions.width + pad.x * 2.0).round(),
             (FONT_SIZE + pad.y).round(),
         );

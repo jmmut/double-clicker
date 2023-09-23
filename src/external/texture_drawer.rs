@@ -122,7 +122,8 @@ impl DrawerTrait for TextureDrawer {
                     BUY_PANEL_HORIZONTAL_PAD + 0.02 + horizontal_offset + texture_offset,
                     BUY_PANEL_START_HEIGHT + 0.12 + vertical_offset,
                     "Comprar",
-                    width, height
+                    width,
+                    height,
                 )
             }
             Button::Sell(hero) => {
@@ -133,7 +134,8 @@ impl DrawerTrait for TextureDrawer {
                     BUY_PANEL_HORIZONTAL_PAD + 0.1 + horizontal_offset + texture_offset,
                     BUY_PANEL_START_HEIGHT + 0.12 + vertical_offset,
                     "Vender",
-                    width, height
+                    width,
+                    height,
                 )
             }
         }
@@ -176,9 +178,15 @@ impl TextureDrawer {
         self.previous_time = new_time;
     }
 
-    fn is_button_clicked(&mut self, x_coef: f32, y_coef: f32, label: & str, width: f32, height: f32) -> bool {
-        let mut button =
-            draw::Button::from_pos(label, Vec2::new(width * x_coef, height * y_coef));
+    fn is_button_clicked(
+        &mut self,
+        x_coef: f32,
+        y_coef: f32,
+        label: &str,
+        width: f32,
+        height: f32,
+    ) -> bool {
+        let mut button = draw::Button::from_pos(label, Vec2::new(width * x_coef, height * y_coef));
         let interaction = button.interact();
         self.buttons.push(button);
         interaction.is_clicked()
@@ -305,27 +313,25 @@ impl TextureDrawer {
                 panel_rect.h * character_texture.width() / character_texture.height(),
                 panel_rect.h,
             );
-            let text_pos_x = width * (BUY_PANEL_HORIZONTAL_PAD + 0.01 + horizontal_offset)
-                + if i % 2 == 0 { 0.0 } else { texture_size.x };
-            root_ui().label(
-                Vec2::new(
-                    text_pos_x,
-                    height * (start_height + vertical_offset) + FONT_SIZE * 0.2,
-                ),
+            let text_pos_x = (width * (BUY_PANEL_HORIZONTAL_PAD + 0.01 + horizontal_offset)
+                + if i % 2 == 0 { 0.0 } else { texture_size.x })
+            .round();
+
+            draw_text(
                 &hero.name(),
+                text_pos_x,
+                (height * (start_height + 0.01 + vertical_offset) + FONT_SIZE).round(),
+                FONT_SIZE,
+                BLACK,
             );
-            root_ui().label(
-                Vec2::new(
-                    text_pos_x,
-                    height * (start_height + vertical_offset) + FONT_SIZE * 1.4,
-                ),
+            draw_text(
                 &format!("Precio: {} €", world.price(hero)),
+                text_pos_x,
+                (height * (start_height + 0.01 + vertical_offset) + FONT_SIZE * 2.2).round(),
+                FONT_SIZE,
+                BLACK,
             );
-            root_ui().label(
-                Vec2::new(
-                    text_pos_x,
-                    height * (start_height + vertical_offset) + FONT_SIZE * 2.6,
-                ),
+            draw_text(
                 &format!(
                     "{}: {} x {}",
                     if i % 2 == 0 {
@@ -340,6 +346,10 @@ impl TextureDrawer {
                     },
                     world.heroes_count[&hero],
                 ),
+                text_pos_x,
+                (height * (start_height + 0.01 + vertical_offset) + FONT_SIZE * 3.4).round(),
+                FONT_SIZE,
+                BLACK,
             );
             let texture_x = if i % 2 == 0 {
                 panel_rect.x + panel_rect.w - texture_size.x
@@ -347,7 +357,7 @@ impl TextureDrawer {
                 panel_rect.x
             };
             let texture_rect = Rect::new(texture_x, panel_rect.y, texture_size.x, texture_size.y);
-            draw::is_texture_clicked(texture_rect, character_texture, None);
+            draw::is_texture_clicked(texture_rect, character_texture, Some(character_texture));
         }
         for button in &self.buttons {
             button.render();
@@ -502,6 +512,14 @@ fn draw_savings(world: &World, width: f32, height: f32, overlapping: bool) {
             tooltip_dimensions.width + pad * 2.0,
             tooltip_dimensions.height + pad * 2.0,
             LIGHTGRAY,
+        );
+        draw_rectangle_lines(
+            mouse_x,
+            mouse_y - tooltip_dimensions.height - pad * 2.0,
+            tooltip_dimensions.width + pad * 2.0,
+            tooltip_dimensions.height + pad * 2.0,
+            2.0,
+            BLACK,
         );
         draw_text(
             tooltip_text,
