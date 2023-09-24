@@ -8,7 +8,7 @@ use crate::external::texture_drawer::draw::CenteredButton;
 use crate::screen::drawer_trait::{Button, DrawerTrait};
 use crate::screen::textures::Texture;
 use crate::world::heores::Hero;
-use crate::world::World;
+use crate::world::{accumulate_price, World};
 use crate::GIT_VERSION;
 
 const EMPTY_COLOR: Color = GRAY;
@@ -256,7 +256,11 @@ impl TextureDrawer {
                     )
                 };
                 draw_text(
-                    &format!("Has contratado {}", world.heroes_count[hero]),
+                    &format!(
+                        "Has contratado {} invirtiendo {} €",
+                        world.heroes_count[hero],
+                        accumulate_price(world.heroes_count[hero]) * hero.base_price() as f32
+                    ),
                     (width
                         * (BUY_PANEL_HORIZONTAL_PAD
                             + BUY_PANEL_WIDTH

@@ -128,15 +128,7 @@ impl World {
         *self = Self::new();
     }
     pub fn price(&self, hero: &Hero) -> Units {
-        (self.heroes_count[&hero] + 1)
-            * match hero {
-                Hero::Hero1 => 5,
-                Hero::Villain1 => 7,
-                Hero::Hero2 => 500,
-                Hero::Villain2 => 1000,
-                Hero::Hero3 => 50000,
-                Hero::Villain3 => 120000,
-            }
+        (self.heroes_count[&hero] + 1) * hero.base_price()
     }
 
     pub fn money_euros(&self) -> Units {
@@ -163,7 +155,16 @@ pub fn to_cents(unit: Units) -> Cents {
     unit * 100
 }
 
+pub fn accumulate_price(n: i64) -> f32 {
+    ((1 + n) * n) as f32 / 2.0
+}
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn test_invested() {
+        let actual = accumulate_price(5);
+        let expected = 1 + 2 + 3 + 4 + 5;
+        assert_eq!(actual, expected as f32);
+    }
 }

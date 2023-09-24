@@ -48,12 +48,21 @@ impl Hero {
             Hero::Hero1 => "Hace 1 tarea de limpieza por segundo",
             Hero::Villain1 => "Hace 2 tareas de ensuciar por segundo",
             Hero::Hero2 => "Hace 10 tareas de limpieza por segundo",
-            Hero::Villain2 => "Hace 13 tareas de ensuciar por segundo",
+            Hero::Villain2 => "Hace 21 tareas de ensuciar por segundo",
             Hero::Hero3 => "Hace 100 tareas de limpieza por segundo",
-            Hero::Villain3 => "Hace 111 tareas de ensuciar por segundo",
+            Hero::Villain3 => "Hace 221 tareas de ensuciar por segundo",
         }
     }
-
+    pub fn base_price(&self) -> i64 {
+        match self {
+            Hero::Hero1 => 5,
+            Hero::Villain1 => 12,
+            Hero::Hero2 => 500,
+            Hero::Villain2 => 1000,
+            Hero::Hero3 => 50000,
+            Hero::Villain3 => 80000,
+        }
+    }
     pub fn production_clean(&self) -> i64 {
         match self {
             Hero::Hero1 => 1,
@@ -69,9 +78,9 @@ impl Hero {
             Hero::Hero1 => 0,
             Hero::Villain1 => 2,
             Hero::Hero2 => 0,
-            Hero::Villain2 => 13,
+            Hero::Villain2 => 21,
             Hero::Hero3 => 0,
-            Hero::Villain3 => 111,
+            Hero::Villain3 => 221,
         }
     }
 }
