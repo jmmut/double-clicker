@@ -1,10 +1,11 @@
+use macroquad::prelude::{
+    draw_rectangle, draw_text, draw_texture_ex, is_mouse_button_down, is_mouse_button_released,
+    measure_text, mouse_position, DrawTextureParams, MouseButton, Rect, TextDimensions, Texture2D,
+    BLACK, GRAY, LIGHTGRAY, WHITE,
+};
+
 use crate::external::backends::Vec2;
 use crate::external::texture_drawer::FONT_SIZE;
-use macroquad::prelude::{
-    draw_rectangle, draw_text, draw_texture_ex, is_mouse_button_down, is_mouse_button_pressed,
-    is_mouse_button_released, measure_text, mouse_position, DrawTextureParams, MouseButton, Rect,
-    TextDimensions, Texture2D, BLACK, DARKGRAY, GRAY, LIGHTGRAY, WHITE,
-};
 
 /// Returns if the texture was clicked this frame.
 ///

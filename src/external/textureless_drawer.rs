@@ -2,10 +2,10 @@ use macroquad::prelude::*;
 use macroquad::ui::root_ui;
 
 use crate::external::backends::{now, Seconds};
-use crate::screen::drawer_trait::{Button, DrawerTrait};
-use crate::world::heores::Hero;
-use crate::world::{World, HERO_PRICE};
 use crate::GIT_VERSION;
+use crate::screen::drawer_trait::{Button, DrawerTrait};
+use crate::world::{HERO_PRICE, World};
+use crate::world::heores::Hero;
 
 const EMPTY_COLOR: Color = GRAY;
 const CLEAN_COLOR: Color = SKYBLUE;

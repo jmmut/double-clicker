@@ -1,7 +1,7 @@
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
-use macroquad::prelude::coroutines::{start_coroutine, wait_seconds};
+use macroquad::prelude::coroutines::start_coroutine;
 use macroquad::prelude::*;
 use macroquad::ui::root_ui;
 

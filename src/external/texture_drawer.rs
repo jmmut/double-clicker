@@ -1,20 +1,17 @@
-mod draw;
-
 use macroquad::prelude::*;
 use macroquad::ui::root_ui;
 
 use crate::external::backends::{now, Seconds};
-use crate::external::texture_drawer::draw::CenteredButton;
 use crate::screen::drawer_trait::{Button, DrawerTrait};
 use crate::screen::textures::Texture;
 use crate::world::heores::Hero;
 use crate::world::{accumulate_price, World};
 use crate::GIT_VERSION;
 
-const EMPTY_COLOR: Color = GRAY;
+mod draw;
+
 const CLEAN_COLOR: Color = SKYBLUE;
 const DIRTY_COLOR: Color = PURPLE;
-const REWARDING_ZONE_COLOR: Color = Color::new(0.7, 0.8, 0.6, 0.9);
 const FONT_SIZE: f32 = 16.0;
 
 const BAR_HORIZONTAL_PAD: f32 = 0.04;

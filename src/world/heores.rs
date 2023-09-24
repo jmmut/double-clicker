@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum Hero {
     Hero1,

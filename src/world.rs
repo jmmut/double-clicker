@@ -14,7 +14,6 @@ type Units = i64;
 const ALERT_PERSISTENCE: Seconds = 5.0;
 
 pub struct World {
-    previous_trigger_time: Seconds,
     pub frame: i64,
     pub previous_frame_timestamp: Seconds,
     pub time_since_last_frame: Seconds,
@@ -31,7 +30,6 @@ pub struct World {
 impl World {
     pub fn new() -> Self {
         Self {
-            previous_trigger_time: now(),
             previous_frame_timestamp: now(),
             frame: 0,
             time_since_last_frame: 0.0,
@@ -161,6 +159,7 @@ pub fn accumulate_price(n: i64) -> f32 {
 #[cfg(test)]
 mod tests {
     use super::*;
+
     #[test]
     fn test_invested() {
         let actual = accumulate_price(5);
