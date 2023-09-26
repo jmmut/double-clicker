@@ -306,11 +306,7 @@ impl TextureDrawer {
             //     1.0,
             //     BLACK,
             // );
-            let character_texture = self.textures[if i % 2 == 0 {
-                Texture::Hero1
-            } else {
-                Texture::Villain1
-            } as usize];
+            let character_texture = self.textures[Texture::Hero1 as usize + i];
             let texture_size = Vec2::new(
                 panel_rect.h * character_texture.width() / character_texture.height(),
                 panel_rect.h,
