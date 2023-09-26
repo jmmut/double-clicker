@@ -35,6 +35,7 @@ pub struct TextureDrawer {
     clean_index: usize,
     dirty_index: usize,
     buttons: Vec<draw::Button>,
+    font_size: f32,
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -58,7 +59,20 @@ impl TextureDrawer {
             clean_index: 0,
             dirty_index: 0,
             buttons: Vec::new(),
+            font_size: Self::choose_font_size(screen_width(), screen_height()),
         }
+    }
+
+    fn choose_font_size(width: f32, height: f32) -> f32 {
+        let min_side = width.min(height * 16.0 / 9.0);
+        FONT_SIZE
+            * if min_side < 1600.0 {
+                1.0
+            } else if min_side < 2500.0 {
+                1.5
+            } else {
+                2.0
+            }
     }
 }
 
@@ -68,12 +82,13 @@ impl DrawerTrait for TextureDrawer {
         // self.debug_fps(world);
         let width = screen_width();
         let height = screen_height();
-        self.draw_bar_and_money(world, width, height);
-        self.draw_buy_heroes(world, width, height);
-        draw_text_bar(world, width, height);
-        draw_version(width, height);
-        draw_alerts(world, width, height);
-        draw_game_over(world, width, height);
+        self.font_size = Self::choose_font_size(width, height);
+        self.draw_bar_and_money(world, width, height, self.font_size);
+        self.draw_buy_heroes(world, width, height, self.font_size);
+        draw_text_bar(world, width, height, self.font_size);
+        draw_version(width, height, self.font_size);
+        draw_alerts(world, width, height, self.font_size);
+        draw_game_over(world, width, height, self.font_size);
     }
 
     fn button(&mut self, button: Button) -> bool {
@@ -122,6 +137,7 @@ impl DrawerTrait for TextureDrawer {
                     "Comprar",
                     width,
                     height,
+                    self.font_size,
                 )
             }
             Button::Sell(hero) => {
@@ -134,6 +150,7 @@ impl DrawerTrait for TextureDrawer {
                     "Vender",
                     width,
                     height,
+                    self.font_size,
                 )
             }
         }
@@ -183,25 +200,30 @@ impl TextureDrawer {
         label: &str,
         width: f32,
         height: f32,
+        font_size: f32,
     ) -> bool {
-        let mut button = draw::Button::from_pos(label, Vec2::new(width * x_coef, height * y_coef));
+        let mut button = draw::Button::from_top_left_pos(
+            label,
+            Vec2::new(width * x_coef, height * y_coef),
+            font_size,
+        );
         let interaction = button.interact();
         self.buttons.push(button);
         interaction.is_clicked()
         // return root_ui().button(Some(Vec2::new(width * x_coef, height * y_coef)), label);
     }
 
-    fn draw_bar_and_money(&self, world: &World, width: f32, height: f32) {
+    fn draw_bar_and_money(&self, world: &World, width: f32, height: f32, font_size: f32) {
         let Arrangement { overlapping } = AVAILABLE_ARRANGEMENTS[self.arrangement_index];
 
         draw_bar(world, width, height, overlapping);
         // draw_salary(world, width, height, overlapping);
-        draw_savings(world, width, height, overlapping);
-        draw_speeds(world, width, height, overlapping);
-        draw_dirtiness(world, width, height, overlapping);
+        draw_savings(world, width, height, overlapping, font_size);
+        draw_speeds(world, width, height, overlapping, font_size);
+        draw_dirtiness(world, width, height, overlapping, font_size);
     }
 
-    fn draw_buy_heroes(&mut self, world: &World, width: f32, height: f32) {
+    fn draw_buy_heroes(&mut self, world: &World, width: f32, height: f32, font_size: f32) {
         let start_height = BUY_PANEL_START_HEIGHT;
         let button_width = width * BUY_PANEL_WIDTH;
         let button_height = height * BUY_PANEL_HEIGHT;
@@ -236,8 +258,8 @@ impl TextureDrawer {
                             + 0.01
                             + horizontal_offset))
                         .round(),
-                    (height * (start_height + 0.01 + vertical_offset) + FONT_SIZE).round(),
-                    FONT_SIZE,
+                    (height * (start_height + 0.01 + vertical_offset) + font_size).round(),
+                    font_size,
                     BLACK,
                 );
 
@@ -265,8 +287,8 @@ impl TextureDrawer {
                             + 0.01
                             + horizontal_offset))
                         .round(),
-                    (height * (start_height + 0.01 + vertical_offset) + FONT_SIZE * 2.2).round(),
-                    FONT_SIZE,
+                    (height * (start_height + 0.01 + vertical_offset) + font_size * 2.2).round(),
+                    font_size,
                     BLACK,
                 );
                 draw_text(
@@ -278,8 +300,8 @@ impl TextureDrawer {
                             + 0.01
                             + horizontal_offset))
                         .round(),
-                    (height * (start_height + 0.01 + vertical_offset) + FONT_SIZE * 3.4).round(),
-                    FONT_SIZE,
+                    (height * (start_height + 0.01 + vertical_offset) + font_size * 3.4).round(),
+                    font_size,
                     BLACK,
                 );
             }
@@ -300,9 +322,9 @@ impl TextureDrawer {
             );
             // draw_line(
             //     width * (0.05 + horizontal_offset),
-            //     height * (start_height + vertical_offset) + FONT_SIZE * 1.2,
+            //     height * (start_height + vertical_offset) + font_size * 1.2,
             //     width * (0.05 + horizontal_offset) + button_width,
-            //     height * (start_height + vertical_offset) + FONT_SIZE * 1.2,
+            //     height * (start_height + vertical_offset) + font_size * 1.2,
             //     1.0,
             //     BLACK,
             // );
@@ -318,15 +340,15 @@ impl TextureDrawer {
             draw_text(
                 &hero.name(),
                 text_pos_x,
-                (height * (start_height + 0.01 + vertical_offset) + FONT_SIZE).round(),
-                FONT_SIZE,
+                (height * (start_height + 0.01 + vertical_offset) + font_size).round(),
+                font_size,
                 BLACK,
             );
             draw_text(
                 &format!("Precio: {} €", world.price(hero)),
                 text_pos_x,
-                (height * (start_height + 0.01 + vertical_offset) + FONT_SIZE * 2.2).round(),
-                FONT_SIZE,
+                (height * (start_height + 0.01 + vertical_offset) + font_size * 2.2).round(),
+                font_size,
                 BLACK,
             );
             draw_text(
@@ -345,8 +367,8 @@ impl TextureDrawer {
                     world.heroes_count[&hero],
                 ),
                 text_pos_x,
-                (height * (start_height + 0.01 + vertical_offset) + FONT_SIZE * 3.4).round(),
-                FONT_SIZE,
+                (height * (start_height + 0.01 + vertical_offset) + font_size * 3.4).round(),
+                font_size,
                 BLACK,
             );
             let texture_x = if i % 2 == 0 {
@@ -439,9 +461,9 @@ fn draw_bar(world: &World, width: f32, height: f32, overlapping: bool) {
     );
 }
 
-fn draw_savings(world: &World, width: f32, height: f32, overlapping: bool) {
+fn draw_savings(world: &World, width: f32, height: f32, overlapping: bool, font_size: f32) {
     let vertical_offset = if overlapping { 0.0 } else { 0.05 };
-    let font_size = FONT_SIZE * 2.0;
+    let font_size = font_size * 2.0;
     let money_text = format!("{} €", world.money_euros());
     let money_size = measure_text(&money_text, None, font_size as u16, 1.0);
     let text_rect = Rect::new(
@@ -501,9 +523,9 @@ fn draw_savings(world: &World, width: f32, height: f32, overlapping: bool) {
     };
     let (mouse_x, mouse_y) = mouse_position();
     if text_top_left.contains(Vec2::new(mouse_x, mouse_y)) {
-        let pad = FONT_SIZE * 0.5;
+        let pad = font_size * 0.5;
         let tooltip_text = "Ahorros";
-        let tooltip_dimensions = measure_text(tooltip_text, None, FONT_SIZE as u16, 1.0);
+        let tooltip_dimensions = measure_text(tooltip_text, None, font_size as u16, 1.0);
         draw_rectangle(
             mouse_x,
             mouse_y - tooltip_dimensions.height - pad * 2.0,
@@ -523,12 +545,12 @@ fn draw_savings(world: &World, width: f32, height: f32, overlapping: bool) {
             tooltip_text,
             (mouse_x + pad).round(),
             (mouse_y - pad).round(),
-            FONT_SIZE,
+            font_size,
             BLACK,
         );
     }
 }
-fn draw_speeds(world: &World, width: f32, height: f32, overlapping: bool) {
+fn draw_speeds(world: &World, width: f32, height: f32, overlapping: bool, font_size: f32) {
     let vertical_offset = if overlapping { 0.0 } else { 0.05 };
     let mut speed = 0;
     for hero in [Hero::Hero1, Hero::Hero2, Hero::Hero3] {
@@ -536,43 +558,43 @@ fn draw_speeds(world: &World, width: f32, height: f32, overlapping: bool) {
     }
     let cleaning_text = format!("Velocidad de limpieza: {}", speed);
     let text_pos = Vec2::new(
-        (width * BAR_HORIZONTAL_PAD + FONT_SIZE).round(),
+        (width * BAR_HORIZONTAL_PAD + font_size).round(),
         (height * (SAVINGS_HEIGHT + vertical_offset)).round(),
     );
-    draw_text(&cleaning_text, text_pos.x, text_pos.y, FONT_SIZE, BLACK);
+    draw_text(&cleaning_text, text_pos.x, text_pos.y, font_size, BLACK);
 
     let mut speed = 0;
     for hero in [Hero::Villain1, Hero::Villain2, Hero::Villain3] {
         speed += hero.production_dirty() * world.heroes_count[&hero];
     }
     let dirtiying_text = format!("Velocidad de ensuciamiento: {}", speed);
-    let text_size = measure_text(&dirtiying_text, None, FONT_SIZE as u16, 1.0);
+    let text_size = measure_text(&dirtiying_text, None, font_size as u16, 1.0);
 
     let text_pos = Vec2::new(
-        (width * (1.0 - BAR_HORIZONTAL_PAD) - text_size.width - FONT_SIZE).round(),
+        (width * (1.0 - BAR_HORIZONTAL_PAD) - text_size.width - font_size).round(),
         (height * (SAVINGS_HEIGHT + vertical_offset)).round(),
     );
-    draw_text(&dirtiying_text, text_pos.x, text_pos.y, FONT_SIZE, BLACK);
+    draw_text(&dirtiying_text, text_pos.x, text_pos.y, font_size, BLACK);
 }
 
-fn draw_dirtiness(world: &World, width: f32, height: f32, overlapping: bool) {
+fn draw_dirtiness(world: &World, width: f32, height: f32, overlapping: bool, font_size: f32) {
     let vertical_offset = if overlapping { 0.0 } else { 0.05 };
     let dirtied_str = format!(
         "Suciedades: {}/{}",
         world.dirtiness_units(),
         world.max_dirtiness_units()
     );
-    let text_size = measure_text(&dirtied_str, None, FONT_SIZE as u16, 1.0);
+    let text_size = measure_text(&dirtied_str, None, font_size as u16, 1.0);
     draw_text(
         &dirtied_str,
-        (width * (1.0 - BAR_HORIZONTAL_PAD) - text_size.width - FONT_SIZE).round(),
+        (width * (1.0 - BAR_HORIZONTAL_PAD) - text_size.width - font_size).round(),
         (height * (SAVINGS_HEIGHT - 0.03 + vertical_offset)).round(),
-        FONT_SIZE,
+        font_size,
         BLACK,
     );
 }
 
-fn draw_text_bar(_world: &World, width: f32, height: f32) {
+fn draw_text_bar(_world: &World, width: f32, height: f32, font_size: f32) {
     let bar_height = BUY_PANEL_START_HEIGHT + 3.0 * (BUY_PANEL_HEIGHT + BUY_PANEL_VERTICAL_PAD);
     draw_line(
         width * 0.0,
@@ -583,36 +605,36 @@ fn draw_text_bar(_world: &World, width: f32, height: f32) {
         BLACK,
     );
     let text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
-    let dimensions = measure_text(text, None, FONT_SIZE as u16, 1.0);
+    let dimensions = measure_text(text, None, font_size as u16, 1.0);
     draw_text(
         text,
         (width * 0.5 - dimensions.width * 0.5).round(),
         (height * (bar_height + 0.01) + dimensions.offset_y).round(),
-        FONT_SIZE,
+        font_size,
         BLACK,
     );
 }
 
-fn draw_version(_width: f32, height: f32) {
+fn draw_version(_width: f32, height: f32, font_size: f32) {
     root_ui().label(
-        Vec2::new(0.0, height - FONT_SIZE),
+        Vec2::new(0.0, height - font_size),
         &format!("v{}", GIT_VERSION),
     );
 }
 
-fn draw_alerts(world: &World, width: f32, height: f32) {
+fn draw_alerts(world: &World, width: f32, height: f32, font_size: f32) {
     for (i, (_, alert)) in world.alerts.iter().enumerate() {
         draw_tooltip_centered(
             &alert.to_string(),
-            Vec2::new(0.5, 0.5 + (i as f32 * 2.0 * FONT_SIZE) / height),
+            Vec2::new(0.5, 0.5 + (i as f32 * 2.0 * font_size) / height),
             width,
             height,
-            FONT_SIZE,
+            font_size,
         );
     }
 }
 fn draw_tooltip_centered(text: &str, position: Vec2, width: f32, height: f32, font_size: f32) {
-    let pad = FONT_SIZE * 0.5;
+    let pad = font_size * 0.5;
     let tooltip_size = measure_text(&text, None, font_size as u16, 1.0);
     let text_rect = Rect::new(
         (width * position.x - tooltip_size.width * 0.5 - pad).round(),
@@ -644,7 +666,7 @@ fn draw_tooltip_centered(text: &str, position: Vec2, width: f32, height: f32, fo
     );
 }
 
-fn draw_game_over(world: &mut World, width: f32, height: f32) {
+fn draw_game_over(world: &mut World, width: f32, height: f32, font_size: f32) {
     if world.game_over {
         let text_rect = Rect::new(
             (width * 0.35).round(),
@@ -667,23 +689,26 @@ fn draw_game_over(world: &mut World, width: f32, height: f32) {
             2.0,
             BLACK,
         );
-        draw_text_centered("GAME OVER", Vec2::new(0.5, 0.57), width, height, FONT_SIZE);
+        draw_text_centered("GAME OVER", Vec2::new(0.5, 0.57), width, height, font_size);
         draw_text_centered(
             "Te has pasado de avaricioso.",
             Vec2::new(0.5, 0.64),
             width,
             height,
-            FONT_SIZE,
+            font_size,
         );
         draw_text_centered(
             "La suciedad se ha apoderado de ti.",
             Vec2::new(0.5, 0.67),
             width,
             height,
-            FONT_SIZE,
+            font_size,
         );
-        let mut button =
-            draw::CenteredButton::from_pos("Reiniciar", Vec2::new(width * 0.5, height * 0.7));
+        let mut button = draw::Button::from_center_pos(
+            "Reiniciar",
+            Vec2::new(width * 0.5, height * 0.7),
+            font_size,
+        );
         if button.interact().is_clicked() {
             world.restart(); // TODO: move this somehow to basic_input
         }
@@ -692,7 +717,7 @@ fn draw_game_over(world: &mut World, width: f32, height: f32) {
 }
 
 fn draw_text_centered(text: &str, position: Vec2, width: f32, height: f32, font_size: f32) {
-    let pad = FONT_SIZE * 0.5;
+    let pad = font_size * 0.5;
     let tooltip_size = measure_text(&text, None, font_size as u16, 1.0);
     let text_rect = Rect::new(
         (width * position.x - tooltip_size.width * 0.5 - pad).round(),

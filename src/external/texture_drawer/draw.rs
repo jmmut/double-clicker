@@ -5,7 +5,6 @@ use macroquad::prelude::{
 };
 
 use crate::external::backends::Vec2;
-use crate::external::texture_drawer::FONT_SIZE;
 
 /// Returns if the texture was clicked this frame.
 ///
@@ -64,90 +63,42 @@ impl Interaction {
     }
 }
 
-pub struct CenteredButton {
-    text: String,
-    text_dimensions: TextDimensions,
-    rect: Rect,
-    pad: Vec2,
-    interaction: Interaction,
-}
-
-impl CenteredButton {
-    pub fn from_pos(text: &str, center_pixel: Vec2) -> Self {
-        let text_dimensions = measure_text(text, None, FONT_SIZE as u16, 1.0);
-        let pad = Vec2::new(FONT_SIZE, FONT_SIZE * 0.5);
-        let rect = Rect::new(
-            (center_pixel.x - text_dimensions.width * 0.5 - pad.x).round(),
-            (center_pixel.y - text_dimensions.offset_y * 0.5 - pad.y).round(),
-            (text_dimensions.width + pad.x * 2.0).round(),
-            (FONT_SIZE + pad.y).round(),
-        );
-
-        Self {
-            text: text.to_string(),
-            text_dimensions,
-            rect,
-            pad,
-            interaction: Interaction::None,
-        }
-    }
-
-    pub fn interact(&mut self) -> Interaction {
-        self.interaction = if self.rect.contains(Vec2::from(mouse_position())) {
-            if is_mouse_button_down(MouseButton::Left) {
-                Interaction::Pressing
-            } else if is_mouse_button_released(MouseButton::Left) {
-                Interaction::Clicked
-            } else {
-                Interaction::Hovered
-            }
-        } else {
-            Interaction::None
-        };
-        self.interaction
-    }
-    pub fn render(&self) {
-        let color = match self.interaction {
-            Interaction::Clicked | Interaction::Pressing => GRAY,
-            Interaction::Hovered => WHITE,
-            Interaction::None => LIGHTGRAY,
-        };
-        draw_rectangle(self.rect.x, self.rect.y, self.rect.w, self.rect.h, color);
-        draw_text(
-            &self.text,
-            (self.rect.x + self.pad.x).round(),
-            (self.rect.y + self.pad.y + self.text_dimensions.offset_y).round(),
-            FONT_SIZE,
-            BLACK,
-        );
-    }
-}
 pub struct Button {
     text: String,
     text_dimensions: TextDimensions,
+    font_size: f32,
     rect: Rect,
     pad: Vec2,
     interaction: Interaction,
 }
 
 impl Button {
-    pub fn from_pos(text: &str, top_left_pixel: Vec2) -> Self {
-        let text_dimensions = measure_text(text, None, FONT_SIZE as u16, 1.0);
-        let pad = Vec2::new(FONT_SIZE, FONT_SIZE * 0.5);
+    pub fn from_top_left_pos(text: &str, top_left_pixel: Vec2, font_size: f32) -> Self {
+        let text_dimensions = measure_text(text, None, font_size as u16, 1.0);
+        let pad = Vec2::new(font_size, font_size * 0.5);
         let rect = Rect::new(
             (top_left_pixel.x).round(),
             (top_left_pixel.y).round(),
             (text_dimensions.width + pad.x * 2.0).round(),
-            (FONT_SIZE + pad.y).round(),
+            (font_size + pad.y).round(),
         );
 
         Self {
             text: text.to_string(),
             text_dimensions,
+            font_size,
             rect,
             pad,
             interaction: Interaction::None,
         }
+    }
+    pub fn from_center_pos(text: &str, center_pixel: Vec2, font_size: f32) -> Self {
+        Self::offset_from_center(Self::from_top_left_pos(text, center_pixel, font_size))
+    }
+    fn offset_from_center(mut self) -> Self {
+        self.rect.x += -self.text_dimensions.width * 0.5 - self.pad.x;
+        self.rect.y += -self.text_dimensions.offset_y * 0.5 - self.pad.y;
+        self
     }
 
     pub fn interact(&mut self) -> Interaction {
@@ -175,7 +126,7 @@ impl Button {
             &self.text,
             (self.rect.x + self.pad.x).round(),
             (self.rect.y + self.pad.y + self.text_dimensions.offset_y).round(),
-            FONT_SIZE,
+            self.font_size,
             BLACK,
         );
     }
