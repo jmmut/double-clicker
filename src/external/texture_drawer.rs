@@ -12,7 +12,7 @@ mod draw;
 
 const CLEAN_COLOR: Color = SKYBLUE;
 const DIRTY_COLOR: Color = PURPLE;
-const FONT_SIZE: f32 = 16.0;
+const FONT_SIZE: f32 = 24.0;
 
 const BAR_HORIZONTAL_PAD: f32 = 0.04;
 const BAR_VERTICAL_PAD: f32 = 0.05;
@@ -319,11 +319,19 @@ impl TextureDrawer {
                 + if i % 2 == 0 { 0.0 } else { texture_size.x })
             .round();
 
+            let title_size = FONT_SIZE * 1.25;
             draw_text(
                 &hero.name(),
-                text_pos_x,
-                (height * (start_height + 0.01 + vertical_offset) + FONT_SIZE).round(),
-                FONT_SIZE,
+                (text_pos_x).round(),
+                (height * (start_height + 0.01 + vertical_offset) + title_size).round(),
+                title_size,
+                BLACK,
+            );
+            draw_text(
+                &hero.name(),
+                (text_pos_x + 0.5).round(),
+                (height * (start_height + 0.01 + vertical_offset) + title_size + 0.5).round(),
+                title_size,
                 BLACK,
             );
             draw_text(
@@ -629,7 +637,7 @@ fn draw_tooltip_centered(text: &str, position: Vec2, width: f32, height: f32, fo
         text_rect.y,
         text_rect.w,
         text_rect.h,
-        LIGHTGRAY,
+        Color::new(0.98, 0.95, 0.3, 1.00),
     );
     draw_rectangle_lines(
         text_rect.x,
