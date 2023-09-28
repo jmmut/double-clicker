@@ -8,6 +8,7 @@ pub struct GuiActions {
     pub dirty_pressed: bool,
     pub next_arrangement: bool,
     pub restart: bool,
+    pub continue_playing: bool,
     pub heroes_bought: HashMap<Hero, bool>,
     pub heroes_sold: HashMap<Hero, bool>,
 }

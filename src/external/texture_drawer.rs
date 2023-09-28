@@ -34,8 +34,11 @@ pub struct TextureDrawer {
     arrangement_index: usize,
     clean_index: usize,
     dirty_index: usize,
-    buttons: Vec<draw::Button>,
+    buy_buttons: Vec<draw::Button>,
+    // game_won_button: Option<draw::Button>,
     font_size: f32,
+    won: bool,
+    continued: bool,
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -58,8 +61,11 @@ impl TextureDrawer {
             arrangement_index: 0,
             clean_index: 0,
             dirty_index: 0,
-            buttons: Vec::new(),
+            buy_buttons: Vec::new(),
+            // game_won_button: None,
             font_size: Self::choose_font_size(screen_width(), screen_height()),
+            won: false,
+            continued: false,
         }
     }
 
@@ -79,6 +85,12 @@ impl TextureDrawer {
 impl DrawerTrait for TextureDrawer {
     fn draw(&mut self, world: &mut World) {
         self.frame += 1;
+        if world.won() {
+            self.won = true;
+        }
+        if world.continued() {
+            self.continued = true;
+        }
         // self.debug_fps(world);
         let width = screen_width();
         let height = screen_height();
@@ -88,7 +100,8 @@ impl DrawerTrait for TextureDrawer {
         draw_text_bar(world, width, height, self.font_size);
         draw_version(width, height, self.font_size);
         draw_alerts(world, width, height, self.font_size);
-        draw_game_over(world, width, height, self.font_size);
+        self.draw_game_over(world, width, height, self.font_size);
+        draw_game_won(world, width, height, self.font_size);
     }
 
     fn button(&mut self, button: Button) -> bool {
@@ -126,7 +139,21 @@ impl DrawerTrait for TextureDrawer {
                 is_texture_clicked(rect, self.dirty_texture(), None)
             }
             Button::Arrangement => root_ui().button(None, "Cambiar estilo"),
-            Button::Restart => root_ui().button(None, "Reiniciar"),
+            Button::Restart => {
+                if root_ui().button(None, "Reiniciar") {
+                    self.restart();
+                    true
+                } else {
+                    false
+                }
+            }
+            Button::ContinuePlaying => {
+                if self.won && !self.continued {
+                    root_ui().button(Vec2::new(width * 0.5, height * 0.7), "Continuar jugando")
+                } else {
+                    false
+                }
+            }
             Button::Buy(hero) => {
                 let (horizontal_offset, vertical_offset) =
                     TextureDrawer::get_buy_panel_offset(hero.index());
@@ -193,6 +220,16 @@ impl TextureDrawer {
         self.previous_time = new_time;
     }
 
+    fn restart(&mut self) {
+        // apparently, rust is not clever enough to reuse the textures doing this:
+        // *self = Self::new(self.textures);
+        // my guess is that it's because the assignment to *self happens after taking self.textures,
+        // during which self is incomplete/invalid. Workaround:
+        let mut dummy = Self::new(Vec::new());
+        std::mem::swap(&mut dummy, self);
+        *self = Self::new(dummy.textures);
+    }
+
     fn is_button_clicked(
         &mut self,
         x_coef: f32,
@@ -208,7 +245,7 @@ impl TextureDrawer {
             font_size,
         );
         let interaction = button.interact();
-        self.buttons.push(button);
+        self.buy_buttons.push(button);
         interaction.is_clicked()
         // return root_ui().button(Some(Vec2::new(width * x_coef, height * y_coef)), label);
     }
@@ -379,10 +416,10 @@ impl TextureDrawer {
             let texture_rect = Rect::new(texture_x, panel_rect.y, texture_size.x, texture_size.y);
             draw::is_texture_clicked(texture_rect, character_texture, Some(character_texture));
         }
-        for button in &self.buttons {
+        for button in &self.buy_buttons {
             button.render();
         }
-        self.buttons.clear();
+        self.buy_buttons.clear();
     }
 
     /// Returns coefficients [0, 1] that you have to multiply by screen_width and screen_height.
@@ -425,6 +462,57 @@ impl TextureDrawer {
     fn dirty_texture(&self) -> Texture {
         use Texture::*;
         [DirtyFgFish, DirtyFgBanana, DirtyFgCigar][self.dirty_index]
+    }
+
+    fn draw_game_over(&mut self, world: &mut World, width: f32, height: f32, font_size: f32) {
+        if world.game_over {
+            let text_rect = Rect::new(
+                (width * 0.35).round(),
+                (height * 0.5).round(),
+                (width * 0.3).round(),
+                (height * 0.25).round(),
+            );
+            draw_rectangle(
+                text_rect.x,
+                text_rect.y,
+                text_rect.w,
+                text_rect.h,
+                Color::new(0.7, 0.7, 0.7, 1.00),
+            );
+            draw_rectangle_lines(
+                text_rect.x,
+                text_rect.y,
+                text_rect.w,
+                text_rect.h,
+                2.0,
+                BLACK,
+            );
+            draw_text_centered("GAME OVER", Vec2::new(0.5, 0.57), width, height, font_size);
+            draw_text_centered(
+                "Te has pasado de avaricioso.",
+                Vec2::new(0.5, 0.64),
+                width,
+                height,
+                font_size,
+            );
+            draw_text_centered(
+                "La suciedad se ha apoderado de ti.",
+                Vec2::new(0.5, 0.67),
+                width,
+                height,
+                font_size,
+            );
+            let mut button = draw::Button::from_center_pos(
+                "Reiniciar",
+                Vec2::new(width * 0.5, height * 0.7),
+                font_size,
+            );
+            if button.interact().is_clicked() {
+                self.restart();
+                world.restart(); // TODO: move this somehow to basic_input
+            }
+            button.render();
+        }
     }
 }
 
@@ -666,8 +754,8 @@ fn draw_tooltip_centered(text: &str, position: Vec2, width: f32, height: f32, fo
     );
 }
 
-fn draw_game_over(world: &mut World, width: f32, height: f32, font_size: f32) {
-    if world.game_over {
+fn draw_game_won(world: &mut World, width: f32, height: f32, font_size: f32) {
+    if world.won() && !world.continued() {
         let text_rect = Rect::new(
             (width * 0.35).round(),
             (height * 0.5).round(),
@@ -689,30 +777,27 @@ fn draw_game_over(world: &mut World, width: f32, height: f32, font_size: f32) {
             2.0,
             BLACK,
         );
-        draw_text_centered("GAME OVER", Vec2::new(0.5, 0.57), width, height, font_size);
         draw_text_centered(
-            "Te has pasado de avaricioso.",
+            "Has ganado!",
+            Vec2::new(0.5, 0.57),
+            width,
+            height,
+            font_size,
+        );
+        draw_text_centered(
+            "Tienes bastante dinero para jubilarte.",
             Vec2::new(0.5, 0.64),
             width,
             height,
             font_size,
         );
         draw_text_centered(
-            "La suciedad se ha apoderado de ti.",
+            "Puedes seguir jugando si quieres.",
             Vec2::new(0.5, 0.67),
             width,
             height,
             font_size,
         );
-        let mut button = draw::Button::from_center_pos(
-            "Reiniciar",
-            Vec2::new(width * 0.5, height * 0.7),
-            font_size,
-        );
-        if button.interact().is_clicked() {
-            world.restart(); // TODO: move this somehow to basic_input
-        }
-        button.render();
     }
 }
 

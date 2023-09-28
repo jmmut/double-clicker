@@ -17,6 +17,7 @@ impl InputSourceTrait for BasicInput {
         let clean_pressed = drawer.button(Button::Clean) || is_key_pressed(KeyCode::L);
         let next_arrangement = drawer.button(Button::Arrangement) || is_key_pressed(KeyCode::C);
         let restart = drawer.button(Button::Restart);
+        let continue_playing = drawer.button(Button::ContinuePlaying);
         let heroes_bought = HashMap::from_iter(
             Hero::list()
                 .iter()
@@ -27,12 +28,14 @@ impl InputSourceTrait for BasicInput {
                 .iter()
                 .map(|hero| (*hero, drawer.button(Button::Sell(*hero)))),
         );
+
         GuiActions {
             quit: is_key_pressed(KeyCode::Escape),
             clean_pressed,
             dirty_pressed,
             next_arrangement,
             restart,
+            continue_playing,
             heroes_bought,
             heroes_sold,
         }

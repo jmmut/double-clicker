@@ -12,6 +12,8 @@ type Cents = i64;
 type Units = i64;
 
 const ALERT_PERSISTENCE: Seconds = 5.0;
+// pub const TARGET_SAVINGS: Units = 1_000_000;
+pub const TARGET_SAVINGS: Units = 10;
 
 pub struct World {
     pub frame: i64,
@@ -25,6 +27,8 @@ pub struct World {
     pub alerts: Vec<(Seconds, Alert)>,
     inefficient_cleaning_warning: bool,
     pub game_over: bool,
+    pub game_won: bool,
+    pub game_continued: bool,
 }
 
 impl World {
@@ -41,11 +45,17 @@ impl World {
             alerts: Vec::new(),
             inefficient_cleaning_warning: false,
             game_over: false,
+            game_won: false,
+            game_continued: false,
         }
     }
 
     pub fn update(&mut self, gui_actions: GuiActions) -> bool {
-        if !self.game_over {
+        if self.game_won && !self.game_continued {
+            if gui_actions.continue_playing {
+                self.game_continued = true;
+            }
+        } else if !self.game_over {
             self.frame += 1;
             let now_time = now();
             self.time_since_last_frame = now_time - self.previous_frame_timestamp;
@@ -112,6 +122,9 @@ impl World {
             if self.dirtiness_units() >= self.max_dirtiness_units() {
                 self.game_over = true;
             }
+            if self.money_euros() >= TARGET_SAVINGS {
+                self.game_won = true;
+            }
         }
         gui_actions.should_continue()
     }
@@ -140,6 +153,16 @@ impl World {
     }
     pub fn max_dirtiness_units(&self) -> Units {
         self.max_dirtiness
+    }
+
+    pub fn won(&self) -> bool {
+        self.game_won
+    }
+    pub fn continued(&self) -> bool {
+        self.game_continued
+    }
+    pub fn set_continued(&mut self, continued: bool) {
+        self.game_continued = continued;
     }
     pub fn min_valid_percentage(&self) -> i64 {
         0
