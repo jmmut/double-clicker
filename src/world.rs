@@ -2,11 +2,13 @@ use std::collections::HashMap;
 
 use crate::external::backends::{now, Seconds};
 use crate::screen::GuiActions;
+use crate::world::acts::Act;
 use crate::world::alerts::Alert;
 use crate::world::heores::Hero;
 
 mod alerts;
 pub mod heores;
+mod acts;
 
 type Cents = i64;
 type Units = i64;
@@ -30,7 +32,9 @@ pub struct World {
     pub game_over: bool,
     pub game_won: bool,
     pub game_continued: bool,
+    act: Act,
 }
+
 
 impl World {
     pub fn new() -> Self {
@@ -49,6 +53,7 @@ impl World {
             game_over: false,
             game_won: false,
             game_continued: false,
+            act: Act::Act1,
         }
     }
 
@@ -59,6 +64,7 @@ impl World {
         if self.game_won && !self.game_continued {
             if gui_actions.continue_playing {
                 self.game_continued = true;
+                self.act = Act::ContinuePlayingAfterWinning;
             }
         } else if !self.game_over {
             self.frame += 1;
@@ -123,9 +129,11 @@ impl World {
             }
             if self.dirtiness_units() >= self.max_dirtiness_units() {
                 self.game_over = true;
+                self.act = Act::GameOver;
             }
             if self.money_euros() >= self.target_savings {
                 self.game_won = true;
+                self.act = Act::GameWon;
             }
         }
         gui_actions.should_continue()
@@ -166,6 +174,9 @@ impl World {
     pub fn set_continued(&mut self, continued: bool) {
         self.game_continued = continued;
     }
+    pub fn stage(&self) -> Act {
+        self.act
+    }
     pub fn min_valid_percentage(&self) -> i64 {
         0
     }
@@ -188,6 +199,8 @@ pub fn accumulate_price(n: i64) -> f32 {
 }
 #[cfg(test)]
 mod tests {
+    use crate::world::acts::Act;
+    use crate::world::acts::Act::{Act1, ContinuePlayingAfterWinning, GameOver, GameWon};
     use super::*;
 
     #[test]
@@ -200,20 +213,20 @@ mod tests {
     #[test]
     fn test_restart_game_over() {
         let mut world = World::new();
-        assert_eq!(world.game_over, false);
+        assert_eq!(world.stage(), Act1);
         for _ in 0..world.max_dirtiness_units() {
             world.update(GuiActions {
                 dirty_pressed: true,
                 ..GuiActions::default()
             });
         }
-        assert_eq!(world.game_over, true);
+        assert_eq!(world.stage(), GameOver);
 
         world.update(GuiActions {
             restart: true,
             ..GuiActions::default()
         });
-        assert_eq!(world.game_over, false);
+        assert_eq!(world.stage(), Act1);
     }
 
     #[test]
@@ -221,8 +234,7 @@ mod tests {
         let mut world = World::new();
         let target_savings = 10;
         world.set_target_savings(target_savings);
-        assert_eq!(world.won(), false);
-        assert_eq!(world.continued(), false);
+        assert_eq!(world.stage(), Act1);
         for _ in 0..target_savings {
             world.update(GuiActions {
                 dirty_pressed: true,
@@ -230,23 +242,21 @@ mod tests {
                 ..GuiActions::default()
             });
         }
-        assert_eq!(world.won(), true);
-        assert_eq!(world.continued(), false);
+
+        assert_eq!(world.stage(), GameWon);
 
         world.update(GuiActions {
             continue_playing: true,
             ..GuiActions::default()
         });
-        assert_eq!(world.won(), true);
-        assert_eq!(world.continued(), true);
+
+        assert_eq!(world.stage(), ContinuePlayingAfterWinning);
     }
 
     #[test]
     fn test_win_and_lose_and_restart() {
         let mut world = World::new();
-        assert_eq!(world.won(), false);
-        assert_eq!(world.continued(), false);
-        assert_eq!(world.game_over, false);
+        assert_eq!(world.stage(), Act1);
 
         let target_savings = 10;
         world.set_target_savings(target_savings);
@@ -257,17 +267,13 @@ mod tests {
                 ..GuiActions::default()
             });
         }
-        assert_eq!(world.won(), true);
-        assert_eq!(world.continued(), false);
-        assert_eq!(world.game_over, false);
+        assert_eq!(world.stage(), GameWon);
 
         world.update(GuiActions {
             continue_playing: true,
             ..GuiActions::default()
         });
-        assert_eq!(world.won(), true);
-        assert_eq!(world.continued(), true);
-        assert_eq!(world.game_over, false);
+        assert_eq!(world.stage(), ContinuePlayingAfterWinning);
 
         for _ in 0..world.max_dirtiness_units() {
             world.update(GuiActions {
@@ -283,8 +289,6 @@ mod tests {
             restart: true,
             ..GuiActions::default()
         });
-        assert_eq!(world.won(), false);
-        assert_eq!(world.continued(), false);
-        assert_eq!(world.game_over, false);
+        assert_eq!(world.stage(), Act1);
     }
 }
