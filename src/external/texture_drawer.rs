@@ -61,13 +61,13 @@ const AVAILABLE_ARRANGEMENTS: [Arrangement; 2] = [
 
 impl TextureDrawer {
     pub fn new(textures: Vec<Texture2D>) -> Self {
-        Self::new_from_mocked(textures, screen_width(), screen_height(), measure_text)
+        Self::new_from_mocked(textures, screen_width(), screen_height(), &measure_text)
     }
     pub fn new_from_mocked<F>(
         textures: Vec<Texture2D>,
         width: f32,
         height: f32,
-        measure_text: F,
+        measure_text: &F,
     ) -> Self
     where
         F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
@@ -104,7 +104,7 @@ impl TextureDrawer {
         width: f32,
         height: f32,
         textures: &Vec<Texture2D>,
-        measure_text: F,
+        measure_text: &F,
     ) -> Buttons
     where
         F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
@@ -323,9 +323,23 @@ impl TextureDrawer {
         // *self = Self::new(self.textures);
         // my guess is that it's because the assignment to *self happens after taking self.textures,
         // during which self is incomplete/invalid. Workaround:
-        let mut dummy = Self::new(Vec::new());
-        std::mem::swap(&mut dummy, self);
-        *self = Self::new(dummy.textures);
+        let mut textures = Vec::new();
+        std::mem::swap(&mut textures, &mut self.textures);
+        *self = Self::new(textures);
+    }
+
+    fn restart_mocked<F>(&mut self, width: f32, height: f32, measure_text: &F)
+    where
+        F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
+    {
+        // apparently, rust is not clever enough to reuse the textures doing this:
+        // *self = Self::new(self.textures);
+        // my guess is that it's because the assignment to *self happens after taking self.textures,
+        // during which self is incomplete/invalid. Workaround:
+        let mut textures = Vec::new();
+        std::mem::swap(&mut textures, &mut self.textures);
+        *self = Self::new_from_mocked(textures, width, height, measure_text);
+
     }
 
     fn draw_bar_and_money(&self, world: &World, width: f32, height: f32, font_size: f32) {
@@ -928,12 +942,15 @@ mod tests {
             texture.height = 200;
             textures.push(Texture2D::from_miniquad_texture(texture))
         }
-        let drawer = TextureDrawer::new_from_mocked(textures, 2000.0, 1000.0, |_, _, _, _| {
+        let measure_text = |_:&_, _, _, _| {
             return TextDimensions {
                 width: 10.0,
                 height: 5.0,
                 offset_y: 4.0,
             };
-        });
+        };
+        let mut drawer = TextureDrawer::new_from_mocked(textures.clone(), 2000.0, 1000.0, &measure_text);
+        drawer.restart_mocked(2000.0, 1000.0, &measure_text);
+        drawer.restart_mocked(2000.0, 1000.0, &measure_text);
     }
 }
