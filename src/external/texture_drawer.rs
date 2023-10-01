@@ -46,6 +46,8 @@ pub struct TextureDrawer {
     buttons: Buttons,
     font_size: f32,
     stage: Act,
+    width: f32,
+    height: f32,
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -84,6 +86,8 @@ impl TextureDrawer {
             buttons,
             font_size,
             stage: Act::Act1,
+            width,
+            height,
         }
     }
 
@@ -206,6 +210,12 @@ impl TextureDrawer {
         }
         buttons
     }
+    fn resize(&mut self, width: f32, height: f32) {
+        self.width = width;
+        self.height = height;
+        self.font_size = Self::choose_font_size(width, height);
+        self.buttons = Self::create_buttons(self.font_size, width, height, &self.textures, &measure_text);
+    }
 }
 
 impl DrawerTrait for TextureDrawer {
@@ -215,6 +225,9 @@ impl DrawerTrait for TextureDrawer {
         // self.debug_fps(world);
         let width = screen_width();
         let height = screen_height();
+        if width != self.width || height != self.height {
+            self.resize(width, height);
+        }
         self.font_size = Self::choose_font_size(width, height);
         self.draw_bar_and_money(world, width, height, self.font_size);
         self.draw_buy_heroes(world, width, height, self.font_size);
@@ -226,8 +239,8 @@ impl DrawerTrait for TextureDrawer {
     }
 
     fn button(&mut self, button: Button) -> bool {
-        let width = screen_width();
-        let height = screen_height();
+        let width = self.width;
+        let height = self.height;
         let is_texture_clicked = |rect, texture: Texture, texture_pressed: Option<Texture>| {
             draw::is_texture_clicked(
                 rect,
