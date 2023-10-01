@@ -4,6 +4,7 @@ use std::collections::HashMap;
 
 use crate::external::backends::{now, Seconds};
 use crate::screen::drawer_trait::{Button, DrawerTrait};
+use crate::screen::lore::{get_act_1_lore, get_act_2_lore, get_act_3_lore};
 use crate::screen::textures::Texture;
 use crate::world::acts::Act;
 use crate::world::heores::Hero;
@@ -173,7 +174,7 @@ impl DrawerTrait for TextureDrawer {
         self.font_size = Self::choose_font_size(width, height);
         self.draw_bar_and_money(world, width, height, self.font_size);
         self.draw_buy_heroes(world, width, height, self.font_size);
-        draw_text_bar(world, width, height, self.font_size);
+        draw_text_bar(world, width, height, self.font_size, self.frame);
         draw_version(width, height, self.font_size);
         draw_alerts(world, width, height, self.font_size);
         self.draw_game_over(world, width, height, self.font_size);
@@ -776,7 +777,7 @@ fn draw_dirtiness(world: &World, width: f32, height: f32, overlapping: bool, fon
     );
 }
 
-fn draw_text_bar(_world: &World, width: f32, height: f32, font_size: f32) {
+fn draw_text_bar(world: &World, width: f32, height: f32, font_size: f32, frame: i64) {
     let bar_height = BUY_PANEL_START_HEIGHT + 3.0 * (BUY_PANEL_HEIGHT + BUY_PANEL_VERTICAL_PAD);
     draw_line(
         width * 0.0,
@@ -786,7 +787,7 @@ fn draw_text_bar(_world: &World, width: f32, height: f32, font_size: f32) {
         2.0,
         BLACK,
     );
-    let text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
+    let text = choose_text_lore(world.stage(), frame);
     let dimensions = measure_text(text, None, font_size as u16, 1.0);
     draw_text(
         text,
@@ -795,6 +796,26 @@ fn draw_text_bar(_world: &World, width: f32, height: f32, font_size: f32) {
         font_size,
         BLACK,
     );
+}
+
+fn choose_text_lore(stage: Act, frame: i64) -> &'static str {
+    match stage {
+        Act::Act1 => *choose_random(get_act_1_lore(), frame),
+        Act::Act2 => *choose_random(get_act_2_lore(), frame),
+        Act::Act3 => *choose_random(get_act_3_lore(), frame),
+        Act::GameOver => "Todo acaba, excepto la suciedad.",
+        Act::GameWon => "Contra todo pronostico, te has salido con la tuya.",
+        Act::ContinuePlayingAfterWinning => *choose_random(get_act_3_lore(), frame),
+    }
+}
+
+fn choose_random<T>(collection: &[T], frame: i64) -> &T {
+    let fps = 60;
+    let persistence: Seconds = 5.0;
+    let block = frame / (fps * persistence as i64);
+    let hash = block % 5 + 6 - block * 2 % 3 + block / 5;
+    let index = hash as usize % collection.len();
+    collection.get(index).unwrap()
 }
 
 fn draw_version(_width: f32, height: f32, font_size: f32) {

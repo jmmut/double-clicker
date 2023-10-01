@@ -6,6 +6,7 @@ use crate::world::World;
 pub mod drawer_trait;
 mod gui_actions;
 pub mod input_source_trait;
+pub mod lore;
 pub mod textures;
 
 pub struct Screen {

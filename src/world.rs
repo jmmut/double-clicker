@@ -15,8 +15,8 @@ type Units = i64;
 
 const ALERT_PERSISTENCE: Seconds = 5.0;
 // pub const TARGET_SAVINGS: Units = 1_000_000;
-pub const TARGET_SAVINGS: Units = 10;
-// pub const TARGET_SAVINGS: Units = 1_000_000;
+// pub const TARGET_SAVINGS: Units = 10;
+pub const TARGET_SAVINGS: Units = 1_000_000;
 
 pub struct World {
     pub frame: i64,
