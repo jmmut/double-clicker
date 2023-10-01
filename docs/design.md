@@ -15,5 +15,5 @@ future tasks
 - [x] victory mechanics
 - [x] draw victory
 - [-] dynamic center ratio
-- [ ] write random lore messages
+- [/] write random lore messages
 - [x] tooltips on hover on heroes
