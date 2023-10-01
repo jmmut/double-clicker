@@ -1,4 +1,3 @@
-
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum Act {
     Act1,
@@ -8,4 +7,3 @@ pub enum Act {
     GameWon,
     ContinuePlayingAfterWinning,
 }
-

@@ -1,13 +1,14 @@
 use macroquad::prelude::*;
 use macroquad::ui::root_ui;
+use std::collections::HashMap;
 
 use crate::external::backends::{now, Seconds};
 use crate::screen::drawer_trait::{Button, DrawerTrait};
 use crate::screen::textures::Texture;
+use crate::world::acts::Act;
 use crate::world::heores::Hero;
 use crate::world::{accumulate_price, World};
 use crate::GIT_VERSION;
-use crate::world::acts::Act;
 
 mod draw;
 
@@ -29,20 +30,11 @@ const BUY_PANEL_VERTICAL_PAD: f32 = 0.02;
 const TOOLTIP_WIDTH: f32 = 0.3;
 
 pub struct Buttons {
-    buy_or_sell: Vec<draw::Button>,
-    continue_playing: Option<draw::Button>,
-    continue_after_game_over: Option<draw::Button>,
+    buy: HashMap<Hero, draw::Button>,
+    sell: HashMap<Hero, draw::Button>,
+    continue_playing: draw::Button,
+    continue_after_game_over: draw::Button,
 }
-impl Default for Buttons {
-    fn default() -> Self {
-        Self {
-            buy_or_sell: Vec::new(),
-            continue_playing: None,
-            continue_after_game_over: None,
-        }
-    }
-}
-
 pub struct TextureDrawer {
     frame: i64,
     previous_time: Seconds,
@@ -68,6 +60,10 @@ const AVAILABLE_ARRANGEMENTS: [Arrangement; 2] = [
 
 impl TextureDrawer {
     pub fn new(textures: Vec<Texture2D>) -> Self {
+        let width = screen_width();
+        let height = screen_height();
+        let font_size = Self::choose_font_size(width, height);
+        let buttons = Self::create_buttons(font_size, width, height, &textures);
         Self {
             frame: 0,
             previous_time: now(),
@@ -75,9 +71,8 @@ impl TextureDrawer {
             arrangement_index: 0,
             clean_index: 0,
             dirty_index: 0,
-            buttons: Buttons::default(),
-            // game_won_button: None,
-            font_size: Self::choose_font_size(screen_width(), screen_height()),
+            buttons,
+            font_size,
             stage: Act::Act1,
         }
     }
@@ -92,6 +87,79 @@ impl TextureDrawer {
             } else {
                 2.0
             }
+    }
+
+    fn create_buttons(
+        font_size: f32,
+        width: f32,
+        height: f32,
+        textures: &Vec<Texture2D>,
+    ) -> Buttons {
+        Buttons {
+            continue_after_game_over: draw::Button::from_center_pos(
+                "Reiniciar",
+                Vec2::new(width * 0.5, height * 0.7),
+                font_size,
+            ),
+            buy: Self::create_buy_hero_buttons(font_size, width, height, textures),
+            sell: Self::create_sell_hero_buttons(font_size, width, height, textures),
+            continue_playing: draw::Button::from_center_pos(
+                "Continuar jugando",
+                Vec2::new(width * 0.5, height * 0.7),
+                font_size,
+            ),
+        }
+    }
+    fn create_buy_hero_buttons(
+        font_size: f32,
+        width: f32,
+        height: f32,
+        textures: &Vec<Texture2D>,
+    ) -> HashMap<Hero, draw::Button> {
+        Self::create_buy_or_sell_hero_buttons(font_size, width, height, textures, "Comprar", 0.02)
+    }
+
+    fn create_sell_hero_buttons(
+        font_size: f32,
+        width: f32,
+        height: f32,
+        textures: &Vec<Texture2D>,
+    ) -> HashMap<Hero, draw::Button> {
+        Self::create_buy_or_sell_hero_buttons(font_size, width, height, textures, "Vender", 0.1)
+    }
+
+    fn create_buy_or_sell_hero_buttons(
+        font_size: f32,
+        width: f32,
+        height: f32,
+        textures: &Vec<Texture2D>,
+        text: &str,
+        extra_horizontal_offset: f32,
+    ) -> HashMap<Hero, draw::Button> {
+        let mut buttons = HashMap::new();
+        for hero in Hero::list() {
+            let (horizontal_offset, vertical_offset) =
+                TextureDrawer::get_buy_panel_offset(hero.index());
+            let texture_offset = Self::get_buy_text_offset_from_texture(
+                hero.index(),
+                width,
+                height,
+                textures[*hero as usize],
+            );
+            let x_coef = BUY_PANEL_HORIZONTAL_PAD
+                + extra_horizontal_offset
+                + horizontal_offset
+                + texture_offset;
+            let y_coef = BUY_PANEL_START_HEIGHT + 0.12 + vertical_offset;
+            let font_size = font_size;
+            let button = draw::Button::from_top_left_pos(
+                text,
+                Vec2::new(width * x_coef, height * y_coef),
+                font_size,
+            );
+            buttons.insert(*hero, button);
+        }
+        buttons
     }
 }
 
@@ -157,27 +225,14 @@ impl DrawerTrait for TextureDrawer {
             }
             Button::ContinuePlaying => {
                 if self.stage == Act::GameWon {
-                    let mut button = draw::Button::from_center_pos(
-                        "Continuar jugando",
-                        Vec2::new(width * 0.5, height * 0.7),
-                        self.font_size,
-                    );
-                    let interaction = button.interact();
-                    self.buttons.continue_playing = Some(button);
-                    interaction.is_clicked()
+                    self.buttons.continue_playing.interact().is_clicked()
                 } else {
                     false
                 }
             }
             Button::ContinueAfterGameOver => {
                 if self.stage == Act::GameOver {
-                    let mut button = draw::Button::from_center_pos(
-                        "Reiniciar",
-                        Vec2::new(width * 0.5, height * 0.7),
-                        self.font_size,
-                    );
-                    let interaction = button.interact();
-                    self.buttons.continue_after_game_over = Some(button);
+                    let interaction = &mut self.buttons.continue_after_game_over.interact();
                     if interaction.is_clicked() {
                         self.restart();
                     }
@@ -187,30 +242,12 @@ impl DrawerTrait for TextureDrawer {
                 }
             }
             Button::Buy(hero) => {
-                let (horizontal_offset, vertical_offset) =
-                    TextureDrawer::get_buy_panel_offset(hero.index());
-                let texture_offset = self.get_buy_text_offset(hero.index(), width, height);
-                self.is_button_clicked(
-                    BUY_PANEL_HORIZONTAL_PAD + 0.02 + horizontal_offset + texture_offset,
-                    BUY_PANEL_START_HEIGHT + 0.12 + vertical_offset,
-                    "Comprar",
-                    width,
-                    height,
-                    self.font_size,
-                )
+                let button = self.buttons.buy.get_mut(&hero).unwrap();
+                button.interact().is_clicked()
             }
             Button::Sell(hero) => {
-                let (horizontal_offset, vertical_offset) =
-                    TextureDrawer::get_buy_panel_offset(hero.index());
-                let texture_offset = self.get_buy_text_offset(hero.index(), width, height);
-                self.is_button_clicked(
-                    BUY_PANEL_HORIZONTAL_PAD + 0.1 + horizontal_offset + texture_offset,
-                    BUY_PANEL_START_HEIGHT + 0.12 + vertical_offset,
-                    "Vender",
-                    width,
-                    height,
-                    self.font_size,
-                )
+                let button = self.buttons.sell.get_mut(&hero).unwrap();
+                button.interact().is_clicked()
             }
         }
     }
@@ -260,26 +297,6 @@ impl TextureDrawer {
         let mut dummy = Self::new(Vec::new());
         std::mem::swap(&mut dummy, self);
         *self = Self::new(dummy.textures);
-    }
-
-    fn is_button_clicked(
-        &mut self,
-        x_coef: f32,
-        y_coef: f32,
-        label: &str,
-        width: f32,
-        height: f32,
-        font_size: f32,
-    ) -> bool {
-        let mut button = draw::Button::from_top_left_pos(
-            label,
-            Vec2::new(width * x_coef, height * y_coef),
-            font_size,
-        );
-        let interaction = button.interact();
-        self.buttons.buy_or_sell.push(button);
-        interaction.is_clicked()
-        // return root_ui().button(Some(Vec2::new(width * x_coef, height * y_coef)), label);
     }
 
     fn draw_bar_and_money(&self, world: &World, width: f32, height: f32, font_size: f32) {
@@ -448,10 +465,12 @@ impl TextureDrawer {
             let texture_rect = Rect::new(texture_x, panel_rect.y, texture_size.x, texture_size.y);
             draw::is_texture_clicked(texture_rect, character_texture, Some(character_texture));
         }
-        for button in &self.buttons.buy_or_sell {
+        for (_, button) in &self.buttons.buy {
             button.render();
         }
-        self.buttons.buy_or_sell.clear();
+        for (_, button) in &self.buttons.sell {
+            button.render();
+        }
     }
 
     /// Returns coefficients [0, 1] that you have to multiply by screen_width and screen_height.
@@ -464,11 +483,15 @@ impl TextureDrawer {
         let vertical_offset = (hero_index / 2) as f32 * (BUY_PANEL_HEIGHT + BUY_PANEL_VERTICAL_PAD);
         (horizontal_offset, vertical_offset)
     }
-    fn get_buy_text_offset(&self, hero_index: usize, width: f32, height: f32) -> f32 {
+    fn get_buy_text_offset_from_texture(
+        hero_index: usize,
+        width: f32,
+        height: f32,
+        character_texture: Texture2D,
+    ) -> f32 {
         let texture_offset = if hero_index % 2 == 0 {
             0.0
         } else {
-            let character_texture = self.textures[Texture::Villain1 as usize];
             BUY_PANEL_HEIGHT * height * character_texture.width()
                 / character_texture.height()
                 / width
@@ -534,9 +557,7 @@ impl TextureDrawer {
                 height,
                 font_size,
             );
-            if let Some(button) = self.buttons.continue_after_game_over.as_ref() {
-                button.render();
-            }
+            self.buttons.continue_after_game_over.render();
         }
     }
 
@@ -584,9 +605,7 @@ impl TextureDrawer {
                 height,
                 font_size,
             );
-            if let Some(button) = self.buttons.continue_playing.as_ref() {
-                button.render();
-            }
+            self.buttons.continue_playing.render()
         }
     }
 }

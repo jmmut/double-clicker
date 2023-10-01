@@ -6,9 +6,9 @@ use crate::world::acts::Act;
 use crate::world::alerts::Alert;
 use crate::world::heores::Hero;
 
+pub mod acts;
 mod alerts;
 pub mod heores;
-pub mod acts;
 
 type Cents = i64;
 type Units = i64;
@@ -32,7 +32,6 @@ pub struct World {
     inefficient_cleaning_warning: bool,
     act: Act,
 }
-
 
 impl World {
     pub fn new() -> Self {
@@ -121,7 +120,9 @@ impl World {
                     }
                 }
             }
-            if self.money_euros() >= self.target_savings && self.act != Act::ContinuePlayingAfterWinning {
+            if self.money_euros() >= self.target_savings
+                && self.act != Act::ContinuePlayingAfterWinning
+            {
                 self.act = Act::GameWon;
             }
             if self.dirtiness_units() >= self.max_dirtiness_units() && self.act != Act::GameWon {
@@ -182,8 +183,8 @@ pub fn accumulate_price(n: i64) -> f32 {
 }
 #[cfg(test)]
 mod tests {
-    use crate::world::acts::Act::{Act1, ContinuePlayingAfterWinning, GameOver, GameWon};
     use super::*;
+    use crate::world::acts::Act::{Act1, ContinuePlayingAfterWinning, GameOver, GameWon};
 
     #[test]
     fn test_invested() {
