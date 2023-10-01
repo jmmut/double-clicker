@@ -27,6 +27,21 @@ const BUY_PANEL_VERTICAL_PAD: f32 = 0.02;
 
 const TOOLTIP_WIDTH: f32 = 0.3;
 
+pub struct Buttons {
+    buy_or_sell: Vec<draw::Button>,
+    continue_playing: Option<draw::Button>,
+    continue_after_game_over: Option<draw::Button>,
+}
+impl Default for Buttons {
+    fn default() -> Self {
+        Self {
+            buy_or_sell: Vec::new(),
+            continue_playing: None,
+            continue_after_game_over: None,
+        }
+    }
+}
+
 pub struct TextureDrawer {
     frame: i64,
     previous_time: Seconds,
@@ -34,12 +49,11 @@ pub struct TextureDrawer {
     arrangement_index: usize,
     clean_index: usize,
     dirty_index: usize,
-    buy_buttons: Vec<draw::Button>,
-    continue_button: Option<draw::Button>,
-    // game_won_button: Option<draw::Button>,
+    buttons: Buttons,
     font_size: f32,
     won: bool,
     continued: bool,
+    game_over: bool,
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -62,12 +76,12 @@ impl TextureDrawer {
             arrangement_index: 0,
             clean_index: 0,
             dirty_index: 0,
-            buy_buttons: Vec::new(),
-            continue_button: None,
+            buttons: Buttons::default(),
             // game_won_button: None,
             font_size: Self::choose_font_size(screen_width(), screen_height()),
             won: false,
             continued: false,
+            game_over: false,
         }
     }
 
@@ -92,6 +106,9 @@ impl DrawerTrait for TextureDrawer {
         }
         if world.continued() {
             self.continued = true;
+        }
+        if world.game_over {
+            self.game_over = true;
         }
         // self.debug_fps(world);
         let width = screen_width();
@@ -151,9 +168,30 @@ impl DrawerTrait for TextureDrawer {
             }
             Button::ContinuePlaying => {
                 if self.won && !self.continued {
-                    let mut button = draw::Button::from_center_pos("Continuar jugando", Vec2::new(width * 0.5, height * 0.7), self.font_size);
+                    let mut button = draw::Button::from_center_pos(
+                        "Continuar jugando",
+                        Vec2::new(width * 0.5, height * 0.7),
+                        self.font_size,
+                    );
                     let interaction = button.interact();
-                    self.continue_button = Some(button);
+                    self.buttons.continue_playing = Some(button);
+                    interaction.is_clicked()
+                } else {
+                    false
+                }
+            }
+            Button::ContinueAfterGameOver => {
+                if self.game_over {
+                    let mut button = draw::Button::from_center_pos(
+                        "Reiniciar",
+                        Vec2::new(width * 0.5, height * 0.7),
+                        self.font_size,
+                    );
+                    let interaction = button.interact();
+                    self.buttons.continue_after_game_over = Some(button);
+                    if interaction.is_clicked() {
+                        self.restart();
+                    }
                     interaction.is_clicked()
                 } else {
                     false
@@ -250,7 +288,7 @@ impl TextureDrawer {
             font_size,
         );
         let interaction = button.interact();
-        self.buy_buttons.push(button);
+        self.buttons.buy_or_sell.push(button);
         interaction.is_clicked()
         // return root_ui().button(Some(Vec2::new(width * x_coef, height * y_coef)), label);
     }
@@ -421,10 +459,10 @@ impl TextureDrawer {
             let texture_rect = Rect::new(texture_x, panel_rect.y, texture_size.x, texture_size.y);
             draw::is_texture_clicked(texture_rect, character_texture, Some(character_texture));
         }
-        for button in &self.buy_buttons {
+        for button in &self.buttons.buy_or_sell {
             button.render();
         }
-        self.buy_buttons.clear();
+        self.buttons.buy_or_sell.clear();
     }
 
     /// Returns coefficients [0, 1] that you have to multiply by screen_width and screen_height.
@@ -507,69 +545,61 @@ impl TextureDrawer {
                 height,
                 font_size,
             );
-            let mut button = draw::Button::from_center_pos(
-                "Reiniciar",
-                Vec2::new(width * 0.5, height * 0.7),
+            if let Some(button) = self.buttons.continue_after_game_over.as_ref() {
+                button.render();
+            }
+        }
+    }
+
+    fn draw_game_won(&self, world: &mut World, width: f32, height: f32, font_size: f32) {
+        if world.won() && !world.continued() {
+            let text_rect = Rect::new(
+                (width * 0.35).round(),
+                (height * 0.5).round(),
+                (width * 0.3).round(),
+                (height * 0.25).round(),
+            );
+            draw_rectangle(
+                text_rect.x,
+                text_rect.y,
+                text_rect.w,
+                text_rect.h,
+                Color::new(0.7, 0.7, 0.7, 1.00),
+            );
+            draw_rectangle_lines(
+                text_rect.x,
+                text_rect.y,
+                text_rect.w,
+                text_rect.h,
+                2.0,
+                BLACK,
+            );
+            draw_text_centered(
+                "Has ganado!",
+                Vec2::new(0.5, 0.57),
+                width,
+                height,
                 font_size,
             );
-            if button.interact().is_clicked() {
-                self.restart();
-                world.restart(); // TODO: move this somehow to basic_input
+            draw_text_centered(
+                "Tienes bastante dinero para jubilarte.",
+                Vec2::new(0.5, 0.64),
+                width,
+                height,
+                font_size,
+            );
+            draw_text_centered(
+                "Puedes seguir jugando si quieres.",
+                Vec2::new(0.5, 0.67),
+                width,
+                height,
+                font_size,
+            );
+            if let Some(button) = self.buttons.continue_playing.as_ref() {
+                button.render();
             }
-            button.render();
         }
     }
-
-fn draw_game_won(&self, world: &mut World, width: f32, height: f32, font_size: f32) {
-    if world.won() && !world.continued() {
-        let text_rect = Rect::new(
-            (width * 0.35).round(),
-            (height * 0.5).round(),
-            (width * 0.3).round(),
-            (height * 0.25).round(),
-        );
-        draw_rectangle(
-            text_rect.x,
-            text_rect.y,
-            text_rect.w,
-            text_rect.h,
-            Color::new(0.7, 0.7, 0.7, 1.00),
-        );
-        draw_rectangle_lines(
-            text_rect.x,
-            text_rect.y,
-            text_rect.w,
-            text_rect.h,
-            2.0,
-            BLACK,
-        );
-        draw_text_centered(
-            "Has ganado!",
-            Vec2::new(0.5, 0.57),
-            width,
-            height,
-            font_size,
-        );
-        draw_text_centered(
-            "Tienes bastante dinero para jubilarte.",
-            Vec2::new(0.5, 0.64),
-            width,
-            height,
-            font_size,
-        );
-        draw_text_centered(
-            "Puedes seguir jugando si quieres.",
-            Vec2::new(0.5, 0.67),
-            width,
-            height,
-            font_size,
-        );
-        if let Some(button) = self.continue_button.as_ref() {
-            button.render();
-        }
-    }
-}
-
 }
 
 fn draw_bar(world: &World, width: f32, height: f32, overlapping: bool) {

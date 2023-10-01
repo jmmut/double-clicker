@@ -13,7 +13,7 @@ type Units = i64;
 
 const ALERT_PERSISTENCE: Seconds = 5.0;
 // pub const TARGET_SAVINGS: Units = 1_000_000;
-pub const TARGET_SAVINGS: Units = 10;
+pub const TARGET_SAVINGS: Units = 1_000_000;
 
 pub struct World {
     pub frame: i64,
@@ -23,6 +23,7 @@ pub struct World {
     max_dirtiness: Units,
     money: Cents,
     total_money: Cents,
+    target_savings: Units,
     pub heroes_count: HashMap<Hero, i64>,
     pub alerts: Vec<(Seconds, Alert)>,
     inefficient_cleaning_warning: bool,
@@ -41,6 +42,7 @@ impl World {
             max_dirtiness: 100,
             money: 0,
             total_money: 0,
+            target_savings: TARGET_SAVINGS,
             heroes_count: HashMap::from_iter(Hero::list().iter().map(|h| (*h, 0))),
             alerts: Vec::new(),
             inefficient_cleaning_warning: false,
@@ -51,6 +53,9 @@ impl World {
     }
 
     pub fn update(&mut self, gui_actions: GuiActions) -> bool {
+        if gui_actions.restart {
+            self.restart();
+        }
         if self.game_won && !self.game_continued {
             if gui_actions.continue_playing {
                 self.game_continued = true;
@@ -116,13 +121,10 @@ impl World {
                     }
                 }
             }
-            if gui_actions.restart {
-                self.restart();
-            }
             if self.dirtiness_units() >= self.max_dirtiness_units() {
                 self.game_over = true;
             }
-            if self.money_euros() >= TARGET_SAVINGS {
+            if self.money_euros() >= self.target_savings {
                 self.game_won = true;
             }
         }
@@ -171,6 +173,11 @@ impl World {
     pub fn max_valid_percentage(&self) -> i64 {
         0
     }
+
+    #[cfg(test)]
+    fn set_target_savings(&mut self, new_target_savings: Units) {
+        self.target_savings = new_target_savings;
+    }
 }
 pub fn to_cents(unit: Units) -> Cents {
     unit * 100
@@ -188,5 +195,96 @@ mod tests {
         let actual = accumulate_price(5);
         let expected = 1 + 2 + 3 + 4 + 5;
         assert_eq!(actual, expected as f32);
+    }
+
+    #[test]
+    fn test_restart_game_over() {
+        let mut world = World::new();
+        assert_eq!(world.game_over, false);
+        for _ in 0..world.max_dirtiness_units() {
+            world.update(GuiActions {
+                dirty_pressed: true,
+                ..GuiActions::default()
+            });
+        }
+        assert_eq!(world.game_over, true);
+
+        world.update(GuiActions {
+            restart: true,
+            ..GuiActions::default()
+        });
+        assert_eq!(world.game_over, false);
+    }
+
+    #[test]
+    fn test_continue_after_winning() {
+        let mut world = World::new();
+        let target_savings = 10;
+        world.set_target_savings(target_savings);
+        assert_eq!(world.won(), false);
+        assert_eq!(world.continued(), false);
+        for _ in 0..target_savings {
+            world.update(GuiActions {
+                dirty_pressed: true,
+                clean_pressed: true,
+                ..GuiActions::default()
+            });
+        }
+        assert_eq!(world.won(), true);
+        assert_eq!(world.continued(), false);
+
+        world.update(GuiActions {
+            continue_playing: true,
+            ..GuiActions::default()
+        });
+        assert_eq!(world.won(), true);
+        assert_eq!(world.continued(), true);
+    }
+
+    #[test]
+    fn test_win_and_lose_and_restart() {
+        let mut world = World::new();
+        assert_eq!(world.won(), false);
+        assert_eq!(world.continued(), false);
+        assert_eq!(world.game_over, false);
+
+        let target_savings = 10;
+        world.set_target_savings(target_savings);
+        for _ in 0..target_savings {
+            world.update(GuiActions {
+                dirty_pressed: true,
+                clean_pressed: true,
+                ..GuiActions::default()
+            });
+        }
+        assert_eq!(world.won(), true);
+        assert_eq!(world.continued(), false);
+        assert_eq!(world.game_over, false);
+
+        world.update(GuiActions {
+            continue_playing: true,
+            ..GuiActions::default()
+        });
+        assert_eq!(world.won(), true);
+        assert_eq!(world.continued(), true);
+        assert_eq!(world.game_over, false);
+
+        for _ in 0..world.max_dirtiness_units() {
+            world.update(GuiActions {
+                dirty_pressed: true,
+                ..GuiActions::default()
+            });
+        }
+        assert_eq!(world.won(), true);
+        assert_eq!(world.continued(), true);
+        assert_eq!(world.game_over, true);
+
+        world.update(GuiActions {
+            restart: true,
+            ..GuiActions::default()
+        });
+        assert_eq!(world.won(), false);
+        assert_eq!(world.continued(), false);
+        assert_eq!(world.game_over, false);
     }
 }

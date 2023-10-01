@@ -18,3 +18,18 @@ impl GuiActions {
         !self.quit
     }
 }
+
+impl Default for GuiActions {
+    fn default() -> Self {
+        Self {
+            quit: false,
+            clean_pressed: false,
+            dirty_pressed: false,
+            next_arrangement: false,
+            restart: false,
+            continue_playing: false,
+            heroes_bought: Default::default(),
+            heroes_sold: Default::default(),
+        }
+    }
+}

@@ -7,6 +7,7 @@ pub enum Button {
     Arrangement,
     Restart,
     ContinuePlaying,
+    ContinueAfterGameOver,
     Buy(Hero),
     Sell(Hero),
 }
