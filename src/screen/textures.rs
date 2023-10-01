@@ -32,7 +32,7 @@ pub async fn load_textures() -> Vec<Texture2D> {
         "assets/images/characters/villano1.png",
         "assets/images/characters/heroe2.png",
         "assets/images/characters/villano2.png",
-        "assets/images/characters/heroe1.png",
+        "assets/images/characters/heroe3.png",
         "assets/images/characters/villano1.png",
         "assets/images/buttons/buttonBLU256-1.png",
         "assets/images/buttons/buttonBLU256-2.png",
