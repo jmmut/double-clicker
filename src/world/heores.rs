@@ -55,10 +55,14 @@ impl Hero {
         match self {
             Hero::Hero1 => 5,
             Hero::Villain1 => 12,
-            Hero::Hero2 => 500,
-            Hero::Villain2 => 1000,
-            Hero::Hero3 => 50000,
-            Hero::Villain3 => 80000,
+            // Hero::Hero2 => 500,
+            Hero::Hero2 => 5,
+            // Hero::Villain2 => 1000,
+            Hero::Villain2 => 5,
+            // Hero::Hero3 => 50000,
+            Hero::Hero3 => 5,
+            // Hero::Villain3 => 80000,
+            Hero::Villain3 => 5,
         }
     }
     pub fn production_clean(&self) -> i64 {

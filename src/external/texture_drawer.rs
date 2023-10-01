@@ -61,10 +61,19 @@ const AVAILABLE_ARRANGEMENTS: [Arrangement; 2] = [
 
 impl TextureDrawer {
     pub fn new(textures: Vec<Texture2D>) -> Self {
-        let width = screen_width();
-        let height = screen_height();
+        Self::new_from_mocked(textures, screen_width(), screen_height(), measure_text)
+    }
+    pub fn new_from_mocked<F>(
+        textures: Vec<Texture2D>,
+        width: f32,
+        height: f32,
+        measure_text: F,
+    ) -> Self
+    where
+        F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
+    {
         let font_size = Self::choose_font_size(width, height);
-        let buttons = Self::create_buttons(font_size, width, height, &textures);
+        let buttons = Self::create_buttons(font_size, width, height, &textures, measure_text);
         Self {
             frame: 0,
             previous_time: now(),
@@ -90,53 +99,71 @@ impl TextureDrawer {
             }
     }
 
-    fn create_buttons(
+    fn create_buttons<F>(
         font_size: f32,
         width: f32,
         height: f32,
         textures: &Vec<Texture2D>,
-    ) -> Buttons {
+        measure_text: F,
+    ) -> Buttons
+    where
+        F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
+    {
         Buttons {
             continue_after_game_over: draw::Button::from_center_pos(
                 "Reiniciar",
                 Vec2::new(width * 0.5, height * 0.7),
                 font_size,
+                &measure_text,
             ),
-            buy: Self::create_buy_hero_buttons(font_size, width, height, textures),
-            sell: Self::create_sell_hero_buttons(font_size, width, height, textures),
+            buy: Self::create_buy_hero_buttons(font_size, width, height, textures, &measure_text),
+            sell: Self::create_sell_hero_buttons(font_size, width, height, textures, &measure_text),
             continue_playing: draw::Button::from_center_pos(
                 "Continuar jugando",
                 Vec2::new(width * 0.5, height * 0.7),
                 font_size,
+                &measure_text,
             ),
         }
     }
-    fn create_buy_hero_buttons(
+    fn create_buy_hero_buttons<F>(
         font_size: f32,
         width: f32,
         height: f32,
         textures: &Vec<Texture2D>,
-    ) -> HashMap<Hero, draw::Button> {
-        Self::create_buy_or_sell_hero_buttons(font_size, width, height, textures, "Comprar", 0.02)
+        measure_text: &F,
+    ) -> HashMap<Hero, draw::Button>
+    where
+        F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
+    {
+        Self::create_buy_or_sell_hero_buttons(font_size, width, height, textures, measure_text, "Comprar", 0.02)
     }
 
-    fn create_sell_hero_buttons(
+    fn create_sell_hero_buttons<F>(
         font_size: f32,
         width: f32,
         height: f32,
         textures: &Vec<Texture2D>,
-    ) -> HashMap<Hero, draw::Button> {
-        Self::create_buy_or_sell_hero_buttons(font_size, width, height, textures, "Vender", 0.1)
+        measure_text: &F,
+    ) -> HashMap<Hero, draw::Button>
+    where
+        F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
+    {
+        Self::create_buy_or_sell_hero_buttons(font_size, width, height, textures, measure_text, "Vender", 0.1)
     }
 
-    fn create_buy_or_sell_hero_buttons(
+    fn create_buy_or_sell_hero_buttons<F>(
         font_size: f32,
         width: f32,
         height: f32,
         textures: &Vec<Texture2D>,
+        measure_text: &F,
         text: &str,
         extra_horizontal_offset: f32,
-    ) -> HashMap<Hero, draw::Button> {
+    ) -> HashMap<Hero, draw::Button>
+    where
+        F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
+    {
         let mut buttons = HashMap::new();
         for hero in Hero::list() {
             let (horizontal_offset, vertical_offset) =
@@ -157,6 +184,7 @@ impl TextureDrawer {
                 text,
                 Vec2::new(width * x_coef, height * y_coef),
                 font_size,
+                &measure_text,
             );
             buttons.insert(*hero, button);
         }
@@ -885,4 +913,27 @@ fn draw_text_centered(text: &str, position: Vec2, width: f32, height: f32, font_
         font_size,
         BLACK,
     );
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_restart() {
+        let mut textures = Vec::new();
+        for hero in Hero::list() {
+            let mut texture = miniquad::Texture::empty();
+            texture.width = 100;
+            texture.height = 200;
+            textures.push(Texture2D::from_miniquad_texture(texture))
+        }
+        let drawer = TextureDrawer::new_from_mocked(textures, 2000.0, 1000.0, |_, _, _, _| {
+            return TextDimensions {
+                width: 10.0,
+                height: 5.0,
+                offset_y: 4.0,
+            };
+        });
+    }
 }

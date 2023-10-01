@@ -1,8 +1,9 @@
 use macroquad::prelude::{
     draw_rectangle, draw_text, draw_texture_ex, is_mouse_button_down, is_mouse_button_released,
-    measure_text, mouse_position, DrawTextureParams, MouseButton, Rect, TextDimensions, Texture2D,
-    BLACK, GRAY, LIGHTGRAY, WHITE,
+    mouse_position, DrawTextureParams, MouseButton, Rect, TextDimensions, Texture2D, BLACK, GRAY,
+    LIGHTGRAY, WHITE,
 };
+use macroquad::text::Font;
 
 use crate::external::backends::Vec2;
 
@@ -73,7 +74,15 @@ pub struct Button {
 }
 
 impl Button {
-    pub fn from_top_left_pos(text: &str, top_left_pixel: Vec2, font_size: f32) -> Self {
+    pub fn from_top_left_pos<F>(
+        text: &str,
+        top_left_pixel: Vec2,
+        font_size: f32,
+        measure_text: F,
+    ) -> Self
+    where
+        F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
+    {
         let text_dimensions = measure_text(text, None, font_size as u16, 1.0);
         let pad = Vec2::new(font_size, font_size * 0.5);
         let rect = Rect::new(
@@ -92,8 +101,21 @@ impl Button {
             interaction: Interaction::None,
         }
     }
-    pub fn from_center_pos(text: &str, center_pixel: Vec2, font_size: f32) -> Self {
-        Self::offset_from_center(Self::from_top_left_pos(text, center_pixel, font_size))
+    pub fn from_center_pos<F>(
+        text: &str,
+        center_pixel: Vec2,
+        font_size: f32,
+        measure_text: &F,
+    ) -> Self
+    where
+        F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
+    {
+        Self::offset_from_center(Self::from_top_left_pos(
+            text,
+            center_pixel,
+            font_size,
+            measure_text,
+        ))
     }
     fn offset_from_center(mut self) -> Self {
         self.rect.x += -self.text_dimensions.width * 0.5 - self.pad.x;

@@ -104,6 +104,12 @@ impl World {
                     if self.money_euros() >= self.price(hero) {
                         self.money -= to_cents(self.price(hero));
                         *self.heroes_count.get_mut(&hero).unwrap() += 1;
+                        if self.act == Act::Act1 && [Hero::Hero2, Hero::Villain2].contains(hero) {
+                            self.act = Act::Act2;
+                        }
+                        if self.act == Act::Act2 && [Hero::Hero3, Hero::Villain3].contains(hero) {
+                            self.act = Act::Act3;
+                        }
                     } else {
                         self.alerts.push((now_time, Alert::InsufficientMoney))
                     }
