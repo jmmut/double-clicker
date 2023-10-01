@@ -35,6 +35,7 @@ pub struct TextureDrawer {
     clean_index: usize,
     dirty_index: usize,
     buy_buttons: Vec<draw::Button>,
+    continue_button: Option<draw::Button>,
     // game_won_button: Option<draw::Button>,
     font_size: f32,
     won: bool,
@@ -62,6 +63,7 @@ impl TextureDrawer {
             clean_index: 0,
             dirty_index: 0,
             buy_buttons: Vec::new(),
+            continue_button: None,
             // game_won_button: None,
             font_size: Self::choose_font_size(screen_width(), screen_height()),
             won: false,
@@ -101,7 +103,7 @@ impl DrawerTrait for TextureDrawer {
         draw_version(width, height, self.font_size);
         draw_alerts(world, width, height, self.font_size);
         self.draw_game_over(world, width, height, self.font_size);
-        draw_game_won(world, width, height, self.font_size);
+        self.draw_game_won(world, width, height, self.font_size);
     }
 
     fn button(&mut self, button: Button) -> bool {
@@ -149,7 +151,10 @@ impl DrawerTrait for TextureDrawer {
             }
             Button::ContinuePlaying => {
                 if self.won && !self.continued {
-                    root_ui().button(Vec2::new(width * 0.5, height * 0.7), "Continuar jugando")
+                    let mut button = draw::Button::from_center_pos("Continuar jugando", Vec2::new(width * 0.5, height * 0.7), self.font_size);
+                    let interaction = button.interact();
+                    self.continue_button = Some(button);
+                    interaction.is_clicked()
                 } else {
                     false
                 }
@@ -514,6 +519,57 @@ impl TextureDrawer {
             button.render();
         }
     }
+
+fn draw_game_won(&self, world: &mut World, width: f32, height: f32, font_size: f32) {
+    if world.won() && !world.continued() {
+        let text_rect = Rect::new(
+            (width * 0.35).round(),
+            (height * 0.5).round(),
+            (width * 0.3).round(),
+            (height * 0.25).round(),
+        );
+        draw_rectangle(
+            text_rect.x,
+            text_rect.y,
+            text_rect.w,
+            text_rect.h,
+            Color::new(0.7, 0.7, 0.7, 1.00),
+        );
+        draw_rectangle_lines(
+            text_rect.x,
+            text_rect.y,
+            text_rect.w,
+            text_rect.h,
+            2.0,
+            BLACK,
+        );
+        draw_text_centered(
+            "Has ganado!",
+            Vec2::new(0.5, 0.57),
+            width,
+            height,
+            font_size,
+        );
+        draw_text_centered(
+            "Tienes bastante dinero para jubilarte.",
+            Vec2::new(0.5, 0.64),
+            width,
+            height,
+            font_size,
+        );
+        draw_text_centered(
+            "Puedes seguir jugando si quieres.",
+            Vec2::new(0.5, 0.67),
+            width,
+            height,
+            font_size,
+        );
+        if let Some(button) = self.continue_button.as_ref() {
+            button.render();
+        }
+    }
+}
+
 }
 
 fn draw_bar(world: &World, width: f32, height: f32, overlapping: bool) {
@@ -752,53 +808,6 @@ fn draw_tooltip_centered(text: &str, position: Vec2, width: f32, height: f32, fo
         font_size,
         BLACK,
     );
-}
-
-fn draw_game_won(world: &mut World, width: f32, height: f32, font_size: f32) {
-    if world.won() && !world.continued() {
-        let text_rect = Rect::new(
-            (width * 0.35).round(),
-            (height * 0.5).round(),
-            (width * 0.3).round(),
-            (height * 0.25).round(),
-        );
-        draw_rectangle(
-            text_rect.x,
-            text_rect.y,
-            text_rect.w,
-            text_rect.h,
-            Color::new(0.7, 0.7, 0.7, 1.00),
-        );
-        draw_rectangle_lines(
-            text_rect.x,
-            text_rect.y,
-            text_rect.w,
-            text_rect.h,
-            2.0,
-            BLACK,
-        );
-        draw_text_centered(
-            "Has ganado!",
-            Vec2::new(0.5, 0.57),
-            width,
-            height,
-            font_size,
-        );
-        draw_text_centered(
-            "Tienes bastante dinero para jubilarte.",
-            Vec2::new(0.5, 0.64),
-            width,
-            height,
-            font_size,
-        );
-        draw_text_centered(
-            "Puedes seguir jugando si quieres.",
-            Vec2::new(0.5, 0.67),
-            width,
-            height,
-            font_size,
-        );
-    }
 }
 
 fn draw_text_centered(text: &str, position: Vec2, width: f32, height: f32, font_size: f32) {
