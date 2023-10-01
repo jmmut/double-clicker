@@ -8,14 +8,15 @@ use crate::world::heores::Hero;
 
 mod alerts;
 pub mod heores;
-mod acts;
+pub mod acts;
 
 type Cents = i64;
 type Units = i64;
 
 const ALERT_PERSISTENCE: Seconds = 5.0;
 // pub const TARGET_SAVINGS: Units = 1_000_000;
-pub const TARGET_SAVINGS: Units = 1_000_000;
+pub const TARGET_SAVINGS: Units = 10;
+// pub const TARGET_SAVINGS: Units = 1_000_000;
 
 pub struct World {
     pub frame: i64,
@@ -29,9 +30,6 @@ pub struct World {
     pub heroes_count: HashMap<Hero, i64>,
     pub alerts: Vec<(Seconds, Alert)>,
     inefficient_cleaning_warning: bool,
-    pub game_over: bool,
-    pub game_won: bool,
-    pub game_continued: bool,
     act: Act,
 }
 
@@ -50,9 +48,6 @@ impl World {
             heroes_count: HashMap::from_iter(Hero::list().iter().map(|h| (*h, 0))),
             alerts: Vec::new(),
             inefficient_cleaning_warning: false,
-            game_over: false,
-            game_won: false,
-            game_continued: false,
             act: Act::Act1,
         }
     }
@@ -61,12 +56,11 @@ impl World {
         if gui_actions.restart {
             self.restart();
         }
-        if self.game_won && !self.game_continued {
+        if self.act == Act::GameWon {
             if gui_actions.continue_playing {
-                self.game_continued = true;
                 self.act = Act::ContinuePlayingAfterWinning;
             }
-        } else if !self.game_over {
+        } else if self.act != Act::GameOver {
             self.frame += 1;
             let now_time = now();
             self.time_since_last_frame = now_time - self.previous_frame_timestamp;
@@ -127,13 +121,11 @@ impl World {
                     }
                 }
             }
-            if self.dirtiness_units() >= self.max_dirtiness_units() {
-                self.game_over = true;
-                self.act = Act::GameOver;
-            }
-            if self.money_euros() >= self.target_savings {
-                self.game_won = true;
+            if self.money_euros() >= self.target_savings && self.act != Act::ContinuePlayingAfterWinning {
                 self.act = Act::GameWon;
+            }
+            if self.dirtiness_units() >= self.max_dirtiness_units() && self.act != Act::GameWon {
+                self.act = Act::GameOver;
             }
         }
         gui_actions.should_continue()
@@ -165,15 +157,6 @@ impl World {
         self.max_dirtiness
     }
 
-    pub fn won(&self) -> bool {
-        self.game_won
-    }
-    pub fn continued(&self) -> bool {
-        self.game_continued
-    }
-    pub fn set_continued(&mut self, continued: bool) {
-        self.game_continued = continued;
-    }
     pub fn stage(&self) -> Act {
         self.act
     }
@@ -199,7 +182,6 @@ pub fn accumulate_price(n: i64) -> f32 {
 }
 #[cfg(test)]
 mod tests {
-    use crate::world::acts::Act;
     use crate::world::acts::Act::{Act1, ContinuePlayingAfterWinning, GameOver, GameWon};
     use super::*;
 
@@ -281,9 +263,7 @@ mod tests {
                 ..GuiActions::default()
             });
         }
-        assert_eq!(world.won(), true);
-        assert_eq!(world.continued(), true);
-        assert_eq!(world.game_over, true);
+        assert_eq!(world.stage(), GameOver);
 
         world.update(GuiActions {
             restart: true,

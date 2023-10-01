@@ -7,6 +7,7 @@ use crate::screen::textures::Texture;
 use crate::world::heores::Hero;
 use crate::world::{accumulate_price, World};
 use crate::GIT_VERSION;
+use crate::world::acts::Act;
 
 mod draw;
 
@@ -51,9 +52,7 @@ pub struct TextureDrawer {
     dirty_index: usize,
     buttons: Buttons,
     font_size: f32,
-    won: bool,
-    continued: bool,
-    game_over: bool,
+    stage: Act,
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -79,9 +78,7 @@ impl TextureDrawer {
             buttons: Buttons::default(),
             // game_won_button: None,
             font_size: Self::choose_font_size(screen_width(), screen_height()),
-            won: false,
-            continued: false,
-            game_over: false,
+            stage: Act::Act1,
         }
     }
 
@@ -101,15 +98,7 @@ impl TextureDrawer {
 impl DrawerTrait for TextureDrawer {
     fn draw(&mut self, world: &mut World) {
         self.frame += 1;
-        if world.won() {
-            self.won = true;
-        }
-        if world.continued() {
-            self.continued = true;
-        }
-        if world.game_over {
-            self.game_over = true;
-        }
+        self.stage = world.stage();
         // self.debug_fps(world);
         let width = screen_width();
         let height = screen_height();
@@ -167,7 +156,7 @@ impl DrawerTrait for TextureDrawer {
                 }
             }
             Button::ContinuePlaying => {
-                if self.won && !self.continued {
+                if self.stage == Act::GameWon {
                     let mut button = draw::Button::from_center_pos(
                         "Continuar jugando",
                         Vec2::new(width * 0.5, height * 0.7),
@@ -181,7 +170,7 @@ impl DrawerTrait for TextureDrawer {
                 }
             }
             Button::ContinueAfterGameOver => {
-                if self.game_over {
+                if self.stage == Act::GameOver {
                     let mut button = draw::Button::from_center_pos(
                         "Reiniciar",
                         Vec2::new(width * 0.5, height * 0.7),
@@ -508,7 +497,7 @@ impl TextureDrawer {
     }
 
     fn draw_game_over(&mut self, world: &mut World, width: f32, height: f32, font_size: f32) {
-        if world.game_over {
+        if world.stage() == Act::GameOver {
             let text_rect = Rect::new(
                 (width * 0.35).round(),
                 (height * 0.5).round(),
@@ -552,7 +541,7 @@ impl TextureDrawer {
     }
 
     fn draw_game_won(&self, world: &mut World, width: f32, height: f32, font_size: f32) {
-        if world.won() && !world.continued() {
+        if world.stage() == Act::GameWon {
             let text_rect = Rect::new(
                 (width * 0.35).round(),
                 (height * 0.5).round(),
