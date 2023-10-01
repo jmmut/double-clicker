@@ -136,7 +136,15 @@ impl TextureDrawer {
     where
         F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
     {
-        Self::create_buy_or_sell_hero_buttons(font_size, width, height, textures, measure_text, "Comprar", 0.02)
+        Self::create_buy_or_sell_hero_buttons(
+            font_size,
+            width,
+            height,
+            textures,
+            measure_text,
+            "Comprar",
+            0.02,
+        )
     }
 
     fn create_sell_hero_buttons<F>(
@@ -149,7 +157,15 @@ impl TextureDrawer {
     where
         F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
     {
-        Self::create_buy_or_sell_hero_buttons(font_size, width, height, textures, measure_text, "Vender", 0.1)
+        Self::create_buy_or_sell_hero_buttons(
+            font_size,
+            width,
+            height,
+            textures,
+            measure_text,
+            "Vender",
+            0.1,
+        )
     }
 
     fn create_buy_or_sell_hero_buttons<F>(
@@ -319,13 +335,7 @@ impl TextureDrawer {
     }
 
     fn restart(&mut self) {
-        // apparently, rust is not clever enough to reuse the textures doing this:
-        // *self = Self::new(self.textures);
-        // my guess is that it's because the assignment to *self happens after taking self.textures,
-        // during which self is incomplete/invalid. Workaround:
-        let mut textures = Vec::new();
-        std::mem::swap(&mut textures, &mut self.textures);
-        *self = Self::new(textures);
+        self.restart_mocked(screen_width(), screen_height(), &measure_text)
     }
 
     fn restart_mocked<F>(&mut self, width: f32, height: f32, measure_text: &F)
@@ -336,10 +346,8 @@ impl TextureDrawer {
         // *self = Self::new(self.textures);
         // my guess is that it's because the assignment to *self happens after taking self.textures,
         // during which self is incomplete/invalid. Workaround:
-        let mut textures = Vec::new();
-        std::mem::swap(&mut textures, &mut self.textures);
+        let textures = std::mem::take(&mut self.textures);
         *self = Self::new_from_mocked(textures, width, height, measure_text);
-
     }
 
     fn draw_bar_and_money(&self, world: &World, width: f32, height: f32, font_size: f32) {
@@ -845,7 +853,7 @@ fn choose_text_lore(stage: Act, frame: i64) -> &'static str {
         Act::Act1 => *choose_random(get_act_1_lore(), frame),
         Act::Act2 => *choose_random(get_act_2_lore(), frame),
         Act::Act3 => *choose_random(get_act_3_lore(), frame),
-        Act::GameOver => "Todo acaba, excepto la suciedad.",
+        Act::GameOver => "Todo se acaba, excepto la suciedad.",
         Act::GameWon => "Contra todo pronostico, te has salido con la tuya.",
         Act::ContinuePlayingAfterWinning => *choose_random(get_act_3_lore(), frame),
     }
@@ -936,20 +944,21 @@ mod tests {
     #[test]
     fn test_restart() {
         let mut textures = Vec::new();
-        for hero in Hero::list() {
+        for _ in Hero::list() {
             let mut texture = miniquad::Texture::empty();
             texture.width = 100;
             texture.height = 200;
             textures.push(Texture2D::from_miniquad_texture(texture))
         }
-        let measure_text = |_:&_, _, _, _| {
+        let measure_text = |_: &_, _, _, _| {
             return TextDimensions {
                 width: 10.0,
                 height: 5.0,
                 offset_y: 4.0,
             };
         };
-        let mut drawer = TextureDrawer::new_from_mocked(textures.clone(), 2000.0, 1000.0, &measure_text);
+        let mut drawer =
+            TextureDrawer::new_from_mocked(textures.clone(), 2000.0, 1000.0, &measure_text);
         drawer.restart_mocked(2000.0, 1000.0, &measure_text);
         drawer.restart_mocked(2000.0, 1000.0, &measure_text);
     }

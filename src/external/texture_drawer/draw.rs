@@ -110,14 +110,11 @@ impl Button {
     where
         F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
     {
-        Self::offset_from_center(Self::from_top_left_pos(
-            text,
-            center_pixel,
-            font_size,
-            measure_text,
-        ))
+        let top_left_on_center =
+            Self::from_top_left_pos(text, center_pixel, font_size, measure_text);
+        Self::remove_center_offset(top_left_on_center)
     }
-    fn offset_from_center(mut self) -> Self {
+    fn remove_center_offset(mut self) -> Self {
         self.rect.x += -self.text_dimensions.width * 0.5 - self.pad.x;
         self.rect.y += -self.text_dimensions.offset_y * 0.5 - self.pad.y;
         self
