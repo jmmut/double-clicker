@@ -8,6 +8,7 @@ mod gui_actions;
 pub mod input_source_trait;
 pub mod lore;
 pub mod textures;
+pub mod translations;
 
 pub struct Screen {
     pub drawer: Box<dyn DrawerTrait>,

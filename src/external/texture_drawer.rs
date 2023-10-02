@@ -10,6 +10,7 @@ use crate::world::acts::Act;
 use crate::world::heores::Hero;
 use crate::world::{accumulate_price, World};
 use crate::GIT_VERSION;
+use crate::screen::translations::{Language, text, Text};
 
 mod draw;
 
@@ -115,7 +116,7 @@ impl TextureDrawer {
     {
         Buttons {
             continue_after_game_over: draw::Button::from_center_pos(
-                "Reiniciar",
+                text(Text::Restart, Language::Spanish),
                 Vec2::new(width * 0.5, height * 0.7),
                 font_size,
                 &measure_text,
