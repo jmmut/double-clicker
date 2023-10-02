@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use crate::external::backends::{now, Seconds};
 use crate::screen::drawer_trait::{Button, DrawerTrait};
-use crate::screen::lore::{get_act_1_lore, get_act_2_lore, get_act_3_lore};
+use crate::screen::lore::{act_1_lore, act_2_lore, act_3_lore, game_over_lore, game_won_lore};
 use crate::screen::textures::Texture;
 use crate::world::acts::Act;
 use crate::world::heores::Hero;
@@ -214,7 +214,8 @@ impl TextureDrawer {
         self.width = width;
         self.height = height;
         self.font_size = Self::choose_font_size(width, height);
-        self.buttons = Self::create_buttons(self.font_size, width, height, &self.textures, &measure_text);
+        self.buttons =
+            Self::create_buttons(self.font_size, width, height, &self.textures, &measure_text);
     }
 }
 
@@ -862,17 +863,18 @@ fn draw_text_bar(world: &World, width: f32, height: f32, font_size: f32, frame: 
 }
 
 fn choose_text_lore(stage: Act, frame: i64) -> &'static str {
-    match stage {
-        Act::Act1 => *choose_random(get_act_1_lore(), frame),
-        Act::Act2 => *choose_random(get_act_2_lore(), frame),
-        Act::Act3 => *choose_random(get_act_3_lore(), frame),
-        Act::GameOver => "Todo se acaba, excepto la suciedad.",
-        Act::GameWon => "Contra todo pronostico, te has salido con la tuya.",
-        Act::ContinuePlayingAfterWinning => *choose_random(get_act_3_lore(), frame),
-    }
+    let lore_sentences = match stage {
+        Act::Act1 => act_1_lore(),
+        Act::Act2 => act_2_lore(),
+        Act::Act3 => act_3_lore(),
+        Act::GameOver => game_over_lore(),
+        Act::GameWon => game_won_lore(),
+        Act::ContinuePlayingAfterWinning => act_3_lore(),
+    };
+    *choose_pseudo_random(lore_sentences, frame)
 }
 
-fn choose_random<T>(collection: &[T], frame: i64) -> &T {
+fn choose_pseudo_random<T>(collection: &[T], frame: i64) -> &T {
     let fps = 60;
     let persistence: Seconds = 5.0;
     let block = frame / (fps * persistence as i64);

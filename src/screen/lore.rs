@@ -1,4 +1,4 @@
-pub fn get_act_1_lore() -> &'static [&'static str] {
+pub fn act_1_lore() -> &'static [&'static str] {
     &[
         "Tu jefe quiere hablar contigo, está contento. Demasiado contento.",
         "\"¿Cómo que despedido?\" - Malik",
@@ -7,7 +7,7 @@ pub fn get_act_1_lore() -> &'static [&'static str] {
     ]
 }
 
-pub fn get_act_2_lore() -> &'static [&'static str] {
+pub fn act_2_lore() -> &'static [&'static str] {
     &[
         "\"¿Me dejas chupar ese moho?\" - Caos Adora",
         "\"Jefe, voy a necesitar tres cepillos\" - Técnico Operario de Cepillo",
@@ -17,7 +17,7 @@ pub fn get_act_2_lore() -> &'static [&'static str] {
     ]
 }
 
-pub fn get_act_3_lore() -> &'static [&'static str] {
+pub fn act_3_lore() -> &'static [&'static str] {
     &[
         "Frase acto 3 - 1",
         "Frase acto 3 - 2",
@@ -27,4 +27,12 @@ pub fn get_act_3_lore() -> &'static [&'static str] {
         "Frase acto 3 - 6",
         "Frase acto 3 - 7",
     ]
+}
+
+pub fn game_over_lore() -> &'static [&'static str] {
+    &["Todo se acaba, excepto la suciedad."]
+}
+
+pub fn game_won_lore() -> &'static [&'static str] {
+    &["Contra todo pronóstico, te has salido con la tuya."]
 }

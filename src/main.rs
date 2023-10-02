@@ -36,7 +36,6 @@ fn window_conf() -> Conf {
     }
 }
 
-
 async fn load() -> (Screen, World) {
     #[cfg(not(target_family = "wasm"))]
     {
