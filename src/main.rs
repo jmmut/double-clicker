@@ -26,23 +26,8 @@ async fn main() {
     }
 }
 
-// #[macroquad::main("Texture")]
-// async fn main() {
-//     clear_background(LIGHTGRAY);
-//     root_ui().label(None, "Loading...");
-//     next_frame().await;
-//
-//     let texture: Texture2D = load_texture("examples/ferris.png").await.unwrap();
-//     loop {
-//         clear_background(LIGHTGRAY);
-//         draw_texture(texture, 0., 0., WHITE);
-//         next_frame().await
-//     }
-// }
-
 fn window_conf() -> Conf {
     Conf {
-        // high_dpi: true,
         window_title: DEFAULT_WINDOW_TITLE.to_owned(),
         window_width: DEFAULT_WINDOW_WIDTH,
         window_height: DEFAULT_WINDOW_HEIGHT,
@@ -51,13 +36,6 @@ fn window_conf() -> Conf {
     }
 }
 
-async fn save_texture(assets: Arc<Mutex<Option<Vec<Texture2D>>>>) {
-    let textures = load_textures().await;
-    // info!("before sleeping");
-    // wait_seconds(4.0).await;
-    // info!("after sleeping");
-    *assets.as_ref().lock().unwrap() = Some(textures);
-}
 
 async fn load() -> (Screen, World) {
     #[cfg(not(target_family = "wasm"))]
@@ -90,6 +68,14 @@ async fn load() -> (Screen, World) {
         trace!("moving to regular game loop");
         return factory(t);
     }
+}
+
+async fn save_texture(assets: Arc<Mutex<Option<Vec<Texture2D>>>>) {
+    let textures = load_textures().await;
+    // info!("before sleeping");
+    // wait_seconds(4.0).await;
+    // info!("after sleeping");
+    *assets.as_ref().lock().unwrap() = Some(textures);
 }
 
 async fn sleep_until_next_frame(previous_time: &mut Seconds) {
