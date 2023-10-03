@@ -6,7 +6,7 @@ use crate::external::backends::{now, Seconds};
 use crate::screen::drawer_trait::{Button, DrawerTrait};
 use crate::screen::lore::{act_1_lore, act_2_lore, act_3_lore, game_over_lore, game_won_lore};
 use crate::screen::textures::{Texture, Textures};
-use crate::screen::translations::{text, Language, Translation};
+use crate::screen::translations::{get_translation, Language, Translation};
 use crate::world::acts::Act;
 use crate::world::heores::Hero;
 use crate::world::{accumulate_price, World};
@@ -30,8 +30,6 @@ const BUY_PANEL_HORIZONTAL_PAD: f32 = BAR_HORIZONTAL_PAD;
 const BUY_PANEL_VERTICAL_PAD: f32 = 0.02;
 
 const TOOLTIP_WIDTH: f32 = 0.3;
-
-const DEFAULT_LANGUAGE: Language = Language::Spanish;
 
 pub struct Buttons {
     buy: HashMap<Hero, draw::Button>,
@@ -68,20 +66,26 @@ const AVAILABLE_ARRANGEMENTS: [Arrangement; 2] = [
 ];
 
 impl TextureDrawer {
-    pub fn new(textures: Textures) -> Self {
-        Self::new_from_mocked(textures, screen_width(), screen_height(), &measure_text)
+    pub fn new(textures: Textures, translation: &'static Translation) -> Self {
+        Self::new_from_mocked(
+            textures,
+            screen_width(),
+            screen_height(),
+            translation,
+            &measure_text,
+        )
     }
     pub fn new_from_mocked<F>(
         textures: Textures,
         width: f32,
         height: f32,
+        translation: &'static Translation,
         measure_text: &F,
     ) -> Self
     where
         F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
     {
         let font_size = Self::choose_font_size(width, height);
-        let translation = text(DEFAULT_LANGUAGE);
         let buttons = Self::create_buttons(
             font_size,
             width,
@@ -332,7 +336,7 @@ impl DrawerTrait for TextureDrawer {
                 is_texture_clicked(rect, DirtyBackground, Some(DirtyBackgroundOff));
                 is_texture_clicked(rect, self.dirty_texture(), None)
             }
-            Button::Arrangement => root_ui().button(None, "Cambiar estilo"),
+            Button::Arrangement => root_ui().button(None, self.translation.change_style),
             Button::Restart => {
                 if root_ui().button(None, self.translation.restart) {
                     self.restart();
@@ -371,7 +375,7 @@ impl DrawerTrait for TextureDrawer {
                 let button = &mut self.buttons.change_language_to_spanish;
                 let is_clicked = button.interact().is_clicked();
                 if is_clicked {
-                    self.translation = text(Language::Spanish);
+                    self.translation = get_translation(Language::Spanish);
                     self.recreate_buttons();
                 }
                 is_clicked
@@ -380,7 +384,7 @@ impl DrawerTrait for TextureDrawer {
                 let button = &mut self.buttons.change_language_to_english;
                 let is_clicked = button.interact().is_clicked();
                 if is_clicked {
-                    self.translation = text(Language::English);
+                    self.translation = get_translation(Language::English);
                     self.recreate_buttons();
                 }
                 is_clicked
@@ -438,7 +442,7 @@ impl TextureDrawer {
         // my guess is that it's because the assignment to *self happens after taking self.textures,
         // during which self is incomplete/invalid. Workaround:
         let textures = std::mem::take(&mut self.textures);
-        *self = Self::new_from_mocked(textures, width, height, measure_text);
+        *self = Self::new_from_mocked(textures, width, height, self.translation, measure_text);
     }
 
     fn draw_bar_and_money(&self, world: &World, width: f32, height: f32, font_size: f32) {
@@ -446,9 +450,30 @@ impl TextureDrawer {
 
         draw_bar(world, width, height, overlapping);
         // draw_salary(world, width, height, overlapping);
-        draw_savings(world, width, height, overlapping, font_size);
-        draw_speeds(world, width, height, overlapping, font_size);
-        draw_dirtiness(world, width, height, overlapping, font_size);
+        draw_savings(
+            world,
+            width,
+            height,
+            overlapping,
+            font_size,
+            self.translation,
+        );
+        draw_speeds(
+            world,
+            width,
+            height,
+            overlapping,
+            font_size,
+            self.translation,
+        );
+        draw_dirtiness(
+            world,
+            width,
+            height,
+            overlapping,
+            font_size,
+            self.translation,
+        );
     }
 
     fn draw_buy_heroes(&mut self, world: &World, width: f32, height: f32, font_size: f32) {
@@ -494,18 +519,20 @@ impl TextureDrawer {
                 let (production, kind) = if i % 2 == 0 {
                     (
                         hero.production_clean() * world.heroes_count[hero],
-                        "limpiezas",
+                        self.translation.cleanings,
                     )
                 } else {
                     (
                         hero.production_dirty() * world.heroes_count[hero],
-                        "suciedades",
+                        self.translation.dirtyings,
                     )
                 };
                 draw_text(
                     &format!(
-                        "Has contratado {} invirtiendo {} €",
+                        "{} {} {} {} €",
+                        self.translation.you_hired,
                         world.heroes_count[hero],
+                        self.translation.investing,
                         accumulate_price(world.heroes_count[hero]) * hero.base_price() as f32
                     ),
                     (width
@@ -520,7 +547,10 @@ impl TextureDrawer {
                     BLACK,
                 );
                 draw_text(
-                    &format!("Produciendo {} {} por segundo", production, kind),
+                    &format!(
+                        "{} {} {} {}",
+                        self.translation.producing, production, kind, self.translation.per_second
+                    ),
                     (width
                         * (BUY_PANEL_HORIZONTAL_PAD
                             + BUY_PANEL_WIDTH
@@ -573,7 +603,7 @@ impl TextureDrawer {
                 BLACK,
             );
             draw_text(
-                &format!("Precio: {} €", world.price(hero)),
+                &format!("{}: {} €", self.translation.price, world.price(hero)),
                 text_pos_x,
                 (height * (start_height + 0.01 + vertical_offset) + font_size * 2.2).round(),
                 font_size,
@@ -583,9 +613,9 @@ impl TextureDrawer {
                 &format!(
                     "{}: {} x {}",
                     if i % 2 == 0 {
-                        "Limpiando"
+                        self.translation.cleaning
                     } else {
-                        "Ensuciando"
+                        self.translation.dirtying
                     },
                     if i % 2 == 0 {
                         hero.production_clean()
@@ -686,14 +716,14 @@ impl TextureDrawer {
             );
             draw_text_centered("GAME OVER", Vec2::new(0.5, 0.57), width, height, font_size);
             draw_text_centered(
-                "Te has pasado de avaricioso.",
+                self.translation.over_greedy,
                 Vec2::new(0.5, 0.64),
                 width,
                 height,
                 font_size,
             );
             draw_text_centered(
-                "La suciedad se ha apoderado de ti.",
+                self.translation.owned_by_dirt,
                 Vec2::new(0.5, 0.67),
                 width,
                 height,
@@ -727,21 +757,21 @@ impl TextureDrawer {
                 BLACK,
             );
             draw_text_centered(
-                "Has ganado!",
+                self.translation.you_won,
                 Vec2::new(0.5, 0.57),
                 width,
                 height,
                 font_size,
             );
             draw_text_centered(
-                "Tienes bastante dinero para jubilarte.",
+                self.translation.retire,
                 Vec2::new(0.5, 0.64),
                 width,
                 height,
                 font_size,
             );
             draw_text_centered(
-                "Puedes seguir jugando si quieres.",
+                self.translation.you_can_continue_playing,
                 Vec2::new(0.5, 0.67),
                 width,
                 height,
@@ -785,7 +815,14 @@ fn draw_bar(world: &World, width: f32, height: f32, overlapping: bool) {
     );
 }
 
-fn draw_savings(world: &World, width: f32, height: f32, overlapping: bool, font_size: f32) {
+fn draw_savings(
+    world: &World,
+    width: f32,
+    height: f32,
+    overlapping: bool,
+    font_size: f32,
+    translation: &Translation,
+) {
     let vertical_offset = if overlapping { 0.0 } else { 0.05 };
     let font_size = font_size * 2.0;
     let money_text = format!("{} €", world.money_euros());
@@ -848,7 +885,7 @@ fn draw_savings(world: &World, width: f32, height: f32, overlapping: bool, font_
     let (mouse_x, mouse_y) = mouse_position();
     if text_top_left.contains(Vec2::new(mouse_x, mouse_y)) {
         let pad = font_size * 0.5;
-        let tooltip_text = "Ahorros";
+        let tooltip_text = translation.savings;
         let tooltip_dimensions = measure_text(tooltip_text, None, font_size as u16, 1.0);
         draw_rectangle(
             mouse_x,
@@ -874,13 +911,20 @@ fn draw_savings(world: &World, width: f32, height: f32, overlapping: bool, font_
         );
     }
 }
-fn draw_speeds(world: &World, width: f32, height: f32, overlapping: bool, font_size: f32) {
+fn draw_speeds(
+    world: &World,
+    width: f32,
+    height: f32,
+    overlapping: bool,
+    font_size: f32,
+    translation: &Translation,
+) {
     let vertical_offset = if overlapping { 0.0 } else { 0.05 };
     let mut speed = 0;
     for hero in [Hero::Hero1, Hero::Hero2, Hero::Hero3] {
         speed += hero.production_clean() * world.heroes_count[&hero];
     }
-    let cleaning_text = format!("Velocidad de limpieza: {}", speed);
+    let cleaning_text = format!("{}: {}", translation.cleaning_speed, speed);
     let text_pos = Vec2::new(
         (width * BAR_HORIZONTAL_PAD + font_size).round(),
         (height * (SAVINGS_HEIGHT + vertical_offset)).round(),
@@ -891,7 +935,7 @@ fn draw_speeds(world: &World, width: f32, height: f32, overlapping: bool, font_s
     for hero in [Hero::Villain1, Hero::Villain2, Hero::Villain3] {
         speed += hero.production_dirty() * world.heroes_count[&hero];
     }
-    let dirtiying_text = format!("Velocidad de ensuciamiento: {}", speed);
+    let dirtiying_text = format!("{}: {}", translation.dirtying_speed, speed);
     let text_size = measure_text(&dirtiying_text, None, font_size as u16, 1.0);
 
     let text_pos = Vec2::new(
@@ -901,10 +945,18 @@ fn draw_speeds(world: &World, width: f32, height: f32, overlapping: bool, font_s
     draw_text(&dirtiying_text, text_pos.x, text_pos.y, font_size, BLACK);
 }
 
-fn draw_dirtiness(world: &World, width: f32, height: f32, overlapping: bool, font_size: f32) {
+fn draw_dirtiness(
+    world: &World,
+    width: f32,
+    height: f32,
+    overlapping: bool,
+    font_size: f32,
+    translation: &Translation,
+) {
     let vertical_offset = if overlapping { 0.0 } else { 0.05 };
     let dirtied_str = format!(
-        "Suciedades: {}/{}",
+        "{}: {}/{}",
+        translation.dirts,
         world.dirtiness_units(),
         world.max_dirtiness_units()
     );
@@ -1036,7 +1088,7 @@ mod tests {
     #[test]
     fn test_restart() {
         let mut textures = Vec::new();
-        for _ in Hero::list() {
+        for _ in 0..=(Texture::Villain3 as usize) {
             let mut texture = miniquad::Texture::empty();
             texture.width = 100;
             texture.height = 200;
@@ -1049,8 +1101,13 @@ mod tests {
                 offset_y: 4.0,
             };
         };
-        let mut drawer =
-            TextureDrawer::new_from_mocked(textures.clone(), 2000.0, 1000.0, &measure_text);
+        let mut drawer = TextureDrawer::new_from_mocked(
+            Textures::new(textures.clone()),
+            2000.0,
+            1000.0,
+            get_translation(Language::Spanish),
+            &measure_text,
+        );
         drawer.restart_mocked(2000.0, 1000.0, &measure_text);
         drawer.restart_mocked(2000.0, 1000.0, &measure_text);
     }

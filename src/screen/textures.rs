@@ -65,4 +65,3 @@ pub async fn load_textures() -> Vec<Texture2D> {
     trace!("after loading");
     textures
 }
-

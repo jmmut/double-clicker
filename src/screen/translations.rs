@@ -1,6 +1,3 @@
-use std::collections::HashMap;
-use std::slice::SliceIndex;
-
 #[derive(Copy, Clone)]
 pub enum Language {
     Spanish,
@@ -12,12 +9,25 @@ pub struct Translation {
     pub continue_playing: &'static str,
     pub buy: &'static str,
     pub sell: &'static str,
-    pub placeholder3: &'static str,
-    pub placeholder4: &'static str,
-    pub placeholder5: &'static str,
-    pub placeholder6: &'static str,
-    pub placeholder7: &'static str,
-    pub placeholder8: &'static str,
+    pub change_style: &'static str,
+    pub cleanings: &'static str,
+    pub cleaning: &'static str,
+    pub dirtyings: &'static str,
+    pub dirtying: &'static str,
+    pub you_hired: &'static str,
+    pub investing: &'static str,
+    pub producing: &'static str,
+    pub per_second: &'static str,
+    pub price: &'static str,
+    pub over_greedy: &'static str,
+    pub owned_by_dirt: &'static str,
+    pub you_won: &'static str,
+    pub retire: &'static str,
+    pub you_can_continue_playing: &'static str,
+    pub savings: &'static str,
+    pub cleaning_speed: &'static str,
+    pub dirtying_speed: &'static str,
+    pub dirts: &'static str,
 }
 
 const SPANISH: Translation = Translation {
@@ -25,30 +35,56 @@ const SPANISH: Translation = Translation {
     continue_playing: "Continuar jugando",
     buy: "Comprar",
     sell: "Vender",
-    placeholder3: "",
-    placeholder4: "",
-    placeholder5: "",
-    placeholder6: "",
-    placeholder7: "",
-    placeholder8: "",
+    change_style: "Cambiar estilo",
+    cleanings: "limpiezas",
+    cleaning: "Limpiando",
+    dirtyings: "suciedades",
+    dirtying: "Ensuciando",
+    you_hired: "Has contratado",
+    investing: "invirtiendo",
+    producing: "Produciendo",
+    per_second: "por segundo",
+    price: "Precio",
+    over_greedy: "Te has pasado de avaricioso.",
+    owned_by_dirt: "La suciedad se ha apoderado de ti.",
+    you_won: "Has ganado!",
+    retire: "Tienes bastante dinero para jubilarte.",
+    you_can_continue_playing: "Puedes seguir jugando si quieres.",
+    savings: "Ahorros",
+    cleaning_speed: "Velocidad de limpieza",
+    dirtying_speed: "Velocidad de ensuciamiento",
+    dirts: "Suciedades",
 };
+
 const ENGLISH: Translation = Translation {
     restart: "Restart",
     continue_playing: "Continue playing",
     buy: "Buy",
     sell: "Sell",
-    placeholder3: "",
-    placeholder4: "",
-    placeholder5: "",
-    placeholder6: "",
-    placeholder7: "",
-    placeholder8: "",
+    change_style: "Change Style",
+    cleanings: "cleanings",
+    cleaning: "Cleaning",
+    dirtyings: "dirtyings",
+    dirtying: "Dirtying",
+    you_hired: "You hired",
+    investing: "investing",
+    producing: "Producing",
+    per_second: "per second",
+    price: "Price",
+    over_greedy: "You were too greedy.",
+    owned_by_dirt: "The dirt owns you now.",
+    you_won: "Has ganado!",
+    retire: "You earned enough money to retire.",
+    you_can_continue_playing: "You can continue playing if you want.",
+    savings: "Savings",
+    cleaning_speed: "Cleaning speed",
+    dirtying_speed: "Dirtying speed",
+    dirts: "Dirts",
 };
 
-pub fn text(language: Language) -> &'static Translation {
+pub fn get_translation(language: Language) -> &'static Translation {
     match language {
         Language::Spanish => &SPANISH,
         Language::English => &ENGLISH,
     }
-    // "asdf"
 }
