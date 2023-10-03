@@ -601,7 +601,7 @@ impl TextureDrawer {
                 + if i % 2 == 0 { 0.0 } else { texture_size.x })
             .round();
 
-            let title_size = FONT_SIZE * 1.25;
+            let title_size = font_size * 1.25;
             draw_text(
                 &hero.name(self.translation),
                     (text_pos_x).round(),
