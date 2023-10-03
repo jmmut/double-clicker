@@ -90,9 +90,9 @@ const SPANISH: Translation = Translation {
         villain_3: "Hace 221 tareas de ensuciar por segundo",
     },
     name: CharacterText {
-        hero_1: "Larry el Limpio",
+        hero_1: "Técnico Operario de Cepillo",
         villain_1: "Sucio Steve",
-        hero_2: "Técnico Operario de Cepillo",
+        hero_2: "Larry el Limpio",
         villain_2: "Caos Adora",
         hero_3: "Aspiradora Autónoma Andy",
         villain_3: "Lord de la Mugre",
