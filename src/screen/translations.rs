@@ -31,6 +31,7 @@ pub struct Translation {
     pub description: CharacterText,
     pub name: CharacterText,
     pub lore: Lore,
+    pub alerts: AlertMessages,
 }
 
 pub struct Lore {
@@ -48,6 +49,12 @@ pub struct CharacterText {
     pub villain_2: & 'static str,
     pub hero_3: & 'static str,
     pub villain_3: & 'static str,
+}
+pub struct AlertMessages {
+    pub inefficient_cleaners: & 'static str,
+    pub cannot_clean: & 'static str,
+    pub insufficient_money: & 'static str,
+    pub cannot_sell: & 'static str,
 }
 
 const SPANISH: Translation = Translation {
@@ -116,6 +123,12 @@ const SPANISH: Translation = Translation {
         game_over: &["Todo se acaba, excepto la suciedad."],
         game_won: &["Contra todo pronóstico, te has salido con la tuya."],
     },
+    alerts: AlertMessages {
+        inefficient_cleaners: "Tienes limpiadores sin suficiente suciedad que limpiar",
+        cannot_clean: "No se puede limpiar si no hay nada sucio",
+        insufficient_money: "No tienes suficiente dinero para comprar esto",
+        cannot_sell: "No puedes vender porque tienes 0 unidades",
+    }
 };
 
 const ENGLISH: Translation = Translation {
@@ -183,6 +196,12 @@ const ENGLISH: Translation = Translation {
         ],
         game_over: &["Everything is finite, except dirtiness."],
         game_won: &["Against all odds, you got away with it."],
+    },
+    alerts: AlertMessages {
+        inefficient_cleaners: "Your cleaners don't have enough dirt to clean",
+        cannot_clean: "You can not clean is there is nothing dirty",
+        insufficient_money: "You don't have enough money to buy this",
+        cannot_sell: "You can not sell this because you have 0 units",
     },
 };
 

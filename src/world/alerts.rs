@@ -1,4 +1,5 @@
 use std::fmt::{Display, Formatter};
+use crate::screen::translations::Translation;
 
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum Alert {
@@ -8,20 +9,15 @@ pub enum Alert {
     CannotSell = 3,
 }
 
-const MESSAGES: [&'static str; 4] = [
-    "Tienes limpiadores sin suficiente suciedad que limpiar",
-    "No se puede limpiar si no hay nada sucio",
-    "No tienes suficiente dinero para comprar esto",
-    "No puedes vender porque tienes 0 unidades",
-];
 
 impl Alert {
-    pub fn to_string(&self) -> &str {
-        MESSAGES[*self as usize]
-    }
-}
-impl Display for Alert {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.to_string())
+    pub fn to_string(&self, translation : &Translation) -> &str {
+
+        match self {
+            Alert::InefficientCleaners => translation.alerts.inefficient_cleaners,
+            Alert::CannotClean => translation.alerts.cannot_clean,
+            Alert::InsufficientMoney => translation.alerts.insufficient_money,
+            Alert::CannotSell => translation.alerts.cannot_sell,
+        }
     }
 }

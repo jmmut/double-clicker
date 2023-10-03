@@ -301,7 +301,7 @@ impl DrawerTrait for TextureDrawer {
             self.translation,
         );
         draw_version(width, height, self.font_size);
-        draw_alerts(world, width, height, self.font_size);
+        draw_alerts(world, width, height, self.font_size, self.translation);
         self.draw_game_over(world, width, height, self.font_size);
         self.draw_game_won(world, width, height, self.font_size);
         self.buttons.change_language_to_spanish.render();
@@ -1032,10 +1032,10 @@ fn draw_version(_width: f32, height: f32, font_size: f32) {
     );
 }
 
-fn draw_alerts(world: &World, width: f32, height: f32, font_size: f32) {
+fn draw_alerts(world: &World, width: f32, height: f32, font_size: f32, translation: &Translation) {
     for (i, (_, alert)) in world.alerts.iter().enumerate() {
         draw_tooltip_centered(
-            &alert.to_string(),
+            &alert.to_string(translation),
             Vec2::new(0.5, 0.5 + (i as f32 * 2.0 * font_size) / height),
             width,
             height,
