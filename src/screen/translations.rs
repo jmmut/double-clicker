@@ -143,12 +143,12 @@ const ENGLISH: Translation = Translation {
     dirtying_speed: "Dirtying speed",
     dirts: "Dirts",
     description : CharacterText {
-        hero_1: "Produces 1 tasks of cleaning per second",
-        villain_1: "Produces 2 tasks of dirtying per second",
-        hero_2: "Produces 10 tasks of cleaning per second",
-        villain_2: "Produces 21 tasks of dirtying per second",
-        hero_3: "Produces 100 tasks of cleaning per second",
-        villain_3: "Produces 221 tasks of dirtying per second",
+        hero_1: "Completes 1 cleaning task per second",
+        villain_1: "Completes 2 dirtying tasks per second",
+        hero_2: "Completes 10 cleaning tasks per second",
+        villain_2: "Completes 21 dirtying tasks per second",
+        hero_3: "Completes 100 cleaning tasks per second",
+        villain_3: "Completes 221 dirtying tasks per second",
     },
     name: CharacterText {
         hero_1: "Clean Carl",

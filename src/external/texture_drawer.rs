@@ -830,9 +830,9 @@ fn draw_savings(
     translation: &Translation,
 ) {
     let vertical_offset = if overlapping { 0.0 } else { 0.05 };
-    let font_size = font_size * 2.0;
+    let savings_font_size = font_size * 2.0;
     let money_text = format!("{} €", world.money_euros());
-    let money_size = measure_text(&money_text, None, font_size as u16, 1.0);
+    let money_size = measure_text(&money_text, None, savings_font_size as u16, 1.0);
     let text_rect = Rect::new(
         width * 0.5 - (money_size.width * 0.5).round(),
         (height * (SAVINGS_HEIGHT + vertical_offset)).round(),
@@ -872,17 +872,17 @@ fn draw_savings(
         &money_text,
         text_rect.x - 1.0,
         text_rect.y - 1.0,
-        font_size,
+        savings_font_size,
         WHITE,
     );
     draw_text(
         &money_text,
         text_rect.x + 1.0,
         text_rect.y + 1.0,
-        font_size,
+        savings_font_size,
         WHITE,
     );
-    draw_text(&money_text, text_rect.x, text_rect.y, font_size, BLACK);
+    draw_text(&money_text, text_rect.x, text_rect.y, savings_font_size, BLACK);
 
     let text_top_left = Rect {
         y: text_rect.y - text_rect.h,
@@ -895,14 +895,14 @@ fn draw_savings(
         let tooltip_dimensions = measure_text(tooltip_text, None, font_size as u16, 1.0);
         draw_rectangle(
             mouse_x,
-            mouse_y - tooltip_dimensions.height - pad * 2.0,
+            mouse_y - tooltip_dimensions.offset_y - pad * 2.0,
             tooltip_dimensions.width + pad * 2.0,
             tooltip_dimensions.height + pad * 2.0,
             LIGHTGRAY,
         );
         draw_rectangle_lines(
             mouse_x,
-            mouse_y - tooltip_dimensions.height - pad * 2.0,
+            mouse_y - tooltip_dimensions.offset_y - pad * 2.0,
             tooltip_dimensions.width + pad * 2.0,
             tooltip_dimensions.height + pad * 2.0,
             2.0,
