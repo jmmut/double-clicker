@@ -28,6 +28,18 @@ pub struct Translation {
     pub cleaning_speed: &'static str,
     pub dirtying_speed: &'static str,
     pub dirts: &'static str,
+    pub hero_1_description: &'static str,
+    pub villain_1_description: &'static str,
+    pub hero_2_description: &'static str,
+    pub villain_2_description: &'static str,
+    pub hero_3_description: &'static str,
+    pub villain_3_description: &'static str,
+    pub hero_1_name: &'static str,
+    pub villain_1_name: &'static str,
+    pub hero_2_name: &'static str,
+    pub villain_2_name: &'static str,
+    pub hero_3_name: &'static str,
+    pub villain_3_name: &'static str,
 }
 
 const SPANISH: Translation = Translation {
@@ -54,6 +66,19 @@ const SPANISH: Translation = Translation {
     cleaning_speed: "Velocidad de limpieza",
     dirtying_speed: "Velocidad de ensuciamiento",
     dirts: "Suciedades",
+    hero_1_description: "Hace 1 tarea de limpieza por segundo",
+    villain_1_description: "Hace 2 tareas de ensuciar por segundo",
+    hero_2_description: "Hace 10 tareas de limpieza por segundo",
+    villain_2_description: "Hace 21 tareas de ensuciar por segundo",
+    hero_3_description: "Hace 100 tareas de limpieza por segundo",
+    villain_3_description: "Hace 221 tareas de ensuciar por segundo",
+
+    hero_1_name: "Larry el Limpio",
+    villain_1_name: "Sucio Steve",
+    hero_2_name: "Técnico Operario de Cepillo",
+    villain_2_name: "Caos Adora",
+    hero_3_name: "Aspiradora Autónoma Andy",
+    villain_3_name: "Lord de la Mugre",
 };
 
 const ENGLISH: Translation = Translation {
@@ -80,6 +105,19 @@ const ENGLISH: Translation = Translation {
     cleaning_speed: "Cleaning speed",
     dirtying_speed: "Dirtying speed",
     dirts: "Dirts",
+    hero_1_description: "Produces 1 tasks of cleaning per second",
+    villain_1_description: "Produces 2 tasks of dirtying per second",
+    hero_2_description: "Produces 10 tasks of cleaning per second",
+    villain_2_description: "Produces 21 tasks of dirtying per second",
+    hero_3_description: "Produces 100 tasks of cleaning per second",
+    villain_3_description: "Produces 221 tasks of dirtying per second",
+
+    hero_1_name: "Clean Carl",
+    villain_1_name: "Dirty Derek",
+    hero_2_name: "Operator of Cleaning Devices",
+    villain_2_name: "Chaos lover",
+    hero_3_name: "Autonomous Absterging Andy",
+    villain_3_name: "Dirt Lord",
 };
 
 pub fn get_translation(language: Language) -> &'static Translation {

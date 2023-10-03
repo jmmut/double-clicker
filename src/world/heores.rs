@@ -1,4 +1,5 @@
 use crate::screen::textures::Texture;
+use crate::screen::translations::Translation;
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum Hero {
@@ -43,24 +44,24 @@ impl Hero {
             Hero::Villain3 => Texture::Villain3,
         }
     }
-    pub fn name(&self) -> &'static str {
+    pub fn name(&self, translation: &Translation) -> &'static str {
         match self {
-            Hero::Hero1 => "Larry el Limpio",
-            Hero::Villain1 => "Sucio Steve",
-            Hero::Hero2 => "Técnico Operario de Cepillo",
-            Hero::Villain2 => "Caos Adora",
-            Hero::Hero3 => "Aspiradora Autónoma Andy",
-            Hero::Villain3 => "Lord de la Mugre",
+            Hero::Hero1 => translation.hero_1_name,
+            Hero::Villain1 => translation.villain_1_name,
+            Hero::Hero2 => translation.hero_2_name,
+            Hero::Villain2 => translation.villain_2_name,
+            Hero::Hero3 => translation.hero_3_name,
+            Hero::Villain3 => translation.villain_3_name,
         }
     }
-    pub fn short_description(&self) -> &'static str {
+    pub fn short_description(&self, translation: &Translation) -> &'static str {
         match self {
-            Hero::Hero1 => "Hace 1 tarea de limpieza por segundo",
-            Hero::Villain1 => "Hace 2 tareas de ensuciar por segundo",
-            Hero::Hero2 => "Hace 10 tareas de limpieza por segundo",
-            Hero::Villain2 => "Hace 21 tareas de ensuciar por segundo",
-            Hero::Hero3 => "Hace 100 tareas de limpieza por segundo",
-            Hero::Villain3 => "Hace 221 tareas de ensuciar por segundo",
+            Hero::Hero1 => translation.hero_1_description,
+            Hero::Villain1 => translation.villain_1_description,
+            Hero::Hero2 => translation.hero_2_description,
+            Hero::Villain2 => translation.villain_2_description,
+            Hero::Hero3 => translation.hero_3_description,
+            Hero::Villain3 => translation.villain_3_description,
         }
     }
     pub fn base_price(&self) -> i64 {

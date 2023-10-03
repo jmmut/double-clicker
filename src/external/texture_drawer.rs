@@ -503,7 +503,7 @@ impl TextureDrawer {
                     panel_color,
                 );
                 draw_text(
-                    &hero.short_description(),
+                    &hero.short_description(self.translation),
                     (width
                         * (BUY_PANEL_HORIZONTAL_PAD
                             + BUY_PANEL_WIDTH
@@ -596,7 +596,7 @@ impl TextureDrawer {
             .round();
 
             draw_text(
-                &hero.name(),
+                &hero.name(self.translation),
                 text_pos_x,
                 (height * (start_height + 0.01 + vertical_offset) + font_size).round(),
                 font_size,
