@@ -247,7 +247,7 @@ impl TextureDrawer {
                 + extra_horizontal_offset
                 + horizontal_offset
                 + texture_offset;
-            let y_coef = BUY_PANEL_START_HEIGHT + 0.12 + vertical_offset;
+            let y_coef = BUY_PANEL_START_HEIGHT + 0.14 + vertical_offset;
             let font_size = font_size;
             let button = draw::Button::from_top_left_pos(
                 text,
@@ -601,17 +601,25 @@ impl TextureDrawer {
                 + if i % 2 == 0 { 0.0 } else { texture_size.x })
             .round();
 
+            let title_size = FONT_SIZE * 1.25;
             draw_text(
                 &hero.name(self.translation),
-                text_pos_x,
-                (height * (start_height + 0.01 + vertical_offset) + font_size).round(),
-                font_size,
+                    (text_pos_x).round(),
+                (height * (start_height + 0.01 + vertical_offset) + title_size).round(),
+                title_size,
+                BLACK,
+            );
+            draw_text(
+                &hero.name(self.translation),
+                (text_pos_x + 0.5).round(),
+                (height * (start_height + 0.01 + vertical_offset) + title_size + 0.5).round(),
+                title_size,
                 BLACK,
             );
             draw_text(
                 &format!("{}: {} €", self.translation.price, world.price(hero)),
                 text_pos_x,
-                (height * (start_height + 0.01 + vertical_offset) + font_size * 2.2).round(),
+                (height * (start_height + 0.01 + vertical_offset) + font_size * 3.0).round(),
                 font_size,
                 BLACK,
             );
@@ -631,7 +639,7 @@ impl TextureDrawer {
                     world.heroes_count[&hero],
                 ),
                 text_pos_x,
-                (height * (start_height + 0.01 + vertical_offset) + font_size * 3.4).round(),
+                (height * (start_height + 0.01 + vertical_offset) + font_size * 4.2).round(),
                 font_size,
                 BLACK,
             );
@@ -1057,7 +1065,7 @@ fn draw_tooltip_centered(text: &str, position: Vec2, width: f32, height: f32, fo
         text_rect.y,
         text_rect.w,
         text_rect.h,
-        LIGHTGRAY,
+        Color::new(0.98, 0.95, 0.3, 1.00),
     );
     draw_rectangle_lines(
         text_rect.x,
