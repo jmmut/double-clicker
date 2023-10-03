@@ -30,6 +30,9 @@ impl InputSourceTrait for BasicInput {
                 .map(|hero| (*hero, drawer.button(Button::Sell(*hero)))),
         );
 
+        drawer.button(Button::ChangeLanguageToSpanish);
+        drawer.button(Button::ChangeLanguageToEnglish);
+
         GuiActions {
             quit: is_key_pressed(KeyCode::Escape),
             clean_pressed,

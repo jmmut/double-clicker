@@ -110,16 +110,34 @@ impl Button {
     where
         F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
     {
-        let top_left_on_center =
-            Self::from_top_left_pos(text, center_pixel, font_size, measure_text);
-        Self::remove_center_offset(top_left_on_center)
+        let mut button = Self::from_top_left_pos(text, center_pixel, font_size, measure_text);
+        button.rect = button.rect.offset(-button.center_offset());
+        button
     }
-    fn remove_center_offset(mut self) -> Self {
-        self.rect.x += -self.text_dimensions.width * 0.5 - self.pad.x;
-        self.rect.y += -self.text_dimensions.offset_y * 0.5 - self.pad.y;
-        self
+    pub fn from_bottom_right_pos<F>(
+        text: &str,
+        center_pixel: Vec2,
+        font_size: f32,
+        measure_text: &F,
+    ) -> Self
+    where
+        F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
+    {
+        let mut button = Self::from_top_left_pos(text, center_pixel, font_size, measure_text);
+        button.rect = button.rect.offset(-2.0 * button.center_offset());
+        button
     }
 
+    fn center_offset(&self) -> Vec2 {
+        Vec2::new(
+            self.text_dimensions.width * 0.5 + self.pad.x,
+            self.text_dimensions.offset_y * 0.5 + self.pad.y,
+        )
+    }
+
+    pub fn rect(&self) -> Rect {
+        self.rect
+    }
     pub fn interact(&mut self) -> Interaction {
         self.interaction = if self.rect.contains(Vec2::from(mouse_position())) {
             if is_mouse_button_down(MouseButton::Left) {

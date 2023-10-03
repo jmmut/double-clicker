@@ -1,3 +1,4 @@
+use crate::screen::translations::Language;
 use crate::world::heores::Hero;
 use crate::world::World;
 
@@ -10,6 +11,8 @@ pub enum Button {
     ContinueAfterGameOver,
     Buy(Hero),
     Sell(Hero),
+    ChangeLanguageToSpanish,
+    ChangeLanguageToEnglish,
 }
 
 pub trait DrawerTrait {

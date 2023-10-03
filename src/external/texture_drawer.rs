@@ -6,11 +6,11 @@ use crate::external::backends::{now, Seconds};
 use crate::screen::drawer_trait::{Button, DrawerTrait};
 use crate::screen::lore::{act_1_lore, act_2_lore, act_3_lore, game_over_lore, game_won_lore};
 use crate::screen::textures::Texture;
+use crate::screen::translations::{text, Language, Translation};
 use crate::world::acts::Act;
 use crate::world::heores::Hero;
 use crate::world::{accumulate_price, World};
 use crate::GIT_VERSION;
-use crate::screen::translations::{Language, text, Text};
 
 mod draw;
 
@@ -36,6 +36,8 @@ pub struct Buttons {
     sell: HashMap<Hero, draw::Button>,
     continue_playing: draw::Button,
     continue_after_game_over: draw::Button,
+    change_language_to_spanish: draw::Button,
+    change_language_to_english: draw::Button,
 }
 pub struct TextureDrawer {
     frame: i64,
@@ -49,6 +51,7 @@ pub struct TextureDrawer {
     stage: Act,
     width: f32,
     height: f32,
+    translation: &'static Translation,
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -76,7 +79,15 @@ impl TextureDrawer {
         F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
     {
         let font_size = Self::choose_font_size(width, height);
-        let buttons = Self::create_buttons(font_size, width, height, &textures, measure_text);
+        let translation = text(Language::Spanish);
+        let buttons = Self::create_buttons(
+            font_size,
+            width,
+            height,
+            &textures,
+            translation,
+            measure_text,
+        );
         Self {
             frame: 0,
             previous_time: now(),
@@ -89,6 +100,7 @@ impl TextureDrawer {
             stage: Act::Act1,
             width,
             height,
+            translation,
         }
     }
 
@@ -109,14 +121,22 @@ impl TextureDrawer {
         width: f32,
         height: f32,
         textures: &Vec<Texture2D>,
+        translation: &Translation,
         measure_text: &F,
     ) -> Buttons
     where
         F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
     {
+        let spanish = draw::Button::from_bottom_right_pos(
+            "Spanish",
+            Vec2::new(width, height),
+            font_size,
+            &measure_text,
+        );
+        let spanish_rect = spanish.rect();
         Buttons {
             continue_after_game_over: draw::Button::from_center_pos(
-                text(Text::Restart, Language::Spanish),
+                translation.restart,
                 Vec2::new(width * 0.5, height * 0.7),
                 font_size,
                 &measure_text,
@@ -126,6 +146,13 @@ impl TextureDrawer {
             continue_playing: draw::Button::from_center_pos(
                 "Continuar jugando",
                 Vec2::new(width * 0.5, height * 0.7),
+                font_size,
+                &measure_text,
+            ),
+            change_language_to_spanish: spanish,
+            change_language_to_english: draw::Button::from_bottom_right_pos(
+                "English",
+                Vec2::new(width - spanish_rect.w, height),
                 font_size,
                 &measure_text,
             ),
@@ -215,8 +242,14 @@ impl TextureDrawer {
         self.width = width;
         self.height = height;
         self.font_size = Self::choose_font_size(width, height);
-        self.buttons =
-            Self::create_buttons(self.font_size, width, height, &self.textures, &measure_text);
+        self.buttons = Self::create_buttons(
+            self.font_size,
+            width,
+            height,
+            &self.textures,
+            self.translation,
+            &measure_text,
+        );
     }
 }
 
@@ -238,6 +271,8 @@ impl DrawerTrait for TextureDrawer {
         draw_alerts(world, width, height, self.font_size);
         self.draw_game_over(world, width, height, self.font_size);
         self.draw_game_won(world, width, height, self.font_size);
+        self.buttons.change_language_to_spanish.render();
+        self.buttons.change_language_to_english.render();
     }
 
     fn button(&mut self, button: Button) -> bool {
@@ -276,7 +311,7 @@ impl DrawerTrait for TextureDrawer {
             }
             Button::Arrangement => root_ui().button(None, "Cambiar estilo"),
             Button::Restart => {
-                if root_ui().button(None, "Reiniciar") {
+                if root_ui().button(None, self.translation.restart) {
                     self.restart();
                     true
                 } else {
@@ -308,6 +343,22 @@ impl DrawerTrait for TextureDrawer {
             Button::Sell(hero) => {
                 let button = self.buttons.sell.get_mut(&hero).unwrap();
                 button.interact().is_clicked()
+            }
+            Button::ChangeLanguageToSpanish => {
+                let button = &mut self.buttons.change_language_to_spanish;
+                let is_clicked = button.interact().is_clicked();
+                if is_clicked {
+                    self.translation = text(Language::Spanish);
+                }
+                is_clicked
+            }
+            Button::ChangeLanguageToEnglish => {
+                let button = &mut self.buttons.change_language_to_english;
+                let is_clicked = button.interact().is_clicked();
+                if is_clicked {
+                    self.translation = text(Language::English);
+                }
+                is_clicked
             }
         }
     }
