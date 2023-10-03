@@ -40,6 +40,15 @@ pub struct Translation {
     pub villain_2_name: &'static str,
     pub hero_3_name: &'static str,
     pub villain_3_name: &'static str,
+    pub lore: Lore,
+}
+
+pub struct Lore {
+    pub act_1: &'static [&'static str],
+    pub act_2: &'static [&'static str],
+    pub act_3: &'static [&'static str],
+    pub game_over: &'static [&'static str],
+    pub game_won: &'static [&'static str],
 }
 
 const SPANISH: Translation = Translation {
@@ -72,13 +81,38 @@ const SPANISH: Translation = Translation {
     villain_2_description: "Hace 21 tareas de ensuciar por segundo",
     hero_3_description: "Hace 100 tareas de limpieza por segundo",
     villain_3_description: "Hace 221 tareas de ensuciar por segundo",
-
     hero_1_name: "Larry el Limpio",
     villain_1_name: "Sucio Steve",
     hero_2_name: "Técnico Operario de Cepillo",
     villain_2_name: "Caos Adora",
     hero_3_name: "Aspiradora Autónoma Andy",
     villain_3_name: "Lord de la Mugre",
+    lore: Lore {
+        act_1: &[
+            "Tu jefe quiere hablar contigo, está contento. Demasiado contento.",
+            "\"¿Cómo que despedido?\" - Malik",
+            "Tu departamento va a desaparecer, debes hacer algo.",
+            "\"Debo encontrar 'Los Trapos Sucios'\" - Malik",
+        ],
+        act_2: &[
+            "\"¿Me dejas chupar ese moho?\" - Caos Adora",
+            "\"Jefe, voy a necesitar tres cepillos\" - Técnico Operario de Cepillo",
+            "Frase acto 2 - 1",
+            "Frase acto 2 - 2",
+            "Frase acto 2 - 3",
+        ],
+        act_3: &[
+            "Frase acto 3 - 1",
+            "Frase acto 3 - 2",
+            "Frase acto 3 - 3",
+            "Frase acto 3 - 4",
+            "Frase acto 3 - 5",
+            "Frase acto 3 - 6",
+            "Frase acto 3 - 7",
+        ],
+        game_over: &["Todo se acaba, excepto la suciedad."],
+        game_won: &["Contra todo pronóstico, te has salido con la tuya."],
+    },
 };
 
 const ENGLISH: Translation = Translation {
@@ -111,13 +145,38 @@ const ENGLISH: Translation = Translation {
     villain_2_description: "Produces 21 tasks of dirtying per second",
     hero_3_description: "Produces 100 tasks of cleaning per second",
     villain_3_description: "Produces 221 tasks of dirtying per second",
-
     hero_1_name: "Clean Carl",
     villain_1_name: "Dirty Derek",
     hero_2_name: "Operator of Cleaning Devices",
-    villain_2_name: "Chaos lover",
+    villain_2_name: "Chaos Lover",
     hero_3_name: "Autonomous Absterging Andy",
     villain_3_name: "Dirt Lord",
+    lore: Lore {
+        act_1: &[
+            "Your boss wants to talk to you. He's happy. Too happy.",
+            "\"Fired? Me?\" - Malik",
+            "They are making your department redundant. You must do something.",
+            "\"I must find 'The Dirty Rags'\" - Malik",
+        ],
+        act_2: &[
+            "\"¿Can I lick that mold?\" - Chaos Lover",
+            "\"Boss, I'll need three brushes\" - Operator of Cleaning Devices",
+            "Frase acto 2 - 1",
+            "Frase acto 2 - 2",
+            "Frase acto 2 - 3",
+        ],
+        act_3: &[
+            "Frase acto 3 - 1",
+            "Frase acto 3 - 2",
+            "Frase acto 3 - 3",
+            "Frase acto 3 - 4",
+            "Frase acto 3 - 5",
+            "Frase acto 3 - 6",
+            "Frase acto 3 - 7",
+        ],
+        game_over: &["Everything is finite, except dirtness."],
+        game_won: &["Against all odds, you got away with it."],
+    },
 };
 
 pub fn get_translation(language: Language) -> &'static Translation {

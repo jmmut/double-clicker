@@ -293,7 +293,14 @@ impl DrawerTrait for TextureDrawer {
         self.font_size = Self::choose_font_size(width, height);
         self.draw_bar_and_money(world, width, height, self.font_size);
         self.draw_buy_heroes(world, width, height, self.font_size);
-        draw_text_bar(world, width, height, self.font_size, self.frame);
+        draw_text_bar(
+            world,
+            width,
+            height,
+            self.font_size,
+            self.frame,
+            self.translation,
+        );
         draw_version(width, height, self.font_size);
         draw_alerts(world, width, height, self.font_size);
         self.draw_game_over(world, width, height, self.font_size);
@@ -970,7 +977,14 @@ fn draw_dirtiness(
     );
 }
 
-fn draw_text_bar(world: &World, width: f32, height: f32, font_size: f32, frame: i64) {
+fn draw_text_bar(
+    world: &World,
+    width: f32,
+    height: f32,
+    font_size: f32,
+    frame: i64,
+    translation: &Translation,
+) {
     let bar_height = BUY_PANEL_START_HEIGHT + 3.0 * (BUY_PANEL_HEIGHT + BUY_PANEL_VERTICAL_PAD);
     draw_line(
         width * 0.0,
@@ -980,7 +994,7 @@ fn draw_text_bar(world: &World, width: f32, height: f32, font_size: f32, frame: 
         2.0,
         BLACK,
     );
-    let text = choose_text_lore(world.stage(), frame);
+    let text = choose_text_lore(world.stage(), frame, translation);
     let dimensions = measure_text(text, None, font_size as u16, 1.0);
     draw_text(
         text,
@@ -991,14 +1005,14 @@ fn draw_text_bar(world: &World, width: f32, height: f32, font_size: f32, frame: 
     );
 }
 
-fn choose_text_lore(stage: Act, frame: i64) -> &'static str {
+fn choose_text_lore(stage: Act, frame: i64, translation: &Translation) -> &str {
     let lore_sentences = match stage {
-        Act::Act1 => act_1_lore(),
-        Act::Act2 => act_2_lore(),
-        Act::Act3 => act_3_lore(),
+        Act::Act1 => act_1_lore(translation),
+        Act::Act2 => act_2_lore(translation),
+        Act::Act3 => act_3_lore(translation),
         Act::GameOver => game_over_lore(),
         Act::GameWon => game_won_lore(),
-        Act::ContinuePlayingAfterWinning => act_3_lore(),
+        Act::ContinuePlayingAfterWinning => act_3_lore(translation),
     };
     *choose_pseudo_random(lore_sentences, frame)
 }
