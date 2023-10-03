@@ -4,7 +4,6 @@ use std::collections::HashMap;
 
 use crate::external::backends::{now, Seconds};
 use crate::screen::drawer_trait::{Button, DrawerTrait};
-use crate::screen::lore::{act_1_lore, act_2_lore, act_3_lore, game_over_lore, game_won_lore};
 use crate::screen::textures::{Texture, Textures};
 use crate::screen::translations::{get_translation, Language, Translation};
 use crate::world::acts::Act;
@@ -1007,12 +1006,12 @@ fn draw_text_bar(
 
 fn choose_text_lore(stage: Act, frame: i64, translation: &Translation) -> &str {
     let lore_sentences = match stage {
-        Act::Act1 => act_1_lore(translation),
-        Act::Act2 => act_2_lore(translation),
-        Act::Act3 => act_3_lore(translation),
-        Act::GameOver => game_over_lore(),
-        Act::GameWon => game_won_lore(),
-        Act::ContinuePlayingAfterWinning => act_3_lore(translation),
+        Act::Act1 => translation.lore.act_1,
+        Act::Act2 => translation.lore.act_2,
+        Act::Act3 => translation.lore.act_3,
+        Act::GameOver => translation.lore.game_over,
+        Act::GameWon => translation.lore.game_won,
+        Act::ContinuePlayingAfterWinning => translation.lore.act_3,
     };
     *choose_pseudo_random(lore_sentences, frame)
 }

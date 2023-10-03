@@ -46,22 +46,22 @@ impl Hero {
     }
     pub fn name(&self, translation: &Translation) -> &'static str {
         match self {
-            Hero::Hero1 => translation.hero_1_name,
-            Hero::Villain1 => translation.villain_1_name,
-            Hero::Hero2 => translation.hero_2_name,
-            Hero::Villain2 => translation.villain_2_name,
-            Hero::Hero3 => translation.hero_3_name,
-            Hero::Villain3 => translation.villain_3_name,
+            Hero::Hero1 => translation.name.hero_1,
+            Hero::Villain1 => translation.name.villain_1,
+            Hero::Hero2 => translation.name.hero_2,
+            Hero::Villain2 => translation.name.villain_2,
+            Hero::Hero3 => translation.name.hero_3,
+            Hero::Villain3 => translation.name.villain_3,
         }
     }
     pub fn short_description(&self, translation: &Translation) -> &'static str {
         match self {
-            Hero::Hero1 => translation.hero_1_description,
-            Hero::Villain1 => translation.villain_1_description,
-            Hero::Hero2 => translation.hero_2_description,
-            Hero::Villain2 => translation.villain_2_description,
-            Hero::Hero3 => translation.hero_3_description,
-            Hero::Villain3 => translation.villain_3_description,
+            Hero::Hero1 => translation.description.hero_1,
+            Hero::Villain1 => translation.description.villain_1,
+            Hero::Hero2 => translation.description.hero_2,
+            Hero::Villain2 => translation.description.villain_2,
+            Hero::Hero3 => translation.description.hero_3,
+            Hero::Villain3 => translation.description.villain_3,
         }
     }
     pub fn base_price(&self) -> i64 {
