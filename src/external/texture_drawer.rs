@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use crate::external::backends::{now, Seconds};
 use crate::screen::drawer_trait::{Button, DrawerTrait};
 use crate::screen::lore::{act_1_lore, act_2_lore, act_3_lore, game_over_lore, game_won_lore};
-use crate::screen::textures::Texture;
+use crate::screen::textures::{Texture, Textures};
 use crate::screen::translations::{text, Language, Translation};
 use crate::world::acts::Act;
 use crate::world::heores::Hero;
@@ -44,7 +44,7 @@ pub struct Buttons {
 pub struct TextureDrawer {
     frame: i64,
     previous_time: Seconds,
-    textures: Vec<Texture2D>,
+    textures: Textures,
     arrangement_index: usize,
     clean_index: usize,
     dirty_index: usize,
@@ -68,11 +68,11 @@ const AVAILABLE_ARRANGEMENTS: [Arrangement; 2] = [
 ];
 
 impl TextureDrawer {
-    pub fn new(textures: Vec<Texture2D>) -> Self {
+    pub fn new(textures: Textures) -> Self {
         Self::new_from_mocked(textures, screen_width(), screen_height(), &measure_text)
     }
     pub fn new_from_mocked<F>(
-        textures: Vec<Texture2D>,
+        textures: Textures,
         width: f32,
         height: f32,
         measure_text: &F,
@@ -122,7 +122,7 @@ impl TextureDrawer {
         font_size: f32,
         width: f32,
         height: f32,
-        textures: &Vec<Texture2D>,
+        textures: &Textures,
         translation: &Translation,
         measure_text: &F,
     ) -> Buttons
@@ -178,7 +178,7 @@ impl TextureDrawer {
         font_size: f32,
         width: f32,
         height: f32,
-        textures: &Vec<Texture2D>,
+        textures: &Textures,
         translation: &Translation,
         measure_text: &F,
     ) -> HashMap<Hero, draw::Button>
@@ -200,7 +200,7 @@ impl TextureDrawer {
         font_size: f32,
         width: f32,
         height: f32,
-        textures: &Vec<Texture2D>,
+        textures: &Textures,
         translation: &Translation,
         measure_text: &F,
     ) -> HashMap<Hero, draw::Button>
@@ -222,7 +222,7 @@ impl TextureDrawer {
         font_size: f32,
         width: f32,
         height: f32,
-        textures: &Vec<Texture2D>,
+        textures: &Textures,
         measure_text: &F,
         text: &str,
         extra_horizontal_offset: f32,
@@ -238,7 +238,7 @@ impl TextureDrawer {
                 hero.index(),
                 width,
                 height,
-                textures[hero.texture_index()],
+                textures.get(hero.texture_index()),
             );
             let x_coef = BUY_PANEL_HORIZONTAL_PAD
                 + extra_horizontal_offset
@@ -304,8 +304,8 @@ impl DrawerTrait for TextureDrawer {
         let is_texture_clicked = |rect, texture: Texture, texture_pressed: Option<Texture>| {
             draw::is_texture_clicked(
                 rect,
-                self.textures[texture as usize],
-                texture_pressed.map(|t| self.textures[t as usize]),
+                self.textures.get(texture),
+                texture_pressed.map(|t| self.textures.get(t)),
             )
         };
         use Texture::*;
@@ -556,7 +556,7 @@ impl TextureDrawer {
             //     1.0,
             //     BLACK,
             // );
-            let character_texture = self.textures[hero.texture_index()];
+            let character_texture = self.textures.get(hero.texture_index());
             let texture_size = Vec2::new(
                 panel_rect.h * character_texture.width() / character_texture.height(),
                 panel_rect.h,

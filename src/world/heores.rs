@@ -33,15 +33,15 @@ impl Hero {
             Hero::Villain3 => 5,
         }
     }
-    pub fn texture_index(&self) -> usize {
-        (match self {
+    pub fn texture_index(&self) -> Texture {
+        match self {
             Hero::Hero1 => Texture::Hero1,
             Hero::Villain1 => Texture::Villain1,
             Hero::Hero2 => Texture::Hero2,
             Hero::Villain2 => Texture::Villain2,
             Hero::Hero3 => Texture::Hero3,
             Hero::Villain3 => Texture::Villain3,
-        }) as usize
+        }
     }
     pub fn name(&self) -> &'static str {
         match self {

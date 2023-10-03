@@ -20,6 +20,23 @@ pub enum Texture {
     DirtyFgCigar = 15,
 }
 
+pub struct Textures {
+    inner: Vec<Texture2D>,
+}
+impl Textures {
+    pub fn new(textures: Vec<Texture2D>) -> Self {
+        Self { inner: textures }
+    }
+    pub fn get(&self, texture: Texture) -> Texture2D {
+        self.inner[texture as usize]
+    }
+}
+impl Default for Textures {
+    fn default() -> Self {
+        Self::new(Vec::new())
+    }
+}
+
 pub async fn load_textures() -> Vec<Texture2D> {
     trace!("before loading");
     let mut textures = Vec::new();
