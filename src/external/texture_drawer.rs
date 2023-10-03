@@ -31,6 +31,8 @@ const BUY_PANEL_VERTICAL_PAD: f32 = 0.02;
 
 const TOOLTIP_WIDTH: f32 = 0.3;
 
+const DEFAULT_LANGUAGE: Language = Language::Spanish;
+
 pub struct Buttons {
     buy: HashMap<Hero, draw::Button>,
     sell: HashMap<Hero, draw::Button>,
@@ -79,7 +81,7 @@ impl TextureDrawer {
         F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
     {
         let font_size = Self::choose_font_size(width, height);
-        let translation = text(Language::Spanish);
+        let translation = text(DEFAULT_LANGUAGE);
         let buttons = Self::create_buttons(
             font_size,
             width,
@@ -128,7 +130,7 @@ impl TextureDrawer {
         F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
     {
         let spanish = draw::Button::from_bottom_right_pos(
-            "Spanish",
+            "Español",
             Vec2::new(width, height),
             font_size,
             &measure_text,
@@ -141,10 +143,24 @@ impl TextureDrawer {
                 font_size,
                 &measure_text,
             ),
-            buy: Self::create_buy_hero_buttons(font_size, width, height, textures, &measure_text),
-            sell: Self::create_sell_hero_buttons(font_size, width, height, textures, &measure_text),
+            buy: Self::create_buy_hero_buttons(
+                font_size,
+                width,
+                height,
+                textures,
+                translation,
+                &measure_text,
+            ),
+            sell: Self::create_sell_hero_buttons(
+                font_size,
+                width,
+                height,
+                textures,
+                translation,
+                &measure_text,
+            ),
             continue_playing: draw::Button::from_center_pos(
-                "Continuar jugando",
+                translation.continue_playing,
                 Vec2::new(width * 0.5, height * 0.7),
                 font_size,
                 &measure_text,
@@ -163,6 +179,7 @@ impl TextureDrawer {
         width: f32,
         height: f32,
         textures: &Vec<Texture2D>,
+        translation: &Translation,
         measure_text: &F,
     ) -> HashMap<Hero, draw::Button>
     where
@@ -174,7 +191,7 @@ impl TextureDrawer {
             height,
             textures,
             measure_text,
-            "Comprar",
+            translation.buy,
             0.02,
         )
     }
@@ -184,6 +201,7 @@ impl TextureDrawer {
         width: f32,
         height: f32,
         textures: &Vec<Texture2D>,
+        translation: &Translation,
         measure_text: &F,
     ) -> HashMap<Hero, draw::Button>
     where
@@ -195,7 +213,7 @@ impl TextureDrawer {
             height,
             textures,
             measure_text,
-            "Vender",
+            translation.sell,
             0.1,
         )
     }
@@ -220,7 +238,7 @@ impl TextureDrawer {
                 hero.index(),
                 width,
                 height,
-                textures[*hero as usize],
+                textures[hero.texture_index()],
             );
             let x_coef = BUY_PANEL_HORIZONTAL_PAD
                 + extra_horizontal_offset
@@ -238,18 +256,23 @@ impl TextureDrawer {
         }
         buttons
     }
-    fn resize(&mut self, width: f32, height: f32) {
-        self.width = width;
-        self.height = height;
-        self.font_size = Self::choose_font_size(width, height);
-        self.buttons = Self::create_buttons(
+
+    fn recreate_buttons(&mut self) {
+        self.buttons = TextureDrawer::create_buttons(
             self.font_size,
-            width,
-            height,
+            self.width,
+            self.height,
             &self.textures,
             self.translation,
             &measure_text,
         );
+    }
+
+    fn resize(&mut self, width: f32, height: f32) {
+        self.width = width;
+        self.height = height;
+        self.font_size = Self::choose_font_size(width, height);
+        self.recreate_buttons();
     }
 }
 
@@ -349,6 +372,7 @@ impl DrawerTrait for TextureDrawer {
                 let is_clicked = button.interact().is_clicked();
                 if is_clicked {
                     self.translation = text(Language::Spanish);
+                    self.recreate_buttons();
                 }
                 is_clicked
             }
@@ -357,6 +381,7 @@ impl DrawerTrait for TextureDrawer {
                 let is_clicked = button.interact().is_clicked();
                 if is_clicked {
                     self.translation = text(Language::English);
+                    self.recreate_buttons();
                 }
                 is_clicked
             }
@@ -531,7 +556,7 @@ impl TextureDrawer {
             //     1.0,
             //     BLACK,
             // );
-            let character_texture = self.textures[Texture::Hero1 as usize + i];
+            let character_texture = self.textures[hero.texture_index()];
             let texture_size = Vec2::new(
                 panel_rect.h * character_texture.width() / character_texture.height(),
                 panel_rect.h,
