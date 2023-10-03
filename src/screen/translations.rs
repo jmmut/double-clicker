@@ -141,7 +141,7 @@ const ENGLISH: Translation = Translation {
     savings: "Savings",
     cleaning_speed: "Cleaning speed",
     dirtying_speed: "Dirtying speed",
-    dirts: "Dirts",
+    dirts: "Dirtiness",
     description : CharacterText {
         hero_1: "Completes 1 cleaning task per second",
         villain_1: "Completes 2 dirtying tasks per second",
