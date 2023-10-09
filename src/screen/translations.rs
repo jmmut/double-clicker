@@ -167,7 +167,7 @@ const ENGLISH: Translation = Translation {
         hero_1: "Clean Carl",
         villain_1: "Dirty Derek",
         hero_2: "Operator of Cleaning Devices",
-        villain_2: "Chaos Lover",
+        villain_2: "Chaos Adora",
         hero_3: "Autonomous Absterging Andy",
         villain_3: "Dirt Lord",
     },
@@ -179,7 +179,7 @@ const ENGLISH: Translation = Translation {
             "\"I must find 'The Dirty Rags'\" - Malik",
         ],
         act_2: &[
-            "\"¿Can I lick that mold?\" - Chaos Lover",
+            "\"¿Can I lick that mold?\" - Chaos Adora",
             "\"Boss, I'll need three brushes\" - Operator of Cleaning Devices",
             "Frase acto 2 - 1",
             "Frase acto 2 - 2",
