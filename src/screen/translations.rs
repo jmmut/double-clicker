@@ -29,6 +29,7 @@ pub struct Translation {
     pub dirtying_speed: &'static str,
     pub dirts: &'static str,
     pub description: CharacterText,
+    pub long_description: CharacterText,
     pub name: CharacterText,
     pub lore: Lore,
     pub alerts: AlertMessages,
@@ -43,18 +44,18 @@ pub struct Lore {
 }
 
 pub struct CharacterText {
-    pub hero_1: & 'static str,
-    pub villain_1: & 'static str,
-    pub hero_2: & 'static str,
-    pub villain_2: & 'static str,
-    pub hero_3: & 'static str,
-    pub villain_3: & 'static str,
+    pub hero_1: &'static str,
+    pub villain_1: &'static str,
+    pub hero_2: &'static str,
+    pub villain_2: &'static str,
+    pub hero_3: &'static str,
+    pub villain_3: &'static str,
 }
 pub struct AlertMessages {
-    pub inefficient_cleaners: & 'static str,
-    pub cannot_clean: & 'static str,
-    pub insufficient_money: & 'static str,
-    pub cannot_sell: & 'static str,
+    pub inefficient_cleaners: &'static str,
+    pub cannot_clean: &'static str,
+    pub insufficient_money: &'static str,
+    pub cannot_sell: &'static str,
 }
 
 const SPANISH: Translation = Translation {
@@ -88,6 +89,14 @@ const SPANISH: Translation = Translation {
         villain_2: "Hace 21 tareas de ensuciar por segundo",
         hero_3: "Hace 100 tareas de limpieza por segundo",
         villain_3: "Hace 221 tareas de ensuciar por segundo",
+    },
+    long_description : CharacterText {
+        hero_1: "El maestro del cepillo, el genio de la limpieza. Siempre encuentra la solución más efectiva.",
+        villain_1: "long_description",
+        hero_2: "long_description",
+        villain_2: "long_description",
+        hero_3: "long_description",
+        villain_3: "long_description",
     },
     name: CharacterText {
         hero_1: "Técnico Operario de Cepillo",
@@ -155,13 +164,21 @@ const ENGLISH: Translation = Translation {
     cleaning_speed: "Cleaning speed",
     dirtying_speed: "Dirtying speed",
     dirts: "Dirtiness",
-    description : CharacterText {
+    description: CharacterText {
         hero_1: "Completes 1 cleaning task per second",
         villain_1: "Completes 2 dirtying tasks per second",
         hero_2: "Completes 10 cleaning tasks per second",
         villain_2: "Completes 21 dirtying tasks per second",
         hero_3: "Completes 100 cleaning tasks per second",
         villain_3: "Completes 221 dirtying tasks per second",
+    },
+    long_description: CharacterText {
+        hero_1: "long_description",
+        villain_1: "long_description",
+        hero_2: "long_description",
+        villain_2: "long_description",
+        hero_3: "long_description",
+        villain_3: "long_description",
     },
     name: CharacterText {
         hero_1: "Clean Carl",

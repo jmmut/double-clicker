@@ -500,27 +500,18 @@ impl TextureDrawer {
             // draw tooltip
             if panel_rect.contains(Vec2::new(mouse_x, mouse_y)) {
                 let (horizontal_offset, vertical_offset) = Self::get_tooltip_offset(i);
-
+                let tooltip_x_coef =
+                    BUY_PANEL_HORIZONTAL_PAD + BUY_PANEL_WIDTH + 0.01 + horizontal_offset;
+                let tooltip_y_coef = start_height + vertical_offset;
                 draw_rectangle(
-                    width * (BUY_PANEL_HORIZONTAL_PAD + BUY_PANEL_WIDTH + 0.01 + horizontal_offset),
-                    height * (start_height + vertical_offset),
+                    width * tooltip_x_coef,
+                    height * tooltip_y_coef,
                     width * TOOLTIP_WIDTH,
                     button_height,
                     panel_color,
                 );
-                draw_text(
-                    &hero.short_description(self.translation),
-                    (width
-                        * (BUY_PANEL_HORIZONTAL_PAD
-                            + BUY_PANEL_WIDTH
-                            + 0.01
-                            + 0.01
-                            + horizontal_offset))
-                        .round(),
-                    (height * (start_height + 0.01 + vertical_offset) + font_size).round(),
-                    font_size,
-                    BLACK,
-                );
+                let x = (width * (tooltip_x_coef + 0.01)).round();
+                let y = height * (tooltip_y_coef + 0.01); // rounded later
 
                 let (production, kind) = if i % 2 == 0 {
                     (
@@ -533,7 +524,9 @@ impl TextureDrawer {
                         self.translation.dirtyings,
                     )
                 };
-                draw_text(
+
+                let lines = [
+                    hero.short_description(self.translation),
                     &format!(
                         "{} {} {} {} €",
                         self.translation.you_hired,
@@ -541,33 +534,21 @@ impl TextureDrawer {
                         self.translation.investing,
                         accumulate_price(world.heroes_count[hero]) * hero.base_price() as f32
                     ),
-                    (width
-                        * (BUY_PANEL_HORIZONTAL_PAD
-                            + BUY_PANEL_WIDTH
-                            + 0.01
-                            + 0.01
-                            + horizontal_offset))
-                        .round(),
-                    (height * (start_height + 0.01 + vertical_offset) + font_size * 2.2).round(),
-                    font_size,
-                    BLACK,
-                );
-                draw_text(
                     &format!(
                         "{} {} {} {}",
                         self.translation.producing, production, kind, self.translation.per_second
                     ),
-                    (width
-                        * (BUY_PANEL_HORIZONTAL_PAD
-                            + BUY_PANEL_WIDTH
-                            + 0.01
-                            + 0.01
-                            + horizontal_offset))
-                        .round(),
-                    (height * (start_height + 0.01 + vertical_offset) + font_size * 3.4).round(),
-                    font_size,
-                    BLACK,
-                );
+                    &format!("{}", hero.long_description(self.translation)),
+                ];
+                for (i, line) in lines.iter().enumerate() {
+                    draw_text(
+                        line,
+                        x,
+                        (y + font_size * (1.0 + 1.2 * i as f32)).round(),
+                        font_size,
+                        BLACK,
+                    );
+                }
             }
             draw_rectangle(
                 panel_rect.x,
@@ -604,7 +585,7 @@ impl TextureDrawer {
             let title_size = font_size * 1.25;
             draw_text(
                 &hero.name(self.translation),
-                    (text_pos_x).round(),
+                (text_pos_x).round(),
                 (height * (start_height + 0.01 + vertical_offset) + title_size).round(),
                 title_size,
                 BLACK,
@@ -890,7 +871,13 @@ fn draw_savings(
         savings_font_size,
         WHITE,
     );
-    draw_text(&money_text, text_rect.x, text_rect.y, savings_font_size, BLACK);
+    draw_text(
+        &money_text,
+        text_rect.x,
+        text_rect.y,
+        savings_font_size,
+        BLACK,
+    );
 
     let text_top_left = Rect {
         y: text_rect.y - text_rect.h,

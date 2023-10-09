@@ -64,6 +64,16 @@ impl Hero {
             Hero::Villain3 => translation.description.villain_3,
         }
     }
+    pub fn long_description(&self, translation: &Translation) -> &'static str {
+        match self {
+            Hero::Hero1 => translation.long_description.hero_1,
+            Hero::Villain1 => translation.long_description.villain_1,
+            Hero::Hero2 => translation.long_description.hero_2,
+            Hero::Villain2 => translation.long_description.villain_2,
+            Hero::Hero3 => translation.long_description.hero_3,
+            Hero::Villain3 => translation.long_description.villain_3,
+        }
+    }
     pub fn base_price(&self) -> i64 {
         match self {
             Hero::Hero1 => 5,
