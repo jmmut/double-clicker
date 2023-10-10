@@ -552,9 +552,14 @@ impl TextureDrawer {
                 }
 
                 let line_y = y + font_size * (0.5 + line_height_coef * lines.len() as f32);
-                draw_line(x, line_y,
-                          (width * (tooltip_x_coef + TOOLTIP_WIDTH - pad_coef)).round(),
-                          line_y, 1.0, BLACK);
+                draw_line(
+                    x,
+                    line_y,
+                    (width * (tooltip_x_coef + TOOLTIP_WIDTH - pad_coef)).round(),
+                    line_y,
+                    1.0,
+                    BLACK,
+                );
                 let description = wrap_or_hide_text(
                     hero.long_description(self.translation),
                     font_size,
@@ -567,7 +572,11 @@ impl TextureDrawer {
                     draw_text(
                         line,
                         x,
-                        (y + font_size * (lines.len() as f32 * line_height_coef + 1.5 + line_height_coef * i as f32)).round(),
+                        (y + font_size
+                            * (lines.len() as f32 * line_height_coef
+                                + 1.5
+                                + line_height_coef * i as f32))
+                            .round(),
                         font_size,
                         BLACK,
                     );

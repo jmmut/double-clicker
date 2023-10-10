@@ -1,4 +1,8 @@
-use macroquad::prelude::{draw_rectangle, draw_text, draw_texture_ex, is_mouse_button_down, is_mouse_button_released, mouse_position, DrawTextureParams, MouseButton, Rect, TextDimensions, Texture2D, BLACK, GRAY, LIGHTGRAY, WHITE, measure_text};
+use macroquad::prelude::{
+    draw_rectangle, draw_text, draw_texture_ex, is_mouse_button_down, is_mouse_button_released,
+    measure_text, mouse_position, DrawTextureParams, MouseButton, Rect, TextDimensions, Texture2D,
+    BLACK, GRAY, LIGHTGRAY, WHITE,
+};
 use macroquad::text::Font;
 
 use crate::external::backends::Vec2;
@@ -166,7 +170,13 @@ impl Button {
 }
 
 type Pixels = f32;
-pub fn wrap_or_hide_text(text: &str, font_size: f32, line_height: Pixels, panel_width: Pixels, panel_height: Pixels) -> Vec<String> {
+pub fn wrap_or_hide_text(
+    text: &str,
+    font_size: f32,
+    line_height: Pixels,
+    panel_width: Pixels,
+    panel_height: Pixels,
+) -> Vec<String> {
     assert!(panel_width >= 0.0);
     assert!(panel_height >= 0.0);
     let dimensions = measure_text(text, None, font_size as u16, 1.0);
@@ -177,7 +187,7 @@ pub fn wrap_or_hide_text(text: &str, font_size: f32, line_height: Pixels, panel_
     } else {
         let mut remaining_text = text;
         let mut result = Vec::new();
-        let letter_width_estimate : Pixels = dimensions.width / remaining_text.len() as f32;
+        let letter_width_estimate: Pixels = dimensions.width / remaining_text.len() as f32;
         let letters_per_line_estimate = (panel_width / letter_width_estimate).trunc() as usize;
         while result.len() as f32 * line_height < panel_height {
             if remaining_text.len() <= letters_per_line_estimate {
@@ -185,10 +195,11 @@ pub fn wrap_or_hide_text(text: &str, font_size: f32, line_height: Pixels, panel_
                 break;
             } else {
                 let mut letters_per_line_estimate_utf8 = letters_per_line_estimate;
-                while !remaining_text.is_char_boundary(letters_per_line_estimate_utf8+1) {
+                while !remaining_text.is_char_boundary(letters_per_line_estimate_utf8 + 1) {
                     letters_per_line_estimate_utf8 -= 1;
                 }
-                let line_break_index = remaining_text[0..=letters_per_line_estimate_utf8].rfind(" ")
+                let line_break_index = remaining_text[0..=letters_per_line_estimate_utf8]
+                    .rfind(" ")
                     .unwrap_or(letters_per_line_estimate_utf8 - 1); // TODO: put a dash for cut words?
                 result.push(remaining_text[0..=line_break_index].to_string());
                 remaining_text = &remaining_text[(line_break_index + 1)..];
