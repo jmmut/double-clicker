@@ -4,6 +4,7 @@ use macroquad::prelude::{
     Rect, TextDimensions, Texture2D, BLACK, GRAY, LIGHTGRAY, WHITE,
 };
 use macroquad::text::Font;
+use std::ops::AddAssign;
 
 use crate::external::backends::Vec2;
 
@@ -180,16 +181,36 @@ pub fn wrap_or_hide_text(
     assert!(panel_width >= 0.0);
     assert!(panel_height >= 0.0);
     let dimensions = measure_text(text, None, font_size as u16, 1.0);
-    if dimensions.height > panel_height {
+    if line_height.max(dimensions.height) > panel_height {
         return Vec::new(); // not enough space for a single line, hide all text
     } else if dimensions.width <= panel_width && dimensions.height <= panel_height {
         return vec![text.to_string()];
     } else {
         let mut remaining_text = text;
-        let mut result = Vec::new();
+        let mut result: Vec<String> = Vec::new();
         let letter_width_estimate: Pixels = dimensions.width / remaining_text.len() as f32;
         let letters_per_line_estimate = (panel_width / letter_width_estimate).trunc() as usize;
-        while (result.len() + 1) as f32 * line_height < panel_height {
+        loop {
+            if (result.len() + 1) as f32 * line_height >= panel_height {
+                let mut last_line = result.pop().unwrap();
+                // lines will usually end in a space, so the index points to the letter before the last one
+                let mut last_letter_in_last_word_utf8 = last_line.len() - 2;
+                while !last_line.is_char_boundary(last_letter_in_last_word_utf8) {
+                    last_letter_in_last_word_utf8 -= 1;
+                }
+                let line_break_index = last_line[..last_letter_in_last_word_utf8].rfind(" ");
+                let mut last_line = if let Some(previous_word_index) = line_break_index {
+                    last_line[..previous_word_index].to_string()
+                } else {
+                    last_line.pop();
+                    last_line.pop();
+                    last_line.pop();
+                    last_line
+                };
+                last_line.add_assign("...");
+                result.push(last_line);
+                break;
+            }
             if remaining_text.len() <= letters_per_line_estimate {
                 result.push(remaining_text.to_string());
                 break;
