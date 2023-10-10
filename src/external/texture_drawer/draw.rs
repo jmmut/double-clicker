@@ -1,8 +1,4 @@
-use macroquad::prelude::{
-    draw_rectangle, draw_text, draw_texture_ex, is_mouse_button_down, is_mouse_button_released,
-    mouse_position, DrawTextureParams, MouseButton, Rect, TextDimensions, Texture2D, BLACK, GRAY,
-    LIGHTGRAY, WHITE,
-};
+use macroquad::prelude::{draw_rectangle, draw_text, draw_texture_ex, is_mouse_button_down, is_mouse_button_released, mouse_position, DrawTextureParams, MouseButton, Rect, TextDimensions, Texture2D, BLACK, GRAY, LIGHTGRAY, WHITE, measure_text};
 use macroquad::text::Font;
 
 use crate::external::backends::Vec2;
@@ -166,5 +162,14 @@ impl Button {
             self.font_size,
             BLACK,
         );
+    }
+}
+
+pub fn wrap_or_hide_text(text: &str, font_size: f32, width: f32, height: f32) -> Vec<String> {
+    let dimensions = measure_text(text, None, font_size as u16, 1.0);
+    if dimensions.width <= width && dimensions.height <= height {
+        return vec![text.to_string()];
+    } else {
+        Vec::new()
     }
 }

@@ -3,6 +3,7 @@ use macroquad::ui::root_ui;
 use std::collections::HashMap;
 
 use crate::external::backends::{now, Seconds};
+use crate::external::texture_drawer::draw::wrap_or_hide_text;
 use crate::screen::drawer_trait::{Button, DrawerTrait};
 use crate::screen::textures::{Texture, Textures};
 use crate::screen::translations::{get_translation, Language, Translation};
@@ -484,34 +485,35 @@ impl TextureDrawer {
 
     fn draw_buy_heroes(&mut self, world: &World, width: f32, height: f32, font_size: f32) {
         let start_height = BUY_PANEL_START_HEIGHT;
-        let button_width = width * BUY_PANEL_WIDTH;
-        let button_height = height * BUY_PANEL_HEIGHT;
+        let panel_width = width * BUY_PANEL_WIDTH;
+        let panel_height = height * BUY_PANEL_HEIGHT;
         for (i, hero) in Hero::list().iter().enumerate() {
             let (horizontal_offset, vertical_offset) = Self::get_buy_panel_offset(i);
             let panel_color = if i % 2 == 0 { CLEAN_COLOR } else { DIRTY_COLOR };
             let panel_rect = Rect::new(
                 width * (BUY_PANEL_HORIZONTAL_PAD + horizontal_offset),
                 height * (start_height + vertical_offset),
-                button_width,
-                button_height,
+                panel_width,
+                panel_height,
             );
             let (mouse_x, mouse_y) = mouse_position();
 
             // draw tooltip
             if panel_rect.contains(Vec2::new(mouse_x, mouse_y)) {
                 let (horizontal_offset, vertical_offset) = Self::get_tooltip_offset(i);
+                let pad_coef = 0.01;
                 let tooltip_x_coef =
-                    BUY_PANEL_HORIZONTAL_PAD + BUY_PANEL_WIDTH + 0.01 + horizontal_offset;
+                    BUY_PANEL_HORIZONTAL_PAD + BUY_PANEL_WIDTH + pad_coef + horizontal_offset;
                 let tooltip_y_coef = start_height + vertical_offset;
                 draw_rectangle(
                     width * tooltip_x_coef,
                     height * tooltip_y_coef,
                     width * TOOLTIP_WIDTH,
-                    button_height,
+                    panel_height,
                     panel_color,
                 );
-                let x = (width * (tooltip_x_coef + 0.01)).round();
-                let y = height * (tooltip_y_coef + 0.01); // rounded later
+                let x = (width * (tooltip_x_coef + pad_coef)).round();
+                let y = height * (tooltip_y_coef + pad_coef); // rounded later
 
                 let (production, kind) = if i % 2 == 0 {
                     (
@@ -525,21 +527,25 @@ impl TextureDrawer {
                     )
                 };
 
-                let lines = [
-                    hero.short_description(self.translation),
-                    &format!(
-                        "{} {} {} {} €",
-                        self.translation.you_hired,
-                        world.heroes_count[hero],
-                        self.translation.investing,
-                        accumulate_price(world.heroes_count[hero]) * hero.base_price() as f32
-                    ),
-                    &format!(
-                        "{} {} {} {}",
-                        self.translation.producing, production, kind, self.translation.per_second
-                    ),
-                    &format!("{}", hero.long_description(self.translation)),
-                ];
+                let invested = format!(
+                    "{} {} {} {} €",
+                    self.translation.you_hired,
+                    world.heroes_count[hero],
+                    self.translation.investing,
+                    accumulate_price(world.heroes_count[hero]) * hero.base_price() as f32
+                );
+                let speed = format!(
+                    "{} {} {} {}",
+                    self.translation.producing, production, kind, self.translation.per_second
+                );
+                let mut lines = vec![hero.short_description(self.translation), &invested, &speed];
+                let description = wrap_or_hide_text(
+                    hero.long_description(self.translation),
+                    font_size,
+                    width * (TOOLTIP_WIDTH - 2.0 * pad_coef),
+                    height * (BUY_PANEL_HEIGHT - 2.0 * pad_coef),
+                );
+                lines.append(&mut description.iter().map(|s| s.as_str()).collect());
                 for (i, line) in lines.iter().enumerate() {
                     draw_text(
                         line,
