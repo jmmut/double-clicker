@@ -553,7 +553,8 @@ impl TextureDrawer {
                     );
                 }
 
-                let line_y = y + font_size * (0.5 + line_height_coef * lines.len() as f32);
+                let line_y_in_panel = font_size * (0.5 + line_height_coef * lines.len() as f32);
+                let line_y = y + line_y_in_panel;
                 draw_line(
                     x,
                     line_y,
@@ -567,8 +568,11 @@ impl TextureDrawer {
                     font_size,
                     font_size * line_height_coef,
                     width * (TOOLTIP_WIDTH - 2.0 * pad_coef),
-                    height * (BUY_PANEL_HEIGHT - 2.0 * pad_coef),
+                    height * (BUY_PANEL_HEIGHT - 2.0 * pad_coef) - line_y_in_panel,
                 );
+                if is_mouse_button_pressed(MouseButton::Left) {
+                    println!("{:?}", mouse_position());
+                }
                 // lines.append(&mut description.iter().map(|s| s.as_str()).collect());
                 for (i, line) in description.iter().enumerate() {
                     draw_text(

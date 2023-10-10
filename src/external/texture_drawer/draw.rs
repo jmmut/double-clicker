@@ -189,7 +189,7 @@ pub fn wrap_or_hide_text(
         let mut result = Vec::new();
         let letter_width_estimate: Pixels = dimensions.width / remaining_text.len() as f32;
         let letters_per_line_estimate = (panel_width / letter_width_estimate).trunc() as usize;
-        while result.len() as f32 * line_height < panel_height {
+        while (result.len() + 1) as f32 * line_height < panel_height {
             if remaining_text.len() <= letters_per_line_estimate {
                 result.push(remaining_text.to_string());
                 break;
@@ -208,6 +208,7 @@ pub fn wrap_or_hide_text(
                 }
             }
         }
+
         result
     }
 }
