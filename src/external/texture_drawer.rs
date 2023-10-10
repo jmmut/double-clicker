@@ -3,7 +3,9 @@ use macroquad::ui::root_ui;
 use std::collections::HashMap;
 
 use crate::external::backends::{now, Seconds};
-use crate::external::texture_drawer::draw::wrap_or_hide_text;
+use crate::external::texture_drawer::draw::{
+    draw_text_centered, draw_tooltip_centered, wrap_or_hide_text,
+};
 use crate::screen::drawer_trait::{Button, DrawerTrait};
 use crate::screen::textures::{Texture, Textures};
 use crate::screen::translations::{get_translation, Language, Translation};
@@ -538,7 +540,7 @@ impl TextureDrawer {
                     "{} {} {} {}",
                     self.translation.producing, production, kind, self.translation.per_second
                 );
-                let mut lines = vec![hero.short_description(self.translation), &invested, &speed];
+                let lines = vec![hero.short_description(self.translation), &invested, &speed];
 
                 let line_height_coef = 1.1;
                 for (i, line) in lines.iter().enumerate() {
@@ -1070,57 +1072,6 @@ fn draw_alerts(world: &World, width: f32, height: f32, font_size: f32, translati
         );
     }
 }
-fn draw_tooltip_centered(text: &str, position: Vec2, width: f32, height: f32, font_size: f32) {
-    let pad = font_size * 0.5;
-    let tooltip_size = measure_text(&text, None, font_size as u16, 1.0);
-    let text_rect = Rect::new(
-        (width * position.x - tooltip_size.width * 0.5 - pad).round(),
-        (height * position.y - tooltip_size.height - pad * 2.0).round(),
-        tooltip_size.width + pad * 2.0,
-        tooltip_size.height + pad * 2.0,
-    );
-    draw_rectangle(
-        text_rect.x,
-        text_rect.y,
-        text_rect.w,
-        text_rect.h,
-        Color::new(0.98, 0.95, 0.3, 1.00),
-    );
-    draw_rectangle_lines(
-        text_rect.x,
-        text_rect.y,
-        text_rect.w,
-        text_rect.h,
-        2.0,
-        BLACK,
-    );
-    draw_text(
-        &text,
-        text_rect.x + pad,
-        text_rect.y + pad + tooltip_size.offset_y,
-        font_size,
-        BLACK,
-    );
-}
-
-fn draw_text_centered(text: &str, position: Vec2, width: f32, height: f32, font_size: f32) {
-    let pad = font_size * 0.5;
-    let tooltip_size = measure_text(&text, None, font_size as u16, 1.0);
-    let text_rect = Rect::new(
-        (width * position.x - tooltip_size.width * 0.5 - pad).round(),
-        (height * position.y - tooltip_size.height - pad * 2.0).round(),
-        tooltip_size.width + pad * 2.0,
-        tooltip_size.height + pad * 2.0,
-    );
-    draw_text(
-        &text,
-        text_rect.x + pad,
-        text_rect.y + pad + tooltip_size.offset_y,
-        font_size,
-        BLACK,
-    );
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -1,7 +1,7 @@
 use macroquad::prelude::{
-    draw_rectangle, draw_text, draw_texture_ex, is_mouse_button_down, is_mouse_button_released,
-    measure_text, mouse_position, DrawTextureParams, MouseButton, Rect, TextDimensions, Texture2D,
-    BLACK, GRAY, LIGHTGRAY, WHITE,
+    draw_rectangle, draw_rectangle_lines, draw_text, draw_texture_ex, is_mouse_button_down,
+    is_mouse_button_released, measure_text, mouse_position, Color, DrawTextureParams, MouseButton,
+    Rect, TextDimensions, Texture2D, BLACK, GRAY, LIGHTGRAY, WHITE,
 };
 use macroquad::text::Font;
 
@@ -210,4 +210,55 @@ pub fn wrap_or_hide_text(
         }
         result
     }
+}
+
+pub fn draw_tooltip_centered(text: &str, position: Vec2, width: f32, height: f32, font_size: f32) {
+    let pad = font_size * 0.5;
+    let tooltip_size = measure_text(&text, None, font_size as u16, 1.0);
+    let text_rect = Rect::new(
+        (width * position.x - tooltip_size.width * 0.5 - pad).round(),
+        (height * position.y - tooltip_size.height - pad * 2.0).round(),
+        tooltip_size.width + pad * 2.0,
+        tooltip_size.height + pad * 2.0,
+    );
+    draw_rectangle(
+        text_rect.x,
+        text_rect.y,
+        text_rect.w,
+        text_rect.h,
+        Color::new(0.98, 0.95, 0.3, 1.00),
+    );
+    draw_rectangle_lines(
+        text_rect.x,
+        text_rect.y,
+        text_rect.w,
+        text_rect.h,
+        2.0,
+        BLACK,
+    );
+    draw_text(
+        &text,
+        text_rect.x + pad,
+        text_rect.y + pad + tooltip_size.offset_y,
+        font_size,
+        BLACK,
+    );
+}
+
+pub fn draw_text_centered(text: &str, position: Vec2, width: f32, height: f32, font_size: f32) {
+    let pad = font_size * 0.5;
+    let tooltip_size = measure_text(&text, None, font_size as u16, 1.0);
+    let text_rect = Rect::new(
+        (width * position.x - tooltip_size.width * 0.5 - pad).round(),
+        (height * position.y - tooltip_size.height - pad * 2.0).round(),
+        tooltip_size.width + pad * 2.0,
+        tooltip_size.height + pad * 2.0,
+    );
+    draw_text(
+        &text,
+        text_rect.x + pad,
+        text_rect.y + pad + tooltip_size.offset_y,
+        font_size,
+        BLACK,
+    );
 }
