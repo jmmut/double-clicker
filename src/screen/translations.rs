@@ -91,13 +91,12 @@ const SPANISH: Translation = Translation {
         villain_3: "Hace 221 tareas de ensuciar por segundo",
     },
     long_description : CharacterText {
-        hero_1: "El maestro del cepillo, el genio de la limpieza.",
-        // hero_1: "El maestro del cepillo, el genio de la limpieza. Siempre encuentra la solución más efectiva.",
+        hero_1: "El maestro del cepillo, el genio de la limpieza. Siempre encuentra la solución más efectiva.",
         villain_1: "Un alborotador profesional, experto en ingerir líquidos sospechosos.",
         hero_2: "Obsesionado con la limpieza, no hay mancha que pueda resistírsele. No sería quien es de no ser por su hermano: Harry el sucio.",
         villain_2: "Sus mejores amigos: caos y confusión. Siempre buscando formas nuevas de ensuciar.",
         hero_3: "La mayor IA jamás creada para la limpieza. Programada para la perfección (aunque se haya programado en java).",
-        villain_3: "El líder supremo de la suciedad. Nacido de la probeta más sucia escondida en la laboratorio más mugriento. Su apetito por la mugre es insaciable.",
+        villain_3: "El líder supremo de la suciedad. Nacido de la probeta más sucia escondida en el laboratorio más mugriento. Su apetito por la mugre es insaciable.",
     },
     name: CharacterText {
         hero_1: "Técnico Operario de Cepillo",

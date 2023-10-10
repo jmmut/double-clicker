@@ -175,12 +175,28 @@ pub fn wrap_or_hide_text(text: &str, font_size: f32, line_height: Pixels, panel_
     } else if dimensions.width <= panel_width && dimensions.height <= panel_height {
         return vec![text.to_string()];
     } else {
-        let letter_width_estimate : Pixels = dimensions.width / text.len() as f32;
-        let letters_per_line_estimate = (panel_width / letter_width_estimate).trunc() as usize;
-        let letters_per_line_estimate = letters_per_line_estimate.min(text.len());
-        let line_break_index = text[0..letters_per_line_estimate].rfind(" ").unwrap_or(letters_per_line_estimate);
+        let mut remaining_text = text;
         let mut result = Vec::new();
-        result.push(text[0..line_break_index].to_string());
+        let letter_width_estimate : Pixels = dimensions.width / remaining_text.len() as f32;
+        let letters_per_line_estimate = (panel_width / letter_width_estimate).trunc() as usize;
+        while result.len() as f32 * line_height < panel_height {
+            if remaining_text.len() <= letters_per_line_estimate {
+                result.push(remaining_text.to_string());
+                break;
+            } else {
+                let mut letters_per_line_estimate_utf8 = letters_per_line_estimate;
+                while !remaining_text.is_char_boundary(letters_per_line_estimate_utf8+1) {
+                    letters_per_line_estimate_utf8 -= 1;
+                }
+                let line_break_index = remaining_text[0..=letters_per_line_estimate_utf8].rfind(" ")
+                    .unwrap_or(letters_per_line_estimate_utf8 - 1); // TODO: put a dash for cut words?
+                result.push(remaining_text[0..=line_break_index].to_string());
+                remaining_text = &remaining_text[(line_break_index + 1)..];
+                if remaining_text.is_empty() {
+                    break;
+                }
+            }
+        }
         result
     }
 }
