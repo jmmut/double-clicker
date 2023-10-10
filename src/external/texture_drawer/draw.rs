@@ -165,11 +165,22 @@ impl Button {
     }
 }
 
-pub fn wrap_or_hide_text(text: &str, font_size: f32, width: f32, height: f32) -> Vec<String> {
+type Pixels = f32;
+pub fn wrap_or_hide_text(text: &str, font_size: f32, line_height: Pixels, panel_width: Pixels, panel_height: Pixels) -> Vec<String> {
+    assert!(panel_width >= 0.0);
+    assert!(panel_height >= 0.0);
     let dimensions = measure_text(text, None, font_size as u16, 1.0);
-    if dimensions.width <= width && dimensions.height <= height {
+    if dimensions.height > panel_height {
+        return Vec::new(); // not enough space for a single line, hide all text
+    } else if dimensions.width <= panel_width && dimensions.height <= panel_height {
         return vec![text.to_string()];
     } else {
-        Vec::new()
+        let letter_width_estimate : Pixels = dimensions.width / text.len() as f32;
+        let letters_per_line_estimate = (panel_width / letter_width_estimate).trunc() as usize;
+        let letters_per_line_estimate = letters_per_line_estimate.min(text.len());
+        let line_break_index = text[0..letters_per_line_estimate].rfind(" ").unwrap_or(letters_per_line_estimate);
+        let mut result = Vec::new();
+        result.push(text[0..line_break_index].to_string());
+        result
     }
 }

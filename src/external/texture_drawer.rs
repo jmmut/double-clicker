@@ -542,6 +542,7 @@ impl TextureDrawer {
                 let description = wrap_or_hide_text(
                     hero.long_description(self.translation),
                     font_size,
+                    font_size * 1.2,
                     width * (TOOLTIP_WIDTH - 2.0 * pad_coef),
                     height * (BUY_PANEL_HEIGHT - 2.0 * pad_coef),
                 );
