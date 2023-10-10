@@ -539,19 +539,35 @@ impl TextureDrawer {
                     self.translation.producing, production, kind, self.translation.per_second
                 );
                 let mut lines = vec![hero.short_description(self.translation), &invested, &speed];
-                let description = wrap_or_hide_text(
-                    hero.long_description(self.translation),
-                    font_size,
-                    font_size * 1.2,
-                    width * (TOOLTIP_WIDTH - 2.0 * pad_coef),
-                    height * (BUY_PANEL_HEIGHT - 2.0 * pad_coef),
-                );
-                lines.append(&mut description.iter().map(|s| s.as_str()).collect());
+
+                let line_height_coef = 1.1;
                 for (i, line) in lines.iter().enumerate() {
                     draw_text(
                         line,
                         x,
-                        (y + font_size * (1.0 + 1.2 * i as f32)).round(),
+                        (y + font_size * (1.0 + line_height_coef * i as f32)).round(),
+                        font_size,
+                        BLACK,
+                    );
+                }
+
+                let line_y = y + font_size * (0.5 + line_height_coef * lines.len() as f32);
+                draw_line(x, line_y,
+                          (width * (tooltip_x_coef + TOOLTIP_WIDTH - pad_coef)).round(),
+                          line_y, 1.0, BLACK);
+                let description = wrap_or_hide_text(
+                    hero.long_description(self.translation),
+                    font_size,
+                    font_size * line_height_coef,
+                    width * (TOOLTIP_WIDTH - 2.0 * pad_coef),
+                    height * (BUY_PANEL_HEIGHT - 2.0 * pad_coef),
+                );
+                // lines.append(&mut description.iter().map(|s| s.as_str()).collect());
+                for (i, line) in description.iter().enumerate() {
+                    draw_text(
+                        line,
+                        x,
+                        (y + font_size * (lines.len() as f32 * line_height_coef + 1.5 + line_height_coef * i as f32)).round(),
                         font_size,
                         BLACK,
                     );
