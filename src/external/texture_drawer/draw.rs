@@ -178,6 +178,51 @@ pub fn wrap_or_hide_text(
     panel_width: Pixels,
     panel_height: Pixels,
 ) -> Vec<String> {
+    wrap_or_hide_text_generic(
+        text,
+        font_size,
+        line_height,
+        panel_width,
+        panel_height,
+        &measure_text,
+    )
+}
+
+#[allow(unused)]
+pub fn wrap_or_hide_text_mocked(
+    text: &str,
+    font_size: f32,
+    line_height: Pixels,
+    panel_width: Pixels,
+    panel_height: Pixels,
+) -> Vec<String> {
+    wrap_or_hide_text_generic(
+        text,
+        font_size,
+        line_height,
+        panel_width,
+        panel_height,
+        &|text, _font, font_size, _scale| {
+            return TextDimensions {
+                width: text.len() as f32 * font_size as f32,
+                height: font_size as f32,
+                offset_y: font_size as f32,
+            };
+        },
+    )
+}
+
+pub fn wrap_or_hide_text_generic<F>(
+    text: &str,
+    font_size: f32,
+    line_height: Pixels,
+    panel_width: Pixels,
+    panel_height: Pixels,
+    measure_text: &F,
+) -> Vec<String>
+where
+    F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
+{
     assert!(panel_width >= 0.0);
     assert!(panel_height >= 0.0);
     let dimensions = measure_text(text, None, font_size as u16, 1.0);
@@ -283,4 +328,63 @@ pub fn draw_text_centered(text: &str, position: Vec2, width: f32, height: f32, f
         font_size,
         BLACK,
     );
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_wrap_text_basic() {
+        let text = "word_1 word_2 word_3";
+        let font_size = 10.0;
+        let lines = wrap_or_hide_text_mocked(
+            text,
+            font_size,
+            font_size,
+            text.len() as f32 * font_size - 1.0,
+            font_size * 3.0,
+        );
+        assert_eq!(lines, vec!["word_1 word_2 ", "word_3"]);
+    }
+
+    #[test]
+    fn test_wrap_text_ellipsis() {
+        let text = "word_1 word_2 word_3";
+        let font_size = 10.0;
+        let lines = wrap_or_hide_text_mocked(
+            text,
+            font_size,
+            font_size,
+            text.len() as f32 * font_size - 1.0,
+            font_size * 1.5,
+        );
+        assert_eq!(lines, vec!["word_1..."]);
+    }
+    #[test]
+    fn test_wrap_text_no_space() {
+        let text = "word_1 word_2 word_3";
+        let font_size = 10.0;
+        let lines = wrap_or_hide_text_mocked(
+            text,
+            font_size,
+            font_size,
+            text.len() as f32 * font_size - 1.0,
+            font_size * 0.5,
+        );
+        assert_eq!(lines, Vec::<String>::new());
+    }
+    #[test]
+    fn test_wrap_text_long_word() {
+        let text = "looooooooooooooooooooooong_word";
+        let font_size = 10.0;
+        let lines = wrap_or_hide_text_mocked(
+            text,
+            font_size,
+            font_size,
+            text.len() as f32 * font_size - 1.0,
+            font_size * 1.5,
+        );
+        assert_eq!(lines,vec!["looooooooooooooooooooooong_..."]);
+    }
 }
