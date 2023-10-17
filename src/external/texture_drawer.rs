@@ -40,6 +40,7 @@ pub struct TextureDrawer {
     arrangement_index: usize,
     clean_index: usize,
     dirty_index: usize,
+    dirtiness: f32,
     buttons: Buttons,
     font_size: f32,
     stage: Act,
@@ -97,6 +98,7 @@ impl TextureDrawer {
             arrangement_index: 0,
             clean_index: 0,
             dirty_index: 0,
+            dirtiness: 0.0,
             buttons,
             font_size,
             stage: Act::Act1,
@@ -142,6 +144,7 @@ impl DrawerTrait for TextureDrawer {
     fn draw(&mut self, world: &mut World) {
         self.frame += 1;
         self.stage = world.stage();
+        self.dirtiness = world.dirtiness_units() as f32 / world.max_dirtiness_units() as f32;
         // self.debug_fps(world);
         let width = screen_width();
         let height = screen_height();
@@ -306,6 +309,10 @@ impl DrawerTrait for TextureDrawer {
         if gui_actions.dirty_pressed {
             self.next_dirty();
         }
+    }
+
+    fn dirtiness(&self) -> f32 {
+        self.dirtiness
     }
 }
 

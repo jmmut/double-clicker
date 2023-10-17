@@ -25,4 +25,5 @@ pub trait DrawerTrait {
 
     fn apply_gui_actions(&mut self, gui_actions: &GuiActions);
 
+    fn dirtiness(&self) -> f32;
 }
