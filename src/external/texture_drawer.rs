@@ -36,7 +36,7 @@ const TOOLTIP_WIDTH: f32 = 0.3;
 pub struct TextureDrawer {
     frame: i64,
     previous_time: Seconds,
-    textures: Textures,
+    pub textures: Textures,
     arrangement_index: usize,
     clean_index: usize,
     dirty_index: usize,
@@ -149,6 +149,23 @@ impl DrawerTrait for TextureDrawer {
             self.resize(width, height);
             self.font_size = Self::choose_font_size(width, height);
         }
+
+        let target_ratio = 0.25 * height;
+        let pattern_texture = self.textures.get(Texture::BackgroundPattern);
+        let texture_size = Vec2::new(
+            target_ratio * pattern_texture.width() / pattern_texture.height(),
+            target_ratio,
+        );
+        
+
+        draw_texture_ex(pattern_texture, 0.0, 0.0, WHITE, DrawTextureParams {
+            dest_size: Some(texture_size),
+            source: None,
+            rotation: 0.0,
+            flip_x: false,
+            flip_y: false,
+            pivot: None,
+        });
         self.draw_bar_and_money(world, width, height, self.font_size);
         self.draw_buy_heroes(world, width, height, self.font_size);
         draw_text_bar(

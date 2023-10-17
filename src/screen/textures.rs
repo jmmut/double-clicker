@@ -18,6 +18,7 @@ pub enum Texture {
     DirtyFgFish = 13,
     DirtyFgBanana = 14,
     DirtyFgCigar = 15,
+    BackgroundPattern = 16,
 }
 
 pub struct Textures {
@@ -57,6 +58,7 @@ pub async fn load_textures() -> Vec<Texture2D> {
         "assets/images/buttons/buttonPUR256-1.png",
         "assets/images/buttons/buttonPUR256-2.png",
         "assets/images/buttons/buttonPUR256-3.png",
+        "assets/images/background/BGpatronsmol.png",
     ] {
         let t = load_texture(path).await.unwrap();
         t.set_filter(FilterMode::Linear);

@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use macroquad::input::is_key_pressed;
-use macroquad::prelude::{clear_background, Color, KeyCode, LIGHTGRAY};
+use macroquad::prelude::{clear_background, draw_texture_ex, Color, KeyCode, LIGHTGRAY};
 
 use crate::screen::drawer_trait::{Button, DrawerTrait};
 use crate::screen::input_source_trait::InputSourceTrait;
@@ -18,6 +18,8 @@ impl InputSourceTrait for BasicInput {
         clear_background(Color::new(0.75, 0.85, 1.0, 1.0)); // TODO: remove this shit out of here. blocked until root_ui is not used.
         // clear_background(Color::new(0.85, 0.75, 1.0, 1.0)); // TODO: remove this shit out of here. blocked until root_ui is not used.
         // clear_background(Color::new(0x30, 0x00, 0x2f)); // TODO: remove this shit out of here. blocked until root_ui is not used.
+
+
         let dirty_pressed = drawer.button(Button::Dirty) || is_key_pressed(KeyCode::E);
         let clean_pressed = drawer.button(Button::Clean) || is_key_pressed(KeyCode::L);
         let next_arrangement = drawer.button(Button::Arrangement) || is_key_pressed(KeyCode::C);
