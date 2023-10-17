@@ -59,8 +59,8 @@ struct Arrangement {
 
 #[rustfmt::skip]
 const AVAILABLE_ARRANGEMENTS: [Arrangement; 2] = [
-    Arrangement { overlapping: false },
     Arrangement { overlapping: true },
+    Arrangement { overlapping: false },
 ];
 
 impl TextureDrawer {
@@ -426,14 +426,14 @@ impl TextureDrawer {
             font_size,
             self.translation,
         );
-        draw_dirtiness(
-            world,
-            width,
-            height,
-            overlapping,
-            font_size,
-            self.translation,
-        );
+        // draw_dirtiness(
+        //     world,
+        //     width,
+        //     height,
+        //     overlapping,
+        //     font_size,
+        //     self.translation,
+        // );
     }
 
     fn draw_buy_heroes(&mut self, world: &World, width: f32, height: f32, font_size: f32) {
@@ -771,7 +771,7 @@ impl TextureDrawer {
 fn draw_bar(world: &World, width: f32, height: f32, overlapping: bool) {
     let bar_width = 1.0 - BAR_HORIZONTAL_PAD * 2.0;
     let bar_height = if overlapping {
-        0.1 + BAR_VERTICAL_PAD
+        0.05 + BAR_VERTICAL_PAD
     } else {
         BAR_VERTICAL_PAD
     };
@@ -808,7 +808,7 @@ fn draw_savings(
     font_size: f32,
     translation: &Translation,
 ) {
-    let vertical_offset = if overlapping { 0.0 } else { 0.05 };
+    let vertical_offset = if overlapping { - 0.03 } else { 0.05 };
     let savings_font_size = font_size * 2.0;
     let money_text = format!("{} €", world.money_euros());
     let money_size = measure_text(&money_text, None, savings_font_size as u16, 1.0);
@@ -847,19 +847,19 @@ fn draw_savings(
     //     font_size,
     //     WHITE,
     // );
-    draw_text(
-        &money_text,
-        text_rect.x - 1.0,
-        text_rect.y - 1.0,
-        savings_font_size,
-        WHITE,
-    );
+    // draw_text(
+    //     &money_text,
+    //     text_rect.x - 1.0,
+    //     text_rect.y - 1.0,
+    //     savings_font_size,
+    //     WHITE,
+    // );
     draw_text(
         &money_text,
         text_rect.x + 1.0,
         text_rect.y + 1.0,
         savings_font_size,
-        WHITE,
+        BLACK,
     );
     draw_text(
         &money_text,
@@ -910,7 +910,7 @@ fn draw_speeds(
     font_size: f32,
     translation: &Translation,
 ) {
-    let vertical_offset = if overlapping { 0.0 } else { 0.05 };
+    let vertical_offset = if overlapping { -0.055 } else { 0.05 };
     let mut speed = 0;
     for hero in [Hero::Hero1, Hero::Hero2, Hero::Hero3] {
         speed += hero.production_clean() * world.heroes_count[&hero];
@@ -944,7 +944,7 @@ fn draw_dirtiness(
     font_size: f32,
     translation: &Translation,
 ) {
-    let vertical_offset = if overlapping { 0.0 } else { 0.05 };
+    let vertical_offset = if overlapping { -0.025 } else { 0.05 };
     let dirtied_str = format!(
         "{}: {}/{}",
         translation.dirts,
