@@ -385,6 +385,6 @@ mod tests {
             text.len() as f32 * font_size - 1.0,
             font_size * 1.5,
         );
-        assert_eq!(lines,vec!["looooooooooooooooooooooong_..."]);
+        assert_eq!(lines, vec!["looooooooooooooooooooooong_..."]);
     }
 }

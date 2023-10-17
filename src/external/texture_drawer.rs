@@ -309,6 +309,7 @@ impl DrawerTrait for TextureDrawer {
         self.draw_game_won(world, width, height, self.font_size);
         self.buttons.change_language_to_spanish.render();
         self.buttons.change_language_to_english.render();
+        self.debug_fps(&world)
     }
 
     fn button(&mut self, button: Button) -> bool {
@@ -429,11 +430,11 @@ impl TextureDrawer {
         let new_time = now();
         root_ui().label(
             None,
-            &format!("drawing fps: {}", 1.0 / (new_time - self.previous_time)),
+            &format!("drawing fps: {:.2}", 1.0 / (new_time - self.previous_time)),
         );
         root_ui().label(
             None,
-            &format!("physics fps: {}", 1.0 / (world.time_since_last_frame)),
+            &format!("physics fps: {:.2}", 1.0 / (world.time_since_last_frame)),
         );
         self.previous_time = new_time;
     }
