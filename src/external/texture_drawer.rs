@@ -150,34 +150,7 @@ impl DrawerTrait for TextureDrawer {
             self.font_size = Self::choose_font_size(width, height);
         }
 
-        let target_ratio = 0.4 * height;
-        let pattern_texture = self.textures.get(Texture::BackgroundPattern);
-        let texture_size = Vec2::new(
-            target_ratio * pattern_texture.width() / pattern_texture.height(),
-            target_ratio,
-        );
-        let i_height = 0.0;
-        // let mut offset = - texture_size.x *0.5;
-        let mut offset_x = 0.0;
-        let period = 5.0;
-        let time_dt = now() % period;
-        let mut offset_y = -texture_size.y + (time_dt / period) as f32 * texture_size.y;
-
-        for i_height in 0..=((height / texture_size.y).ceil() as i32) {
-            for i_width in 0..((width / texture_size.x).ceil() as i32) {
-                let x = texture_size.x * i_width as f32 + offset_x;
-                let y = texture_size.y * i_height as f32 + offset_y;
-                draw_texture_ex(pattern_texture, x, y, WHITE, DrawTextureParams {
-                    dest_size: Some(texture_size),
-                    source: None,
-                    rotation: 0.0,
-                    flip_x: false,
-                    flip_y: false,
-                    pivot: None,
-                });
-            }
-            // offset += texture_size.x;
-        }
+        self.draw_background_pattern(width, height);
         self.draw_bar_and_money(world, width, height, self.font_size);
         self.draw_buy_heroes(world, width, height, self.font_size);
         draw_text_bar(
@@ -386,6 +359,42 @@ impl TextureDrawer {
         // during which self is incomplete/invalid. Workaround:
         let textures = std::mem::take(&mut self.textures);
         *self = Self::new_from_mocked(textures, width, height, self.translation, measure_text);
+    }
+
+    fn draw_background_pattern(&mut self, width: f32, height: f32) {
+        let target_ratio = 0.4 * height;
+        let pattern_texture = self.textures.get(Texture::BackgroundPattern);
+        let texture_size = Vec2::new(
+            target_ratio * pattern_texture.width() / pattern_texture.height(),
+            target_ratio,
+        );
+        let i_height = 0.0;
+        // let mut offset = - texture_size.x *0.5;
+        let mut offset_x = 0.0;
+        let period = 16.0;
+        let time_dt = now() % period;
+        let mut offset_y = -texture_size.y + (time_dt / period) as f32 * texture_size.y;
+
+        for i_height in 0..=((height / texture_size.y).ceil() as i32) {
+            for i_width in 0..((width / texture_size.x).ceil() as i32) {
+                let x = texture_size.x * i_width as f32 + offset_x;
+                let y = texture_size.y * i_height as f32 + offset_y;
+                draw_texture_ex(pattern_texture, x, y, Color::new(1.0, 1.0, 1.0, 0.25), DrawTextureParams {
+                    dest_size: Some(texture_size),
+                    source: None,
+                    rotation: 0.0,
+                    flip_x: false,
+                    flip_y: false,
+                    pivot: None,
+                });
+            }
+            // offset += texture_size.x;
+        }
+
+        draw_texture_ex(self.textures.get(Texture::BackgroundMargin), 0.0, 0.0, WHITE, DrawTextureParams {
+            dest_size: Some(Vec2::new(width, height)),
+            ..Default::default()
+        })
     }
 
     fn draw_bar_and_money(&self, world: &World, width: f32, height: f32, font_size: f32) {
