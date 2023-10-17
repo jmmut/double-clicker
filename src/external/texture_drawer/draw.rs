@@ -252,6 +252,9 @@ pub fn wrap_or_hide_text_generic<F>(
 where
     F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
 {
+    if panel_width < 0.0 || panel_height < 0.0 {
+        return Vec::new();
+    }
     assert!(panel_width >= 0.0);
     assert!(panel_height >= 0.0);
     let dimensions = measure_text(text, None, font_size as u16, 1.0);
