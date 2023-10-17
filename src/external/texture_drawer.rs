@@ -2,6 +2,7 @@ use macroquad::prelude::*;
 use macroquad::ui::root_ui;
 
 use crate::external::backends::{now, Seconds};
+use crate::external::basic_input::get_background_color;
 use crate::external::texture_drawer::buttons::Buttons;
 use crate::external::texture_drawer::draw::{draw_panel_border, draw_text_centered, draw_tooltip_centered, draw_windows_95_border, Interaction, TEXT_PANEL_COLOR, wrap_or_hide_text};
 use crate::screen::drawer_trait::{Button, DrawerTrait};
@@ -969,7 +970,8 @@ fn draw_text_bar(
     translation: &Translation,
 ) {
     let bar_height = BUY_PANEL_START_HEIGHT + 3.0 * (BUY_PANEL_HEIGHT + BUY_PANEL_VERTICAL_PAD);
-    draw_rectangle(width * 0.0, height * bar_height + 2.0, width, height - bar_height, TEXT_PANEL_COLOR);
+    let dirtiness_coef = world.dirtiness_units() as f32 / world.max_dirtiness_units() as f32;
+    draw_rectangle(width * 0.0, height * bar_height + 2.0, width, height - bar_height, get_background_color(dirtiness_coef));
     draw_line(
         width * 0.0,
         height * bar_height + 2.0,

@@ -17,14 +17,7 @@ impl InputSourceTrait for BasicInput {
     fn get_gui_actions(&self, drawer: &mut dyn DrawerTrait) -> GuiActions {
 
         let dirtiness = drawer.dirtiness();
-        let clean_color = CLEAN_BACKGROUND_COLOR.clone();
-        let dirty_color = DIRTY_BACKGROUND_COLOR.clone();
-        let bg_color = Color::new(
-            ((1.0 - dirtiness) * clean_color.r + dirtiness * dirty_color.r),
-            ((1.0 - dirtiness) * clean_color.g + dirtiness * dirty_color.g),
-            ((1.0 - dirtiness) * clean_color.b + dirtiness * dirty_color.b),
-            ((1.0 - dirtiness) * clean_color.a + dirtiness * dirty_color.a),
-        );
+        let bg_color = get_background_color(dirtiness);
         // clear_background(Color::from_rgba(0x01, 0x00, 0x30, 255)); // TODO: remove this shit out of here. blocked until root_ui is not used.
         clear_background(bg_color); // TODO: remove this shit out of here. blocked until root_ui is not used.
         // clear_background(Color::new(0.85, 0.75, 1.0, 1.0)); // TODO: remove this shit out of here. blocked until root_ui is not used.
@@ -65,4 +58,16 @@ impl InputSourceTrait for BasicInput {
             heroes_sold,
         }
     }
+}
+
+pub fn get_background_color(dirtiness: f32) -> Color {
+    let clean_color = CLEAN_BACKGROUND_COLOR.clone();
+    let dirty_color = DIRTY_BACKGROUND_COLOR.clone();
+    let bg_color = Color::new(
+        ((1.0 - dirtiness) * clean_color.r + dirtiness * dirty_color.r),
+        ((1.0 - dirtiness) * clean_color.g + dirtiness * dirty_color.g),
+        ((1.0 - dirtiness) * clean_color.b + dirtiness * dirty_color.b),
+        ((1.0 - dirtiness) * clean_color.a + dirtiness * dirty_color.a),
+    );
+    bg_color
 }
