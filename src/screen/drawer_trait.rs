@@ -1,3 +1,4 @@
+use crate::screen::GuiActions;
 use crate::world::heores::Hero;
 use crate::world::World;
 
@@ -22,7 +23,6 @@ pub trait DrawerTrait {
     /// Returns true if the button was pressed this frame
     fn button(&mut self, button: Button) -> bool;
 
-    fn next_arrangement(&mut self) {}
-    fn next_clean(&mut self) {}
-    fn next_dirty(&mut self) {}
+    fn apply_gui_actions(&mut self, gui_actions: &GuiActions);
+
 }

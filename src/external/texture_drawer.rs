@@ -1,8 +1,8 @@
 use macroquad::prelude::*;
 use macroquad::ui::root_ui;
-use std::collections::HashMap;
 
 use crate::external::backends::{now, Seconds};
+use crate::external::texture_drawer::buttons::Buttons;
 use crate::external::texture_drawer::draw::{
     draw_text_centered, draw_tooltip_centered, wrap_or_hide_text,
 };
@@ -13,8 +13,10 @@ use crate::world::acts::Act;
 use crate::world::heores::Hero;
 use crate::world::{accumulate_price, World};
 use crate::GIT_VERSION;
+use crate::screen::GuiActions;
 
 mod draw;
+mod buttons;
 
 const CLEAN_COLOR: Color = SKYBLUE;
 const DIRTY_COLOR: Color = PURPLE;
@@ -33,14 +35,6 @@ const BUY_PANEL_VERTICAL_PAD: f32 = 0.02;
 
 const TOOLTIP_WIDTH: f32 = 0.3;
 
-pub struct Buttons {
-    buy: HashMap<Hero, draw::Button>,
-    sell: HashMap<Hero, draw::Button>,
-    continue_playing: draw::Button,
-    continue_after_game_over: draw::Button,
-    change_language_to_spanish: draw::Button,
-    change_language_to_english: draw::Button,
-}
 pub struct TextureDrawer {
     frame: i64,
     previous_time: Seconds,
@@ -90,7 +84,7 @@ impl TextureDrawer {
         F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
     {
         let font_size = Self::choose_font_size(width, height);
-        let buttons = Self::create_buttons(
+        let buttons = buttons::create_buttons(
             font_size,
             width,
             height,
@@ -127,148 +121,8 @@ impl TextureDrawer {
                 2.0
             }
     }
-
-    fn create_buttons<F>(
-        font_size: f32,
-        width: f32,
-        height: f32,
-        textures: &Textures,
-        translation: &Translation,
-        measure_text: &F,
-    ) -> Buttons
-    where
-        F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
-    {
-        let spanish = draw::Button::from_bottom_right_pos(
-            "Español",
-            Vec2::new(width, height),
-            font_size,
-            &measure_text,
-        );
-        let spanish_rect = spanish.rect();
-        Buttons {
-            continue_after_game_over: draw::Button::from_center_pos(
-                translation.restart,
-                Vec2::new(width * 0.5, height * 0.7),
-                font_size,
-                &measure_text,
-            ),
-            buy: Self::create_buy_hero_buttons(
-                font_size,
-                width,
-                height,
-                textures,
-                translation,
-                &measure_text,
-            ),
-            sell: Self::create_sell_hero_buttons(
-                font_size,
-                width,
-                height,
-                textures,
-                translation,
-                &measure_text,
-            ),
-            continue_playing: draw::Button::from_center_pos(
-                translation.continue_playing,
-                Vec2::new(width * 0.5, height * 0.7),
-                font_size,
-                &measure_text,
-            ),
-            change_language_to_spanish: spanish,
-            change_language_to_english: draw::Button::from_bottom_right_pos(
-                "English",
-                Vec2::new(width - spanish_rect.w, height),
-                font_size,
-                &measure_text,
-            ),
-        }
-    }
-    fn create_buy_hero_buttons<F>(
-        font_size: f32,
-        width: f32,
-        height: f32,
-        textures: &Textures,
-        translation: &Translation,
-        measure_text: &F,
-    ) -> HashMap<Hero, draw::Button>
-    where
-        F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
-    {
-        Self::create_buy_or_sell_hero_buttons(
-            font_size,
-            width,
-            height,
-            textures,
-            measure_text,
-            translation.buy,
-            0.02,
-        )
-    }
-
-    fn create_sell_hero_buttons<F>(
-        font_size: f32,
-        width: f32,
-        height: f32,
-        textures: &Textures,
-        translation: &Translation,
-        measure_text: &F,
-    ) -> HashMap<Hero, draw::Button>
-    where
-        F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
-    {
-        Self::create_buy_or_sell_hero_buttons(
-            font_size,
-            width,
-            height,
-            textures,
-            measure_text,
-            translation.sell,
-            0.1,
-        )
-    }
-
-    fn create_buy_or_sell_hero_buttons<F>(
-        font_size: f32,
-        width: f32,
-        height: f32,
-        textures: &Textures,
-        measure_text: &F,
-        text: &str,
-        extra_horizontal_offset: f32,
-    ) -> HashMap<Hero, draw::Button>
-    where
-        F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
-    {
-        let mut buttons = HashMap::new();
-        for hero in Hero::list() {
-            let (horizontal_offset, vertical_offset) =
-                TextureDrawer::get_buy_panel_offset(hero.index());
-            let texture_offset = Self::get_buy_text_offset_from_texture(
-                hero.index(),
-                width,
-                height,
-                textures.get(hero.texture_index()),
-            );
-            let x_coef = BUY_PANEL_HORIZONTAL_PAD
-                + extra_horizontal_offset
-                + horizontal_offset
-                + texture_offset;
-            let y_coef = BUY_PANEL_START_HEIGHT + 0.14 + vertical_offset;
-            let font_size = font_size;
-            let button = draw::Button::from_top_left_pos(
-                text,
-                Vec2::new(width * x_coef, height * y_coef),
-                font_size,
-                &measure_text,
-            );
-            buttons.insert(*hero, button);
-        }
-        buttons
-    }
-
     fn recreate_buttons(&mut self) {
-        self.buttons = TextureDrawer::create_buttons(
+        self.buttons = buttons::create_buttons(
             self.font_size,
             self.width,
             self.height,
@@ -295,8 +149,8 @@ impl DrawerTrait for TextureDrawer {
         let height = screen_height();
         if width != self.width || height != self.height {
             self.resize(width, height);
+            self.font_size = Self::choose_font_size(width, height);
         }
-        self.font_size = Self::choose_font_size(width, height);
         self.draw_bar_and_money(world, width, height, self.font_size);
         self.draw_buy_heroes(world, width, height, self.font_size);
         draw_text_bar(
@@ -316,6 +170,13 @@ impl DrawerTrait for TextureDrawer {
         if self.show_debug_fps {
             self.debug_fps(&world)
         }
+        let extra = &self.buttons.extra;
+        if self.extra_controls {
+            extra.show_debug_fps.render();
+            extra.restart.render();
+            extra.change_arrangement.render();
+        }
+        extra.show_extra_controls.render();
     }
 
     fn button(&mut self, button: Button) -> bool {
@@ -352,11 +213,18 @@ impl DrawerTrait for TextureDrawer {
                 is_texture_clicked(rect, DirtyBackground, Some(DirtyBackgroundOff));
                 is_texture_clicked(rect, self.dirty_texture(), None)
             }
-            Button::Arrangement => root_ui().button(None, self.translation.change_style),
+            Button::Arrangement => {
+                self.buttons.extra.change_arrangement.interact().is_clicked()
+            },
             Button::Restart => {
-                if root_ui().button(None, self.translation.restart) {
-                    self.restart();
-                    true
+                if self.extra_controls {
+                    let button = &mut self.buttons.extra.restart;
+                    if button.interact().is_clicked() {
+                        self.restart();
+                        true
+                    } else {
+                        false
+                    }
                 } else {
                     false
                 }
@@ -407,39 +275,41 @@ impl DrawerTrait for TextureDrawer {
             }
             Button::DebugFps => {
                 if self.extra_controls {
-                    let mut button = draw::Button::from_bottom_right_pos(
-                    "Debug Fps",
-                    Vec2::new(width * 0.75, height),
-                    self.font_size,
-                    &measure_text,
-                    );
+                    let button = &mut self.buttons.extra.show_debug_fps;
                     let is_clicked = button.interact().is_clicked();
                     if is_clicked {
                         self.show_debug_fps = !self.show_debug_fps;
                     }
-                    button.render();
                     is_clicked
                 } else {
                     false
                 }
             }
             Button::ExtraControls => {
-                let mut button = draw::Button::from_bottom_right_pos(
-                    "Extra controls",
-                    Vec2::new(width * 0.5, height),
-                    self.font_size,
-                    &measure_text,
-                );
+                let button = &mut self.buttons.extra.show_extra_controls;
                 let is_clicked = button.interact().is_clicked();
                 if is_clicked {
                     self.extra_controls = !self.extra_controls;
                 }
-                button.render();
                 is_clicked
             }
         }
     }
 
+    fn apply_gui_actions(&mut self, gui_actions: &GuiActions) {
+        if gui_actions.next_arrangement {
+            self.next_arrangement();
+        }
+        if gui_actions.clean_pressed {
+            self.next_clean();
+        }
+        if gui_actions.dirty_pressed {
+            self.next_dirty();
+        }
+    }
+}
+
+impl TextureDrawer {
     fn next_arrangement(&mut self) {
         self.arrangement_index += 1;
         self.arrangement_index %= AVAILABLE_ARRANGEMENTS.len();
@@ -456,9 +326,7 @@ impl DrawerTrait for TextureDrawer {
     fn next_dirty(&mut self) {
         self.dirty_index = (self.dirty_index + 1) % 3;
     }
-}
 
-impl TextureDrawer {
     #[allow(unused)]
     fn debug_fps(&mut self, world: &World) {
         let new_time = now();

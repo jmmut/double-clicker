@@ -33,6 +33,7 @@ pub struct Translation {
     pub name: CharacterText,
     pub lore: Lore,
     pub alerts: AlertMessages,
+    pub extra_controls: &'static str,
 }
 
 pub struct Lore {
@@ -137,7 +138,8 @@ const SPANISH: Translation = Translation {
         cannot_clean: "No se puede limpiar si no hay nada sucio",
         insufficient_money: "No tienes suficiente dinero para comprar esto",
         cannot_sell: "No puedes vender porque tienes 0 unidades",
-    }
+    },
+    extra_controls: "Controles extra",
 };
 
 const ENGLISH: Translation = Translation {
@@ -220,6 +222,7 @@ const ENGLISH: Translation = Translation {
         insufficient_money: "You don't have enough money to buy this",
         cannot_sell: "You can not sell this because you have 0 units",
     },
+    extra_controls: "Extra controls",
 };
 
 pub fn get_translation(language: Language) -> &'static Translation {

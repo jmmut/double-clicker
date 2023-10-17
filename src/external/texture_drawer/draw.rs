@@ -1,8 +1,4 @@
-use macroquad::prelude::{
-    draw_rectangle, draw_rectangle_lines, draw_text, draw_texture_ex, is_mouse_button_down,
-    is_mouse_button_released, measure_text, mouse_position, Color, DrawTextureParams, MouseButton,
-    Rect, TextDimensions, Texture2D, BLACK, GRAY, LIGHTGRAY, WHITE,
-};
+use macroquad::prelude::{draw_rectangle, draw_rectangle_lines, draw_text, draw_texture_ex, is_mouse_button_down, is_mouse_button_released, measure_text, mouse_position, Color, DrawTextureParams, MouseButton, Rect, TextDimensions, Texture2D, BLACK, GRAY, LIGHTGRAY, WHITE, DARKGRAY};
 use macroquad::text::Font;
 use std::ops::AddAssign;
 
@@ -160,6 +156,7 @@ impl Button {
             Interaction::None => LIGHTGRAY,
         };
         draw_rectangle(self.rect.x, self.rect.y, self.rect.w, self.rect.h, color);
+        draw_rectangle_lines(self.rect.x, self.rect.y, self.rect.w, self.rect.h, 1.0, WHITE);
         draw_text(
             &self.text,
             (self.rect.x + self.pad.x).round(),

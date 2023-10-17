@@ -17,15 +17,7 @@ pub struct Screen {
 impl Screen {
     pub fn get_gui_actions(&mut self, _world: &World) -> GuiActions {
         let gui_actions = self.input_source.get_gui_actions(&mut *self.drawer);
-        if gui_actions.next_arrangement {
-            self.drawer.next_arrangement();
-        }
-        if gui_actions.clean_pressed {
-            self.drawer.next_clean();
-        }
-        if gui_actions.dirty_pressed {
-            self.drawer.next_dirty();
-        }
+        self.drawer.apply_gui_actions(&gui_actions);
         gui_actions
     }
 
