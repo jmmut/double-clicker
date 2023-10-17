@@ -4,6 +4,9 @@ use std::ops::AddAssign;
 
 use crate::external::backends::Vec2;
 
+pub const ALERT_COLOR: Color = Color::new(0.98, 0.95, 0.3, 1.00);
+pub const TEXT_PANEL_COLOR: Color = Color::new(1.0, 0.97, 0.8, 1.00);
+
 /// Returns if the texture was clicked this frame.
 ///
 /// Renders texture_pressed instead of texture if the mouse is pressing on the rect of the texture.
@@ -319,7 +322,7 @@ pub fn draw_tooltip_centered(text: &str, position: Vec2, width: f32, height: f32
         text_rect.y,
         text_rect.w,
         text_rect.h,
-        Color::new(0.98, 0.95, 0.3, 1.00),
+        ALERT_COLOR,
     );
     draw_rectangle_lines(
         text_rect.x,

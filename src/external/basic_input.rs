@@ -1,18 +1,23 @@
 use std::collections::HashMap;
 
 use macroquad::input::is_key_pressed;
-use macroquad::prelude::{clear_background, KeyCode, LIGHTGRAY};
+use macroquad::prelude::{clear_background, Color, KeyCode, LIGHTGRAY};
 
 use crate::screen::drawer_trait::{Button, DrawerTrait};
 use crate::screen::input_source_trait::InputSourceTrait;
 use crate::screen::GuiActions;
 use crate::world::heores::Hero;
 
+// const CLEAN_BACKGROUND_COLOR: Color = Color::new();
+
 pub struct BasicInput;
 
 impl InputSourceTrait for BasicInput {
     fn get_gui_actions(&self, drawer: &mut dyn DrawerTrait) -> GuiActions {
-        clear_background(LIGHTGRAY); // TODO: remove this shit out of here. blocked until root_ui is not used.
+        // clear_background(Color::from_rgba(0x01, 0x00, 0x30, 255)); // TODO: remove this shit out of here. blocked until root_ui is not used.
+        clear_background(Color::new(0.75, 0.85, 1.0, 1.0)); // TODO: remove this shit out of here. blocked until root_ui is not used.
+        // clear_background(Color::new(0.85, 0.75, 1.0, 1.0)); // TODO: remove this shit out of here. blocked until root_ui is not used.
+        // clear_background(Color::new(0x30, 0x00, 0x2f)); // TODO: remove this shit out of here. blocked until root_ui is not used.
         let dirty_pressed = drawer.button(Button::Dirty) || is_key_pressed(KeyCode::E);
         let clean_pressed = drawer.button(Button::Clean) || is_key_pressed(KeyCode::L);
         let next_arrangement = drawer.button(Button::Arrangement) || is_key_pressed(KeyCode::C);
