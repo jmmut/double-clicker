@@ -117,14 +117,14 @@ impl Button {
     }
     pub fn from_bottom_right_pos<F>(
         text: &str,
-        center_pixel: Vec2,
+        bottom_right_pixel: Vec2,
         font_size: f32,
         measure_text: &F,
     ) -> Self
     where
         F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
     {
-        let mut button = Self::from_top_left_pos(text, center_pixel, font_size, measure_text);
+        let mut button = Self::from_top_left_pos(text, bottom_right_pixel, font_size, measure_text);
         button.rect = button.rect.offset(-2.0 * button.center_offset());
         button
     }

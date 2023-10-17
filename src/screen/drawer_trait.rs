@@ -6,6 +6,8 @@ pub enum Button {
     Dirty,
     Arrangement,
     Restart,
+    DebugFps,
+    ExtraControls,
     ContinuePlaying,
     ContinueAfterGameOver,
     Buy(Hero),

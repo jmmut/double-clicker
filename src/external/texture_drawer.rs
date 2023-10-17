@@ -54,6 +54,8 @@ pub struct TextureDrawer {
     width: f32,
     height: f32,
     translation: &'static Translation,
+    extra_controls: bool,
+    show_debug_fps: bool,
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -109,6 +111,8 @@ impl TextureDrawer {
             width,
             height,
             translation,
+            extra_controls: false,
+            show_debug_fps: false,
         }
     }
 
@@ -309,7 +313,9 @@ impl DrawerTrait for TextureDrawer {
         self.draw_game_won(world, width, height, self.font_size);
         self.buttons.change_language_to_spanish.render();
         self.buttons.change_language_to_english.render();
-        self.debug_fps(&world)
+        if self.show_debug_fps {
+            self.debug_fps(&world)
+        }
     }
 
     fn button(&mut self, button: Button) -> bool {
@@ -397,6 +403,38 @@ impl DrawerTrait for TextureDrawer {
                     self.translation = get_translation(Language::English);
                     self.recreate_buttons();
                 }
+                is_clicked
+            }
+            Button::DebugFps => {
+                if self.extra_controls {
+                    let mut button = draw::Button::from_bottom_right_pos(
+                    "Debug Fps",
+                    Vec2::new(width * 0.75, height),
+                    self.font_size,
+                    &measure_text,
+                    );
+                    let is_clicked = button.interact().is_clicked();
+                    if is_clicked {
+                        self.show_debug_fps = !self.show_debug_fps;
+                    }
+                    button.render();
+                    is_clicked
+                } else {
+                    false
+                }
+            }
+            Button::ExtraControls => {
+                let mut button = draw::Button::from_bottom_right_pos(
+                    "Extra controls",
+                    Vec2::new(width * 0.5, height),
+                    self.font_size,
+                    &measure_text,
+                );
+                let is_clicked = button.interact().is_clicked();
+                if is_clicked {
+                    self.extra_controls = !self.extra_controls;
+                }
+                button.render();
                 is_clicked
             }
         }

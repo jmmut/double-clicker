@@ -32,6 +32,8 @@ impl InputSourceTrait for BasicInput {
 
         drawer.button(Button::ChangeLanguageToSpanish);
         drawer.button(Button::ChangeLanguageToEnglish);
+        drawer.button(Button::DebugFps);
+        drawer.button(Button::ExtraControls);
 
         GuiActions {
             quit: is_key_pressed(KeyCode::Escape),
