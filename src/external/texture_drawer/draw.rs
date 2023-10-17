@@ -1,4 +1,4 @@
-use macroquad::prelude::{draw_rectangle, draw_rectangle_lines, draw_text, draw_texture_ex, is_mouse_button_down, is_mouse_button_released, measure_text, mouse_position, Color, DrawTextureParams, MouseButton, Rect, TextDimensions, Texture2D, BLACK, GRAY, LIGHTGRAY, WHITE, DARKGRAY};
+use macroquad::prelude::{draw_rectangle, draw_line, draw_rectangle_lines, draw_text, draw_texture_ex, is_mouse_button_down, is_mouse_button_released, measure_text, mouse_position, Color, DrawTextureParams, MouseButton, Rect, TextDimensions, Texture2D, BLACK, GRAY, LIGHTGRAY, WHITE, DARKGRAY};
 use macroquad::text::Font;
 use std::ops::AddAssign;
 
@@ -48,6 +48,10 @@ pub enum Interaction {
 impl Interaction {
     pub fn is_clicked(&self) -> bool {
         *self == Interaction::Clicked
+    }
+
+    pub fn is_down(&self) -> bool {
+        *self == Interaction::Pressing || *self == Interaction::Clicked
     }
 
     #[allow(unused)]
@@ -156,7 +160,7 @@ impl Button {
             Interaction::None => LIGHTGRAY,
         };
         draw_rectangle(self.rect.x, self.rect.y, self.rect.w, self.rect.h, color);
-        draw_rectangle_lines(self.rect.x, self.rect.y, self.rect.w, self.rect.h, 1.0, WHITE);
+        draw_panel_border(self.rect, self.interaction);
         draw_text(
             &self.text,
             (self.rect.x + self.pad.x).round(),
@@ -167,7 +171,32 @@ impl Button {
     }
 }
 
-type Pixels = f32;
+pub fn draw_panel_border(rect: Rect, interaction: Interaction) {
+    draw_windows_95_border(rect, interaction);
+    // draw_rectangle_lines(rect.x, rect.y, rect.w, rect.h, 2.0, BLACK);
+}
+
+// I swear I didn't realise what I was doing until I saw it running XD
+pub fn draw_windows_95_border(rect: Rect, interaction: Interaction) {
+    let lighter_gray = Color::new(0.88, 0.88, 0.88, 1.00);
+    let (border_color_high, border_color_low) = if interaction.is_down() {
+        // (BLACK, WHITE)
+        (DARKGRAY, lighter_gray)
+    } else {
+        // (WHITE, BLACK)
+        (lighter_gray, DARKGRAY)
+    };
+    let left = rect.x;
+    let right = rect.x + rect.w;
+    let top = rect.y;
+    let bottom = rect.y + rect.h;
+    draw_line(left, top, right, top, 1.0, border_color_high);
+    draw_line(left, top, left, bottom, 1.0, border_color_high);
+    draw_line(left, bottom, right, bottom, 1.0, border_color_low);
+    draw_line(right, top, right, bottom, 1.0, border_color_low);
+}
+
+pub type Pixels = f32;
 pub fn wrap_or_hide_text(
     text: &str,
     font_size: f32,

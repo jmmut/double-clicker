@@ -3,10 +3,12 @@ use std::collections::HashMap;
 use macroquad::prelude::*;
 
 use crate::external::texture_drawer::{BUY_PANEL_HORIZONTAL_PAD, BUY_PANEL_START_HEIGHT, draw, TextureDrawer};
+use crate::external::texture_drawer::draw::Pixels;
 use crate::screen::textures::Textures;
 use crate::screen::translations::Translation;
 use crate::world::heores::Hero;
 
+const BUTTON_PAD: Pixels = 2.0;
 pub struct Buttons {
     pub buy: HashMap<Hero, draw::Button>,
     pub sell: HashMap<Hero, draw::Button>,
@@ -37,7 +39,7 @@ pub(crate) fn create_buttons<F>(
 {
     let spanish = draw::Button::from_bottom_right_pos(
         "Español",
-        Vec2::new(width, height),
+        Vec2::new(width - BUTTON_PAD, height - BUTTON_PAD),
         font_size,
         &measure_text,
     );
@@ -72,9 +74,9 @@ pub(crate) fn create_buttons<F>(
             &measure_text,
         ),
         change_language_to_spanish: spanish,
-        change_language_to_english: draw::Button::from_bottom_right_pos(
+        change_language_to_english: draw::Button::from_top_left_pos(
             "English",
-            Vec2::new(width - spanish_rect.w, height),
+            spanish_rect .point() - Vec2::new(spanish_rect.w + BUTTON_PAD, 0.0 ),
             font_size,
             &measure_text,
         ),
@@ -177,41 +179,24 @@ fn create_extra_buttons<F>(
 {
     let show_extra_controls = draw::Button::from_bottom_right_pos(
         translation.extra_controls,
-        Vec2::new(width * 0.25, height),
+        Vec2::new(width * 0.25, height - BUTTON_PAD),
         font_size,
         &measure_text,
     );
-    // let next_button = |text, prev_rect| {
-    //     let button = draw::Button::from_top_left_pos(
-    //         "Debug Fps",
-    //         prev_rect.point() + Vec2::new(prev_rect.w, 0.0),
-    //         font_size,
-    //         &measure_text,
-    //     );
-    //     let rect = button.rect();
-    //     (button, rect)
-    // };
+    let next_button = |text, prev_rect :Rect| {
+        let button = draw::Button::from_top_left_pos(
+            text,
+            prev_rect.point() + Vec2::new(prev_rect.w + BUTTON_PAD, 0.0),
+            font_size,
+            &measure_text,
+        );
+        let rect = button.rect();
+        (button, rect)
+    };
     let prev_rect = show_extra_controls.rect();
-    let show_debug_fps = draw::Button::from_top_left_pos(
-        "Debug Fps",
-        prev_rect.point() + Vec2::new(prev_rect.w, 0.0),
-        font_size,
-        &measure_text,
-    );
-    let prev_rect = show_debug_fps.rect();
-    let restart = draw::Button::from_top_left_pos(
-        translation.restart,
-        prev_rect.point() + Vec2::new(prev_rect.w, 0.0),
-        font_size,
-        &measure_text,
-    );
-    let prev_rect = restart.rect();
-    let change_arrangement = draw::Button::from_top_left_pos(
-        translation.change_style,
-        prev_rect.point() + Vec2::new(prev_rect.w, 0.0),
-        font_size,
-        &measure_text,
-    );
+    let (show_debug_fps, prev_rect) = next_button("Debug FPS", prev_rect);
+    let (restart, prev_rect) = next_button(translation.restart, prev_rect);
+    let (change_arrangement, _prev_rect) = next_button(translation.change_style, prev_rect);
     ExtraControls {
         show_extra_controls,
         show_debug_fps,

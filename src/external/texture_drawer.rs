@@ -3,9 +3,7 @@ use macroquad::ui::root_ui;
 
 use crate::external::backends::{now, Seconds};
 use crate::external::texture_drawer::buttons::Buttons;
-use crate::external::texture_drawer::draw::{
-    draw_text_centered, draw_tooltip_centered, wrap_or_hide_text,
-};
+use crate::external::texture_drawer::draw::{draw_panel_border, draw_text_centered, draw_tooltip_centered, draw_windows_95_border, Interaction, wrap_or_hide_text};
 use crate::screen::drawer_trait::{Button, DrawerTrait};
 use crate::screen::textures::{Texture, Textures};
 use crate::screen::translations::{get_translation, Language, Translation};
@@ -502,14 +500,16 @@ impl TextureDrawer {
                 panel_rect.h,
                 panel_color,
             );
-            draw_rectangle_lines(
-                panel_rect.x,
-                panel_rect.y,
-                panel_rect.w,
-                panel_rect.h,
-                2.0,
-                BLACK,
-            );
+            // draw_rectangle_lines(
+            //     panel_rect.x,
+            //     panel_rect.y,
+            //     panel_rect.w,
+            //     panel_rect.h,
+            //     2.0,
+            //     BLACK,
+            // );
+            draw_panel_border(panel_rect, Interaction::None);
+
             // draw_line(
             //     width * (0.05 + horizontal_offset),
             //     height * (start_height + vertical_offset) + font_size * 1.2,
@@ -745,13 +745,12 @@ fn draw_bar(world: &World, width: f32, height: f32, overlapping: bool) {
         height * bar_height,
         DIRTY_COLOR,
     );
-    draw_rectangle_lines(
+    draw_panel_border(Rect::new(
         width * BAR_HORIZONTAL_PAD,
         height * BAR_VERTICAL_PAD,
         width * bar_width,
-        height * bar_height,
-        2.0,
-        BLACK,
+        height * bar_height),
+        Interaction::None,
     );
 }
 
