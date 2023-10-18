@@ -17,3 +17,6 @@ future tasks
 - [-] dynamic center ratio
 - [/] write random lore messages
 - [x] tooltips on hover on heroes
+- [ ] loading screen
+- [ ] choose name
+- 
