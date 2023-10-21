@@ -150,7 +150,6 @@ impl DrawerTrait for TextureDrawer {
         self.frame += 1;
         self.stage = world.stage();
         self.dirtiness = world.dirtiness_units() as f32 / world.max_dirtiness_units() as f32;
-        // self.debug_fps(world);
         let width = screen_width();
         let height = screen_height();
         if width != self.width || height != self.height {
@@ -169,7 +168,6 @@ impl DrawerTrait for TextureDrawer {
             self.frame,
             self.translation,
         );
-        draw_version(width, height, self.font_size);
         draw_alerts(world, width, height, self.font_size, self.translation);
         self.draw_game_over(world, width, height, self.font_size);
         self.draw_game_won(world, width, height, self.font_size);
@@ -183,6 +181,7 @@ impl DrawerTrait for TextureDrawer {
             extra.show_debug_fps.render();
             extra.restart.render();
             extra.change_arrangement.render();
+            draw_version(width, height, self.font_size);
         }
         extra.show_extra_controls.render();
     }
@@ -342,7 +341,6 @@ impl TextureDrawer {
         self.dirty_index = (self.dirty_index + 1) % 3;
     }
 
-    #[allow(unused)]
     fn debug_fps(&mut self, world: &World) {
         let new_time = now();
         root_ui().label(None, &format!("now: {}", new_time));
@@ -1036,10 +1034,12 @@ fn choose_pseudo_random<T>(collection: &[T], frame: i64) -> &T {
 }
 
 fn draw_version(_width: f32, height: f32, font_size: f32) {
-    root_ui().label(
-        Vec2::new(0.0, height - font_size),
+    let text_rect = TextRect::from_bottom_left_pixel(
         &format!("v{}", GIT_VERSION),
+        Vec2::new(-font_size, height - 1.5 * font_size),
+        font_size,
     );
+    text_rect.render_text(BLACK);
 }
 
 fn draw_alerts(world: &World, width: f32, height: f32, font_size: f32, translation: &Translation) {

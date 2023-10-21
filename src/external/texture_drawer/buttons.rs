@@ -79,7 +79,7 @@ where
         ),
         change_language_to_spanish: spanish,
         change_language_to_english: english,
-        extra: create_extra_buttons(font_size, width, height, translation, measure_text),
+        extra: create_extra_buttons(font_size, width, height, translation),
     }
 }
 
@@ -163,19 +163,15 @@ where
     buttons
 }
 
-fn create_extra_buttons<F>(
+fn create_extra_buttons(
     font_size: f32,
-    width: f32,
+    _width: f32,
     height: f32,
     translation: &Translation,
-    measure_text: &F,
-) -> ExtraControls
-where
-    F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
-{
-    let show_extra_controls = Button::from_bottom_right_pixel(
+) -> ExtraControls {
+    let show_extra_controls = Button::from_bottom_left_pixel(
         translation.extra_controls,
-        Vec2::new(width * 0.25, height - BUTTON_PAD),
+        Vec2::new(0.0, height - BUTTON_PAD),
         font_size,
     );
     let next_button = |text, prev_rect: Rect| {
