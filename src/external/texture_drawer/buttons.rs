@@ -40,24 +40,21 @@ pub(crate) fn create_buttons<F>(
 where
     F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
 {
-    let spanish = Button::from_bottom_right_pos(
+    let spanish = Button::from_bottom_right_pixel(
         "Español",
         Vec2::new(width - BUTTON_PAD, height - BUTTON_PAD),
         font_size,
-        &measure_text,
     );
-    let english = Button::from_top_left_pos(
+    let english = Button::from_top_left_pixel(
         "English",
         spanish.rect().point() - Vec2::new(spanish.rect().w + BUTTON_PAD, 0.0),
         font_size,
-        &measure_text,
     );
     Buttons {
-        continue_after_game_over: Button::from_center_pos(
+        continue_after_game_over: Button::from_center_pixel(
             translation.restart,
             Vec2::new(width * 0.5, height * 0.7),
             font_size,
-            &measure_text,
         ),
         buy: create_buy_hero_buttons(
             font_size,
@@ -75,11 +72,10 @@ where
             translation,
             &measure_text,
         ),
-        continue_playing: Button::from_center_pos(
+        continue_playing: Button::from_center_pixel(
             translation.continue_playing,
             Vec2::new(width * 0.5, height * 0.7),
             font_size,
-            &measure_text,
         ),
         change_language_to_spanish: spanish,
         change_language_to_english: english,
@@ -157,11 +153,10 @@ where
             BUY_PANEL_HORIZONTAL_PAD + extra_horizontal_offset + horizontal_offset + texture_offset;
         let y_coef = BUY_PANEL_START_HEIGHT + 0.14 + vertical_offset;
         let font_size = font_size;
-        let button = Button::from_top_left_pos(
+        let button = Button::from_top_left_pixel(
             text,
             Vec2::new(width * x_coef, height * y_coef),
             font_size,
-            &measure_text,
         );
         buttons.insert(*hero, button);
     }
@@ -178,18 +173,16 @@ fn create_extra_buttons<F>(
 where
     F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
 {
-    let show_extra_controls = Button::from_bottom_right_pos(
+    let show_extra_controls = Button::from_bottom_right_pixel(
         translation.extra_controls,
         Vec2::new(width * 0.25, height - BUTTON_PAD),
         font_size,
-        &measure_text,
     );
     let next_button = |text, prev_rect: Rect| {
-        let button = Button::from_top_left_pos(
+        let button = Button::from_top_left_pixel(
             text,
             prev_rect.point() + Vec2::new(prev_rect.w + BUTTON_PAD, 0.0),
             font_size,
-            &measure_text,
         );
         let rect = button.rect();
         (button, rect)

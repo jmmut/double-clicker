@@ -5,6 +5,7 @@ use macroquad::prelude::{
 
 use crate::external::backends::Vec2;
 use crate::external::texture_drawer::draw::draw_panel_border;
+use crate::external::widgets::text::TextRect;
 
 #[derive(Eq, PartialEq, Copy, Clone)]
 pub enum Interaction {
@@ -35,104 +36,42 @@ impl Interaction {
 }
 
 pub struct Button {
-    text: String,
-    text_dimensions: TextDimensions,
-    font_size: f32,
-    rect: Rect,
-    pad: Vec2,
+    text_rect: TextRect,
     interaction: Interaction,
 }
 
 impl Button {
-    pub fn from_top_left_pos<F>(
-        text: &str,
-        top_left_pixel: Vec2,
-        font_size: f32,
-        measure_text: F,
-    ) -> Self
-    where
-        F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
-    {
-        let text_dimensions = measure_text(text, None, font_size as u16, 1.0);
-        let pad = Vec2::new(font_size, font_size * 0.25);
-        let rect = Rect::new(
-            (top_left_pixel.x).round(),
-            (top_left_pixel.y).round(),
-            (text_dimensions.width + pad.x * 2.0).round(),
-            (font_size + pad.y * 2.0).round(),
-        );
+    pub fn from_top_left_pixel(text: &str, top_left: Vec2, font_size: f32) -> Self {
+        Self::from_text_rect(TextRect::from_top_left_pixel(text, top_left, font_size))
+    }
 
+    fn from_text_rect(text_rect: TextRect) -> Self {
         Self {
-            text: text.to_string(),
-            text_dimensions,
-            font_size,
-            rect,
-            pad,
+            text_rect,
             interaction: Interaction::None,
         }
     }
-    pub fn from_center_pos<F>(
-        text: &str,
-        center_pixel: Vec2,
-        font_size: f32,
-        measure_text: &F,
-    ) -> Self
-    where
-        F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
-    {
-        let mut button = Self::from_top_left_pos(text, center_pixel, font_size, measure_text);
-        button.rect = button.rect.offset(-button.center_offset());
-        button
-    }
-    pub fn from_bottom_right_pos<F>(
-        text: &str,
-        bottom_right_pixel: Vec2,
-        font_size: f32,
-        measure_text: &F,
-    ) -> Self
-    where
-        F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
-    {
-        let mut button = Self::from_top_left_pos(text, bottom_right_pixel, font_size, measure_text);
-        button.rect = button.rect.offset(-button.rect.size());
-        button
-    }
-    pub fn from_top_right_pos<F>(
-        text: &str,
-        top_right_pixel: Vec2,
-        font_size: f32,
-        measure_text: &F,
-    ) -> Self
-    where
-        F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
-    {
-        let mut button = Self::from_top_left_pos(text, top_right_pixel, font_size, measure_text);
-        button.rect.x -= button.rect.w;
-        button
-    }
-    pub fn from_bottom_left_pos<F>(
-        text: &str,
-        bottom_left_pixel: Vec2,
-        font_size: f32,
-        measure_text: &F,
-    ) -> Self
-    where
-        F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
-    {
-        let mut button = Self::from_top_left_pos(text, bottom_left_pixel, font_size, measure_text);
-        button.rect.y -= button.rect.h;
-        button
-    }
 
-    fn center_offset(&self) -> Vec2 {
-        self.rect.size() * Vec2::new(0.5, 0.5)
+    pub fn from_center_pixel(text: &str, center_pixel: Vec2, font_size: f32) -> Self {
+        Self::from_text_rect(TextRect::from_center_pixel(text, center_pixel, font_size))
+    }
+    pub fn from_bottom_right_pixel(text: &str, bottom_right: Vec2, font_size: f32) -> Self {
+        let text_rect = TextRect::from_bottom_right_pixel(text, bottom_right, font_size);
+        Self::from_text_rect(text_rect)
+    }
+    pub fn from_top_right_pixel(text: &str, top_right: Vec2, font_size: f32) -> Self {
+        Self::from_text_rect(TextRect::from_top_right_pixel(text, top_right, font_size))
+    }
+    pub fn from_bottom_left_pixel(text: &str, bottom_left: Vec2, font_size: f32) -> Self {
+        let text_rect = TextRect::from_bottom_left_pixel(text, bottom_left, font_size);
+        Self::from_text_rect(text_rect)
     }
 
     pub fn rect(&self) -> Rect {
-        self.rect
+        self.text_rect.rect
     }
     pub fn interact(&mut self) -> Interaction {
-        self.interaction = if self.rect.contains(Vec2::from(mouse_position())) {
+        self.interaction = if self.text_rect.rect.contains(Vec2::from(mouse_position())) {
             if is_mouse_button_down(MouseButton::Left) {
                 Interaction::Pressing
             } else if is_mouse_button_released(MouseButton::Left) {
@@ -151,21 +90,9 @@ impl Button {
             Interaction::Hovered => WHITE,
             Interaction::None => LIGHTGRAY,
         };
-        draw_rectangle(self.rect.x, self.rect.y, self.rect.w, self.rect.h, color);
-        draw_panel_border(self.rect, self.interaction);
-
-        // draw_text() draws from the baseline of the text
-        // https://en.wikipedia.org/wiki/Baseline_(typography)
-        // I don't use self.text_dimensions.offset_y because that changes depending on the letters,
-        // so I prefer an approximate distance that makes all buttons at the same baseline
-        let approx_height_from_baseline_to_top = 0.75 * self.font_size;
-
-        draw_text(
-            &self.text,
-            (self.rect.x + self.pad.x).round(),
-            (self.rect.y + self.pad.y + approx_height_from_baseline_to_top).round(),
-            self.font_size,
-            BLACK,
-        );
+        let rect = self.text_rect.rect;
+        draw_rectangle(rect.x, rect.y, rect.w, rect.h, color);
+        draw_panel_border(rect, self.interaction);
+        self.text_rect.render_text(BLACK);
     }
 }
