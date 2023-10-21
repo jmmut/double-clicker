@@ -69,33 +69,16 @@ const AVAILABLE_ARRANGEMENTS: [Arrangement; 2] = [
 
 impl TextureDrawer {
     pub fn new(textures: Textures, translation: &'static Translation) -> Self {
-        Self::new_from_mocked(
-            textures,
-            screen_width(),
-            screen_height(),
-            translation,
-            &measure_text,
-        )
+        Self::new_from_mocked(textures, screen_width(), screen_height(), translation)
     }
-    pub fn new_from_mocked<F>(
+    pub fn new_from_mocked(
         textures: Textures,
         width: f32,
         height: f32,
         translation: &'static Translation,
-        measure_text: &F,
-    ) -> Self
-    where
-        F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
-    {
+    ) -> Self {
         let font_size = Self::choose_font_size(width, height);
-        let buttons = buttons::create_buttons(
-            font_size,
-            width,
-            height,
-            &textures,
-            translation,
-            measure_text,
-        );
+        let buttons = buttons::create_buttons(font_size, width, height, &textures, translation);
         Self {
             frame: 0,
             previous_time: now(),
@@ -133,7 +116,6 @@ impl TextureDrawer {
             self.height,
             &self.textures,
             self.translation,
-            &measure_text,
         );
     }
 
@@ -359,19 +341,16 @@ impl TextureDrawer {
     }
 
     fn restart(&mut self) {
-        self.restart_mocked(screen_width(), screen_height(), &measure_text)
+        self.restart_mocked(screen_width(), screen_height())
     }
 
-    fn restart_mocked<F>(&mut self, width: f32, height: f32, measure_text: &F)
-    where
-        F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
-    {
+    fn restart_mocked(&mut self, width: f32, height: f32) {
         // apparently, rust is not clever enough to reuse the textures doing this:
         // *self = Self::new(self.textures);
         // my guess is that it's because the assignment to *self happens after taking self.textures,
         // during which self is incomplete/invalid. Workaround:
         let textures = std::mem::take(&mut self.textures);
-        *self = Self::new_from_mocked(textures, width, height, self.translation, measure_text);
+        *self = Self::new_from_mocked(textures, width, height, self.translation);
     }
 
     fn draw_background_pattern(&mut self, width: f32, height: f32) {
@@ -1064,21 +1043,13 @@ mod tests {
             texture.height = 200;
             textures.push(Texture2D::from_miniquad_texture(texture))
         }
-        let measure_text = |_: &_, _, _, _| {
-            return TextDimensions {
-                width: 10.0,
-                height: 5.0,
-                offset_y: 4.0,
-            };
-        };
         let mut drawer = TextureDrawer::new_from_mocked(
             Textures::new(textures.clone()),
             2000.0,
             1000.0,
             get_translation(Language::Spanish),
-            &measure_text,
         );
-        drawer.restart_mocked(2000.0, 1000.0, &measure_text);
-        drawer.restart_mocked(2000.0, 1000.0, &measure_text);
+        drawer.restart_mocked(2000.0, 1000.0);
+        drawer.restart_mocked(2000.0, 1000.0);
     }
 }

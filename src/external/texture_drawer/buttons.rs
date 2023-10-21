@@ -29,17 +29,13 @@ pub struct ExtraControls {
     pub restart: Button,
 }
 
-pub(crate) fn create_buttons<F>(
+pub fn create_buttons(
     font_size: f32,
     width: f32,
     height: f32,
     textures: &Textures,
     translation: &Translation,
-    measure_text: &F,
-) -> Buttons
-where
-    F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
-{
+) -> Buttons {
     let spanish = Button::from_bottom_right_pixel(
         "Español",
         Vec2::new(width - BUTTON_PAD, height - BUTTON_PAD),
@@ -56,22 +52,8 @@ where
             Vec2::new(width * 0.5, height * 0.7),
             font_size,
         ),
-        buy: create_buy_hero_buttons(
-            font_size,
-            width,
-            height,
-            textures,
-            translation,
-            &measure_text,
-        ),
-        sell: create_sell_hero_buttons(
-            font_size,
-            width,
-            height,
-            textures,
-            translation,
-            &measure_text,
-        ),
+        buy: create_buy_hero_buttons(font_size, width, height, textures, translation),
+        sell: create_sell_hero_buttons(font_size, width, height, textures, translation),
         continue_playing: Button::from_center_pixel(
             translation.continue_playing,
             Vec2::new(width * 0.5, height * 0.7),
@@ -83,62 +65,34 @@ where
     }
 }
 
-fn create_buy_hero_buttons<F>(
+fn create_buy_hero_buttons(
     font_size: f32,
     width: f32,
     height: f32,
     textures: &Textures,
     translation: &Translation,
-    measure_text: &F,
-) -> HashMap<Hero, Button>
-where
-    F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
-{
-    create_buy_or_sell_hero_buttons(
-        font_size,
-        width,
-        height,
-        textures,
-        measure_text,
-        translation.buy,
-        0.02,
-    )
+) -> HashMap<Hero, Button> {
+    create_buy_or_sell_hero_buttons(font_size, width, height, textures, translation.buy, 0.02)
 }
 
-fn create_sell_hero_buttons<F>(
+fn create_sell_hero_buttons(
     font_size: f32,
     width: f32,
     height: f32,
     textures: &Textures,
     translation: &Translation,
-    measure_text: &F,
-) -> HashMap<Hero, Button>
-where
-    F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
-{
-    create_buy_or_sell_hero_buttons(
-        font_size,
-        width,
-        height,
-        textures,
-        measure_text,
-        translation.sell,
-        0.1,
-    )
+) -> HashMap<Hero, Button> {
+    create_buy_or_sell_hero_buttons(font_size, width, height, textures, translation.sell, 0.1)
 }
 
-fn create_buy_or_sell_hero_buttons<F>(
+fn create_buy_or_sell_hero_buttons(
     font_size: f32,
     width: f32,
     height: f32,
     textures: &Textures,
-    measure_text: &F,
     text: &str,
     extra_horizontal_offset: f32,
-) -> HashMap<Hero, Button>
-where
-    F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
-{
+) -> HashMap<Hero, Button> {
     let mut buttons = HashMap::new();
     for hero in Hero::list() {
         let (horizontal_offset, vertical_offset) =
