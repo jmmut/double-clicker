@@ -2,28 +2,31 @@ use std::collections::HashMap;
 
 use macroquad::prelude::*;
 
-use crate::external::texture_drawer::{BUY_PANEL_HORIZONTAL_PAD, BUY_PANEL_START_HEIGHT, draw, TextureDrawer};
 use crate::external::texture_drawer::draw::Pixels;
+use crate::external::texture_drawer::{
+    draw, TextureDrawer, BUY_PANEL_HORIZONTAL_PAD, BUY_PANEL_START_HEIGHT,
+};
+use crate::external::widgets::button::{Button, Interaction};
 use crate::screen::textures::Textures;
 use crate::screen::translations::Translation;
 use crate::world::heores::Hero;
 
 const BUTTON_PAD: Pixels = 2.0;
 pub struct Buttons {
-    pub buy: HashMap<Hero, draw::Button>,
-    pub sell: HashMap<Hero, draw::Button>,
-    pub continue_playing: draw::Button,
-    pub continue_after_game_over: draw::Button,
-    pub change_language_to_spanish: draw::Button,
-    pub change_language_to_english: draw::Button,
+    pub buy: HashMap<Hero, Button>,
+    pub sell: HashMap<Hero, Button>,
+    pub continue_playing: Button,
+    pub continue_after_game_over: Button,
+    pub change_language_to_spanish: Button,
+    pub change_language_to_english: Button,
     pub extra: ExtraControls,
 }
 
 pub struct ExtraControls {
-    pub show_extra_controls: draw::Button,
-    pub show_debug_fps: draw::Button,
-    pub change_arrangement: draw::Button,
-    pub restart: draw::Button,
+    pub show_extra_controls: Button,
+    pub show_debug_fps: Button,
+    pub change_arrangement: Button,
+    pub restart: Button,
 }
 
 pub(crate) fn create_buttons<F>(
@@ -34,18 +37,23 @@ pub(crate) fn create_buttons<F>(
     translation: &Translation,
     measure_text: &F,
 ) -> Buttons
-    where
-        F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
+where
+    F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
 {
-    let spanish = draw::Button::from_bottom_right_pos(
+    let spanish = Button::from_bottom_right_pos(
         "Español",
         Vec2::new(width - BUTTON_PAD, height - BUTTON_PAD),
         font_size,
         &measure_text,
     );
-    let spanish_rect = spanish.rect();
+    let english = Button::from_top_left_pos(
+        "English",
+        spanish.rect().point() - Vec2::new(spanish.rect().w + BUTTON_PAD, 0.0),
+        font_size,
+        &measure_text,
+    );
     Buttons {
-        continue_after_game_over: draw::Button::from_center_pos(
+        continue_after_game_over: Button::from_center_pos(
             translation.restart,
             Vec2::new(width * 0.5, height * 0.7),
             font_size,
@@ -67,19 +75,14 @@ pub(crate) fn create_buttons<F>(
             translation,
             &measure_text,
         ),
-        continue_playing: draw::Button::from_center_pos(
+        continue_playing: Button::from_center_pos(
             translation.continue_playing,
             Vec2::new(width * 0.5, height * 0.7),
             font_size,
             &measure_text,
         ),
         change_language_to_spanish: spanish,
-        change_language_to_english: draw::Button::from_top_left_pos(
-            "English",
-            spanish_rect .point() - Vec2::new(spanish_rect.w + BUTTON_PAD, 0.0 ),
-            font_size,
-            &measure_text,
-        ),
+        change_language_to_english: english,
         extra: create_extra_buttons(font_size, width, height, translation, measure_text),
     }
 }
@@ -91,9 +94,9 @@ fn create_buy_hero_buttons<F>(
     textures: &Textures,
     translation: &Translation,
     measure_text: &F,
-) -> HashMap<Hero, draw::Button>
-    where
-        F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
+) -> HashMap<Hero, Button>
+where
+    F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
 {
     create_buy_or_sell_hero_buttons(
         font_size,
@@ -113,9 +116,9 @@ fn create_sell_hero_buttons<F>(
     textures: &Textures,
     translation: &Translation,
     measure_text: &F,
-) -> HashMap<Hero, draw::Button>
-    where
-        F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
+) -> HashMap<Hero, Button>
+where
+    F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
 {
     create_buy_or_sell_hero_buttons(
         font_size,
@@ -136,9 +139,9 @@ fn create_buy_or_sell_hero_buttons<F>(
     measure_text: &F,
     text: &str,
     extra_horizontal_offset: f32,
-) -> HashMap<Hero, draw::Button>
-    where
-        F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
+) -> HashMap<Hero, Button>
+where
+    F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
 {
     let mut buttons = HashMap::new();
     for hero in Hero::list() {
@@ -150,13 +153,11 @@ fn create_buy_or_sell_hero_buttons<F>(
             height,
             textures.get(hero.texture_index()),
         );
-        let x_coef = BUY_PANEL_HORIZONTAL_PAD
-            + extra_horizontal_offset
-            + horizontal_offset
-            + texture_offset;
+        let x_coef =
+            BUY_PANEL_HORIZONTAL_PAD + extra_horizontal_offset + horizontal_offset + texture_offset;
         let y_coef = BUY_PANEL_START_HEIGHT + 0.14 + vertical_offset;
         let font_size = font_size;
-        let button = draw::Button::from_top_left_pos(
+        let button = Button::from_top_left_pos(
             text,
             Vec2::new(width * x_coef, height * y_coef),
             font_size,
@@ -174,17 +175,17 @@ fn create_extra_buttons<F>(
     translation: &Translation,
     measure_text: &F,
 ) -> ExtraControls
-    where
-        F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions
+where
+    F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
 {
-    let show_extra_controls = draw::Button::from_bottom_right_pos(
+    let show_extra_controls = Button::from_bottom_right_pos(
         translation.extra_controls,
         Vec2::new(width * 0.25, height - BUTTON_PAD),
         font_size,
         &measure_text,
     );
-    let next_button = |text, prev_rect :Rect| {
-        let button = draw::Button::from_top_left_pos(
+    let next_button = |text, prev_rect: Rect| {
+        let button = Button::from_top_left_pos(
             text,
             prev_rect.point() + Vec2::new(prev_rect.w + BUTTON_PAD, 0.0),
             font_size,
@@ -204,4 +205,3 @@ fn create_extra_buttons<F>(
         change_arrangement,
     }
 }
-

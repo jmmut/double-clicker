@@ -11,6 +11,10 @@ pub mod external {
     // pub mod text_drawer;
     pub mod texture_drawer;
     // pub mod textureless_drawer;
+    pub mod widgets {
+        pub mod button;
+        pub mod texture_button;
+    }
 }
 
 pub const GIT_VERSION: &str = git_version!(args = ["--tags"]);

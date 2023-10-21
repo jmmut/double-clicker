@@ -4,18 +4,22 @@ use macroquad::ui::root_ui;
 use crate::external::backends::{now, Seconds};
 use crate::external::basic_input::get_background_color;
 use crate::external::texture_drawer::buttons::Buttons;
-use crate::external::texture_drawer::draw::{draw_panel_border, draw_text_centered, draw_tooltip_centered, draw_windows_95_border, Interaction, TEXT_PANEL_COLOR, wrap_or_hide_text};
+use crate::external::texture_drawer::draw::{
+    draw_panel_border, draw_text_centered, draw_tooltip_centered, draw_windows_95_border,
+    wrap_or_hide_text, TEXT_PANEL_COLOR,
+};
+use crate::external::widgets::button::Interaction;
 use crate::screen::drawer_trait::{Button, DrawerTrait};
 use crate::screen::textures::{Texture, Textures};
 use crate::screen::translations::{get_translation, Language, Translation};
+use crate::screen::GuiActions;
 use crate::world::acts::Act;
 use crate::world::heores::Hero;
 use crate::world::{accumulate_price, World};
 use crate::GIT_VERSION;
-use crate::screen::GuiActions;
 
-mod draw;
 mod buttons;
+pub mod draw;
 
 const CLEAN_COLOR: Color = SKYBLUE;
 const DIRTY_COLOR: Color = PURPLE;
@@ -217,9 +221,12 @@ impl DrawerTrait for TextureDrawer {
                 is_texture_clicked(rect, DirtyBackground, Some(DirtyBackgroundOff));
                 is_texture_clicked(rect, self.dirty_texture(), None)
             }
-            Button::Arrangement => {
-                self.buttons.extra.change_arrangement.interact().is_clicked()
-            },
+            Button::Arrangement => self
+                .buttons
+                .extra
+                .change_arrangement
+                .interact()
+                .is_clicked(),
             Button::Restart => {
                 if self.extra_controls {
                     let button = &mut self.buttons.extra.restart;
@@ -387,22 +394,34 @@ impl TextureDrawer {
             for i_width in 0..((width / texture_size.x).ceil() as i32) {
                 let x = texture_size.x * i_width as f32 + offset_x;
                 let y = texture_size.y * i_height as f32 + offset_y;
-                draw_texture_ex(pattern_texture, x, y, Color::new(1.0, 1.0, 1.0, 0.25), DrawTextureParams {
-                    dest_size: Some(texture_size),
-                    source: None,
-                    rotation: 0.0,
-                    flip_x: false,
-                    flip_y: false,
-                    pivot: None,
-                });
+                draw_texture_ex(
+                    pattern_texture,
+                    x,
+                    y,
+                    Color::new(1.0, 1.0, 1.0, 0.25),
+                    DrawTextureParams {
+                        dest_size: Some(texture_size),
+                        source: None,
+                        rotation: 0.0,
+                        flip_x: false,
+                        flip_y: false,
+                        pivot: None,
+                    },
+                );
             }
             // offset += texture_size.x;
         }
 
-        draw_texture_ex(self.textures.get(Texture::BackgroundMargin), 0.0, 0.0, WHITE, DrawTextureParams {
-            dest_size: Some(Vec2::new(width, height)),
-            ..Default::default()
-        })
+        draw_texture_ex(
+            self.textures.get(Texture::BackgroundMargin),
+            0.0,
+            0.0,
+            WHITE,
+            DrawTextureParams {
+                dest_size: Some(Vec2::new(width, height)),
+                ..Default::default()
+            },
+        )
     }
 
     fn draw_bar_and_money(&self, world: &World, width: f32, height: f32, font_size: f32) {
@@ -791,11 +810,13 @@ fn draw_bar(world: &World, width: f32, height: f32, overlapping: bool) {
         height * bar_height,
         DIRTY_COLOR,
     );
-    draw_panel_border(Rect::new(
-        width * BAR_HORIZONTAL_PAD,
-        height * BAR_VERTICAL_PAD,
-        width * bar_width,
-        height * bar_height),
+    draw_panel_border(
+        Rect::new(
+            width * BAR_HORIZONTAL_PAD,
+            height * BAR_VERTICAL_PAD,
+            width * bar_width,
+            height * bar_height,
+        ),
         Interaction::None,
     );
 }
@@ -808,7 +829,7 @@ fn draw_savings(
     font_size: f32,
     translation: &Translation,
 ) {
-    let vertical_offset = if overlapping { - 0.03 } else { 0.05 };
+    let vertical_offset = if overlapping { -0.03 } else { 0.05 };
     let savings_font_size = font_size * 2.0;
     let money_text = format!("{} €", world.money_euros());
     let money_size = measure_text(&money_text, None, savings_font_size as u16, 1.0);
@@ -971,7 +992,13 @@ fn draw_text_bar(
 ) {
     let bar_height = BUY_PANEL_START_HEIGHT + 3.0 * (BUY_PANEL_HEIGHT + BUY_PANEL_VERTICAL_PAD);
     let dirtiness_coef = world.dirtiness_units() as f32 / world.max_dirtiness_units() as f32;
-    draw_rectangle(width * 0.0, height * bar_height + 2.0, width, height - bar_height, get_background_color(dirtiness_coef));
+    draw_rectangle(
+        width * 0.0,
+        height * bar_height + 2.0,
+        width,
+        height - bar_height,
+        get_background_color(dirtiness_coef),
+    );
     draw_line(
         width * 0.0,
         height * bar_height + 2.0,
