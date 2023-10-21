@@ -1,8 +1,6 @@
 use macroquad::prelude::{
-    draw_line, draw_rectangle, draw_rectangle_lines, draw_text, draw_texture_ex,
-    is_mouse_button_down, is_mouse_button_released, measure_text, mouse_position, Color,
-    DrawTextureParams, Font, MouseButton, Rect, TextDimensions, Texture2D, BLACK, DARKGRAY, GRAY,
-    LIGHTGRAY, WHITE,
+    draw_rectangle, draw_text, is_mouse_button_down, is_mouse_button_released, mouse_position,
+    Font, MouseButton, Rect, TextDimensions, BLACK, GRAY, LIGHTGRAY, WHITE,
 };
 
 use crate::external::backends::Vec2;

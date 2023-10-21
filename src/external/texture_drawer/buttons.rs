@@ -4,9 +4,9 @@ use macroquad::prelude::*;
 
 use crate::external::texture_drawer::draw::Pixels;
 use crate::external::texture_drawer::{
-    draw, TextureDrawer, BUY_PANEL_HORIZONTAL_PAD, BUY_PANEL_START_HEIGHT,
+    TextureDrawer, BUY_PANEL_HORIZONTAL_PAD, BUY_PANEL_START_HEIGHT,
 };
-use crate::external::widgets::button::{Button, Interaction};
+use crate::external::widgets::button::Button;
 use crate::screen::textures::Textures;
 use crate::screen::translations::Translation;
 use crate::world::heores::Hero;

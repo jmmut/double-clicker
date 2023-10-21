@@ -1,11 +1,11 @@
+use std::ops::AddAssign;
+
 use macroquad::prelude::{
     draw_line, draw_rectangle, draw_rectangle_lines, draw_text, draw_texture_ex,
     is_mouse_button_down, is_mouse_button_released, measure_text, mouse_position, Color,
-    DrawTextureParams, MouseButton, Rect, TextDimensions, Texture2D, BLACK, DARKGRAY, GRAY,
-    LIGHTGRAY, WHITE,
+    DrawTextureParams, MouseButton, Rect, TextDimensions, Texture2D, BLACK, DARKGRAY, WHITE,
 };
 use macroquad::text::Font;
-use std::ops::AddAssign;
 
 use crate::external::backends::Vec2;
 use crate::external::widgets::button::Interaction;

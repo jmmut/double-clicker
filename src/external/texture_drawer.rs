@@ -5,8 +5,7 @@ use crate::external::backends::{now, Seconds};
 use crate::external::basic_input::get_background_color;
 use crate::external::texture_drawer::buttons::Buttons;
 use crate::external::texture_drawer::draw::{
-    draw_panel_border, draw_text_centered, draw_tooltip_centered, draw_windows_95_border,
-    wrap_or_hide_text, TEXT_PANEL_COLOR,
+    draw_panel_border, draw_text_centered, draw_tooltip_centered, wrap_or_hide_text,
 };
 use crate::external::widgets::button::Interaction;
 use crate::screen::drawer_trait::{Button, DrawerTrait};
@@ -383,12 +382,10 @@ impl TextureDrawer {
             target_ratio * pattern_texture.width() / pattern_texture.height(),
             target_ratio,
         );
-        let i_height = 0.0;
-        // let mut offset = - texture_size.x *0.5;
-        let mut offset_x = 0.0;
+        let offset_x = 0.0;
         let period = 16.0;
         let time_dt = now() % period;
-        let mut offset_y = -texture_size.y + (time_dt / period) as f32 * texture_size.y;
+        let offset_y = -texture_size.y + (time_dt / period) as f32 * texture_size.y;
 
         for i_height in 0..=((height / texture_size.y).ceil() as i32) {
             for i_width in 0..((width / texture_size.x).ceil() as i32) {
@@ -409,7 +406,6 @@ impl TextureDrawer {
                     },
                 );
             }
-            // offset += texture_size.x;
         }
 
         draw_texture_ex(
@@ -957,6 +953,7 @@ fn draw_speeds(
     draw_text(&dirtiying_text, text_pos.x, text_pos.y, font_size, BLACK);
 }
 
+#[allow(unused)]
 fn draw_dirtiness(
     world: &World,
     width: f32,

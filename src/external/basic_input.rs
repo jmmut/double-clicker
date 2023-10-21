@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use macroquad::input::is_key_pressed;
-use macroquad::prelude::{clear_background, draw_texture_ex, Color, KeyCode, LIGHTGRAY};
+use macroquad::prelude::{clear_background, Color, KeyCode};
 
 use crate::screen::drawer_trait::{Button, DrawerTrait};
 use crate::screen::input_source_trait::InputSourceTrait;
@@ -62,10 +62,10 @@ pub fn get_background_color(dirtiness: f32) -> Color {
     let clean_color = CLEAN_BACKGROUND_COLOR.clone();
     let dirty_color = DIRTY_BACKGROUND_COLOR.clone();
     let bg_color = Color::new(
-        ((1.0 - dirtiness) * clean_color.r + dirtiness * dirty_color.r),
-        ((1.0 - dirtiness) * clean_color.g + dirtiness * dirty_color.g),
-        ((1.0 - dirtiness) * clean_color.b + dirtiness * dirty_color.b),
-        ((1.0 - dirtiness) * clean_color.a + dirtiness * dirty_color.a),
+        (1.0 - dirtiness) * clean_color.r + dirtiness * dirty_color.r,
+        (1.0 - dirtiness) * clean_color.g + dirtiness * dirty_color.g,
+        (1.0 - dirtiness) * clean_color.b + dirtiness * dirty_color.b,
+        (1.0 - dirtiness) * clean_color.a + dirtiness * dirty_color.a,
     );
     bg_color
 }
