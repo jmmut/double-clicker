@@ -13,6 +13,7 @@ pub mod external {
     // pub mod textureless_drawer;
     pub mod widgets {
         pub mod button;
+        pub mod text;
         pub mod texture_button;
     }
 }

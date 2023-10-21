@@ -4,10 +4,11 @@ use macroquad::ui::root_ui;
 use crate::external::backends::{now, Seconds};
 use crate::external::basic_input::get_background_color;
 use crate::external::texture_drawer::buttons::Buttons;
-use crate::external::texture_drawer::draw::{
-    draw_panel_border, draw_text_centered, draw_tooltip_centered, wrap_or_hide_text,
-};
+use crate::external::texture_drawer::draw::draw_panel_border;
 use crate::external::widgets::button::Interaction;
+use crate::external::widgets::text::{
+    draw_text_centered, draw_tooltip_centered, wrap_or_hide_text,
+};
 use crate::screen::drawer_trait::{Button, DrawerTrait};
 use crate::screen::textures::{Texture, Textures};
 use crate::screen::translations::{get_translation, Language, Translation};
