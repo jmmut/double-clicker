@@ -7,7 +7,7 @@ use crate::external::texture_drawer::buttons::Buttons;
 use crate::external::texture_drawer::draw::draw_panel_border;
 use crate::external::widgets::button::Interaction;
 use crate::external::widgets::text::{
-    draw_text_centered, draw_tooltip_centered, wrap_or_hide_text,
+    draw_text_centered, draw_tooltip_centered, wrap_or_hide_text, TextRect,
 };
 use crate::screen::drawer_trait::{Button, DrawerTrait};
 use crate::screen::textures::{Texture, Textures};
@@ -1006,14 +1006,12 @@ fn draw_text_bar(
         BLACK,
     );
     let text = choose_text_lore(world.stage(), frame, translation);
-    let dimensions = measure_text(text, None, font_size as u16, 1.0);
-    draw_text(
-        text,
-        (width * 0.5 - dimensions.width * 0.5).round(),
-        (height * (bar_height + 0.01) + dimensions.offset_y).round(),
-        font_size,
-        BLACK,
+    let pos = Vec2::new(
+        (width * 0.5).round(),
+        (height * (bar_height + 0.01) + font_size).round(),
     );
+    let text_rect = TextRect::from_center_pixel(text, pos, font_size);
+    text_rect.render_text(BLACK);
 }
 
 fn choose_text_lore(stage: Act, frame: i64, translation: &Translation) -> &str {
@@ -1048,9 +1046,7 @@ fn draw_alerts(world: &World, width: f32, height: f32, font_size: f32, translati
     for (i, (_, alert)) in world.alerts.iter().enumerate() {
         draw_tooltip_centered(
             &alert.to_string(translation),
-            Vec2::new(0.5, 0.5 + (i as f32 * 2.0 * font_size) / height),
-            width,
-            height,
+            Vec2::new(width * 0.5, height * 0.5 + (i as f32 * 2.0 * font_size)),
             font_size,
         );
     }

@@ -203,55 +203,19 @@ impl TextRect {
     }
 }
 
-pub fn draw_tooltip_centered(text: &str, position: Vec2, width: f32, height: f32, font_size: f32) {
-    let pad = font_size * 0.5;
-    let tooltip_size = measure_text(&text, None, font_size as u16, 1.0);
-    let text_rect = Rect::new(
-        (width * position.x - tooltip_size.width * 0.5 - pad).round(),
-        (height * position.y - tooltip_size.height - pad * 2.0).round(),
-        tooltip_size.width + pad * 2.0,
-        tooltip_size.height + pad * 2.0,
-    );
-    draw_rectangle(
-        text_rect.x,
-        text_rect.y,
-        text_rect.w,
-        text_rect.h,
-        ALERT_COLOR,
-    );
-    draw_rectangle_lines(
-        text_rect.x,
-        text_rect.y,
-        text_rect.w,
-        text_rect.h,
-        2.0,
-        BLACK,
-    );
-    draw_text(
-        &text,
-        text_rect.x + pad,
-        text_rect.y + pad + tooltip_size.offset_y,
-        font_size,
-        BLACK,
-    );
+pub fn draw_tooltip_centered(text: &str, position: Vec2, font_size: f32) {
+    let text_rect = TextRect::from_center_pixel(text, position, font_size);
+    let rect = &text_rect.rect;
+    draw_rectangle(rect.x, rect.y, rect.w, rect.h, ALERT_COLOR);
+    draw_rectangle_lines(rect.x, rect.y, rect.w, rect.h, 2.0, BLACK);
+    text_rect.render_text(BLACK);
 }
 
-pub fn draw_text_centered(text: &str, position: Vec2, width: f32, height: f32, font_size: f32) {
-    let pad = font_size * 0.5;
-    let tooltip_size = measure_text(&text, None, font_size as u16, 1.0);
-    let text_rect = Rect::new(
-        (width * position.x - tooltip_size.width * 0.5 - pad).round(),
-        (height * position.y - tooltip_size.height - pad * 2.0).round(),
-        tooltip_size.width + pad * 2.0,
-        tooltip_size.height + pad * 2.0,
-    );
-    draw_text(
-        &text,
-        text_rect.x + pad,
-        text_rect.y + pad + tooltip_size.offset_y,
-        font_size,
-        BLACK,
-    );
+pub fn draw_text_centered(text: &str, mut position: Vec2, width: f32, height: f32, font_size: f32) {
+    position.x *= width;
+    position.y *= height;
+    let text_rect = TextRect::from_center_pixel(text, position, font_size);
+    text_rect.render_text(BLACK);
 }
 
 #[cfg(test)]

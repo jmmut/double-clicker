@@ -58,8 +58,9 @@ pub fn draw_windows_95_border(rect: Rect, interaction: Interaction) {
     let right = rect.x + rect.w;
     let top = rect.y;
     let bottom = rect.y + rect.h;
-    draw_line(left, top, right, top, 1.0, border_color_high);
-    draw_line(left, top, left, bottom, 1.0, border_color_high);
-    draw_line(left, bottom, right, bottom, 1.0, border_color_low);
-    draw_line(right, top, right, bottom, 1.0, border_color_low);
+    let thickness = 1.0;
+    draw_line(left, top, right, top, thickness, border_color_high);
+    draw_line(left, top, left, bottom, thickness, border_color_high);
+    draw_line(left, bottom, right, bottom, thickness, border_color_low);
+    draw_line(right, top, right, bottom, thickness, border_color_low);
 }
