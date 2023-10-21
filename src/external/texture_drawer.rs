@@ -418,7 +418,7 @@ impl TextureDrawer {
                 dest_size: Some(Vec2::new(width, height)),
                 ..Default::default()
             },
-        )
+        );
     }
 
     fn draw_bar_and_money(&self, world: &World, width: f32, height: f32, font_size: f32) {
