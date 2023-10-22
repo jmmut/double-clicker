@@ -1,7 +1,6 @@
 use macroquad::prelude::*;
 
 use crate::external::backends::{now, Seconds};
-use crate::external::basic_input::get_background_color;
 use crate::external::texture_drawer::buttons::Buttons;
 use crate::external::texture_drawer::draw::draw_panel_border;
 use crate::external::widgets::anchor::Anchor;
@@ -23,6 +22,10 @@ pub mod draw;
 
 const CLEAN_COLOR: Color = SKYBLUE;
 const DIRTY_COLOR: Color = PURPLE;
+
+const CLEAN_BACKGROUND_COLOR: Color = Color::new(0.75, 0.85, 1.0, 1.0);
+const DIRTY_BACKGROUND_COLOR: Color = Color::new(0.85, 0.75, 1.0, 1.0);
+
 const FONT_SIZE: f32 = 16.0;
 
 const BAR_HORIZONTAL_PAD: f32 = 0.04;
@@ -139,6 +142,7 @@ impl DrawerTrait for TextureDrawer {
             self.font_size = Self::choose_font_size(width, height);
         }
 
+        clear_background(Self::get_background_color(self.dirtiness()));
         self.draw_background_pattern(width, height);
         self.draw_bar_and_money(world, width, height, self.font_size);
         self.draw_clean_and_dirty();
@@ -330,6 +334,22 @@ impl TextureDrawer {
         // during which self is incomplete/invalid. Workaround:
         let textures = std::mem::take(&mut self.textures);
         *self = Self::new_from_mocked(textures, width, height, self.translation);
+    }
+
+    pub fn get_background_color(dirtiness: f32) -> Color {
+        // clear_background(Color::from_rgba(0x01, 0x00, 0x30, 255));
+        // clear_background(Color::new(0.85, 0.75, 1.0, 1.0));
+        // clear_background(Color::new(0x30, 0x00, 0x2f));
+
+        let clean_color = CLEAN_BACKGROUND_COLOR.clone();
+        let dirty_color = DIRTY_BACKGROUND_COLOR.clone();
+        let bg_color = Color::new(
+            (1.0 - dirtiness) * clean_color.r + dirtiness * dirty_color.r,
+            (1.0 - dirtiness) * clean_color.g + dirtiness * dirty_color.g,
+            (1.0 - dirtiness) * clean_color.b + dirtiness * dirty_color.b,
+            (1.0 - dirtiness) * clean_color.a + dirtiness * dirty_color.a,
+        );
+        bg_color
     }
 
     fn draw_background_pattern(&mut self, width: f32, height: f32) {
@@ -975,7 +995,7 @@ fn draw_text_bar(
         height * bar_height + 2.0,
         width,
         height - bar_height,
-        get_background_color(dirtiness_coef),
+        TextureDrawer::get_background_color(dirtiness_coef),
     );
     draw_line(
         width * 0.0,
