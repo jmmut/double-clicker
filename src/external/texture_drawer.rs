@@ -131,13 +131,17 @@ impl TextureDrawer {
         self.font_size = Self::choose_font_size(width, height);
         self.recreate_buttons();
     }
+
+    fn dirtiness_from_world(world: &World) -> f32 {
+        world.dirtiness_units() as f32 / world.max_dirtiness_units() as f32
+    }
 }
 
 impl DrawerTrait for TextureDrawer {
     fn draw(&mut self, world: &mut World) {
         self.frame += 1;
         self.stage = world.stage();
-        self.dirtiness = world.dirtiness_units() as f32 / world.max_dirtiness_units() as f32;
+        self.dirtiness = Self::dirtiness_from_world(world);
         let width = screen_width();
         let height = screen_height();
         if width != self.width || height != self.height {
@@ -427,6 +431,7 @@ impl TextureDrawer {
             width,
             height,
             overlapping,
+            transparency,
             font_size,
             self.translation,
         );
@@ -623,7 +628,7 @@ impl TextureDrawer {
                 (text_pos_x + 0.5).round(),
                 (height * (start_height + 0.01 + vertical_offset) + title_size + 0.5).round(),
                 title_size,
-                BLACK,
+                with_alpha(BLACK, 0.3),
             );
             draw_text(
                 &format!("{}: {} €", self.translation.price, world.price(hero)),
@@ -848,101 +853,64 @@ fn draw_savings(
     width: f32,
     height: f32,
     overlapping: bool,
+    transparency: bool,
     font_size: f32,
     translation: &Translation,
 ) {
-    let vertical_offset = if overlapping { -0.03 } else { 0.05 };
+    let vertical_offset = if overlapping {
+        height * (BAR_VERTICAL_PAD * 2.0)
+    } else {
+        height * (BAR_VERTICAL_PAD * 3.0)
+    };
     let savings_font_size = font_size * 2.0;
     let money_text = format!("{} €", world.money_euros());
-    let money_size = measure_text(&money_text, None, savings_font_size as u16, 1.0);
-    let text_rect = Rect::new(
-        width * 0.5 - (money_size.width * 0.5).round(),
-        (height * (SAVINGS_HEIGHT + vertical_offset)).round(),
-        money_size.width,
-        money_size.height,
-    );
-    // root_ui().label(Some(Vec2::new(width * 0.5 - money_size.width * 0.5, height * 0.1 - money_size.height)), &money_text);
-    // draw_text(
-    //     &money_text,
-    //     width * 0.5 - (money_size.width * 0.5).round() + 1.0,
-    //     (height * (0.15 + vertical_offset)).round() + 1.0,
-    //     font_size,
-    //     WHITE,
-    // );
-    // draw_text(
-    //     &money_text,
-    //     width * 0.5 - (money_size.width * 0.5).round() + 1.0,
-    //     (height * (0.15 + vertical_offset)).round() - 1.0,
-    //     font_size,
-    //     WHITE,
-    // );
-    // draw_text(
-    //     &money_text,
-    //     width * 0.5 - (money_size.width * 0.5).round() - 1.0,
-    //     (height * (0.15 + vertical_offset)).round() + 1.0,
-    //     font_size,
-    //     WHITE,
-    // );
-    // draw_text(
-    //     &money_text,
-    //     width * 0.5 - (money_size.width * 0.5).round() - 1.0,
-    //     (height * (0.15 + vertical_offset)).round() - 1.0,
-    //     font_size,
-    //     WHITE,
-    // );
-    // draw_text(
-    //     &money_text,
-    //     text_rect.x - 1.0,
-    //     text_rect.y - 1.0,
-    //     savings_font_size,
-    //     WHITE,
-    // );
-    draw_text(
+    let money_rect = TextRect::new(
         &money_text,
-        text_rect.x + 1.0,
-        text_rect.y + 1.0,
+        Anchor::center((width * 0.5).round(), vertical_offset.round()),
         savings_font_size,
-        BLACK,
-    );
-    draw_text(
-        &money_text,
-        text_rect.x,
-        text_rect.y,
-        savings_font_size,
-        BLACK,
     );
 
-    let text_top_left = Rect {
-        y: text_rect.y - text_rect.h,
-        ..text_rect
-    };
-    let (mouse_x, mouse_y) = mouse_position();
-    if text_top_left.contains(Vec2::new(mouse_x, mouse_y)) {
-        let pad = font_size * 0.5;
-        let tooltip_text = translation.savings;
-        let tooltip_dimensions = measure_text(tooltip_text, None, font_size as u16, 1.0);
+    if transparency {
+        let bg_color =
+            TextureDrawer::get_background_color(TextureDrawer::dirtiness_from_world(&world));
         draw_rectangle(
-            mouse_x,
-            mouse_y - tooltip_dimensions.offset_y - pad * 2.0,
-            tooltip_dimensions.width + pad * 2.0,
-            tooltip_dimensions.height + pad * 2.0,
+            money_rect.rect.x,
+            money_rect.rect.y,
+            money_rect.rect.w,
+            money_rect.rect.h,
+            with_alpha(bg_color, 0.5),
+        )
+    }
+
+    money_rect.render_text(BLACK);
+    let mut shadow = money_rect.clone();
+    shadow.rect = shadow.rect.offset(Vec2::new(1.0, 1.0));
+    shadow.render_text(with_alpha(BLACK, 0.5));
+
+    let (mouse_x, mouse_y) = mouse_position();
+    if money_rect.rect.contains(Vec2::new(mouse_x, mouse_y)) {
+        let tooltip_text = translation.savings;
+        let tooltip = TextRect::new(
+            tooltip_text,
+            Anchor::bottom_left(mouse_x, mouse_y),
+            font_size,
+        );
+        draw_rectangle(
+            tooltip.rect.x,
+            tooltip.rect.y,
+            tooltip.rect.w,
+            tooltip.rect.h,
             LIGHTGRAY,
         );
         draw_rectangle_lines(
-            mouse_x,
-            mouse_y - tooltip_dimensions.offset_y - pad * 2.0,
-            tooltip_dimensions.width + pad * 2.0,
-            tooltip_dimensions.height + pad * 2.0,
+            tooltip.rect.x,
+            tooltip.rect.y,
+            tooltip.rect.w,
+            tooltip.rect.h,
             2.0,
             BLACK,
         );
-        draw_text(
-            tooltip_text,
-            (mouse_x + pad).round(),
-            (mouse_y - pad).round(),
-            font_size,
-            BLACK,
-        );
+        tooltip.render_text(BLACK)
     }
 }
 fn draw_speeds(

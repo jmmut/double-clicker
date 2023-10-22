@@ -195,6 +195,22 @@ impl TextRect {
     }
 }
 
+impl Clone for TextRect {
+    fn clone(&self) -> Self {
+        Self {
+            text: self.text.clone(),
+            rect: self.rect,
+            text_dimensions: TextDimensions {
+                width: self.text_dimensions.width,
+                height: self.text_dimensions.height,
+                offset_y: self.text_dimensions.offset_y,
+            },
+            font_size: self.font_size,
+            pad: self.pad,
+        }
+    }
+}
+
 pub fn draw_tooltip_centered(text: &str, position: Vec2, font_size: f32) {
     let text_rect = TextRect::new(text, Anchor::center_v(position), font_size);
     let rect = &text_rect.rect;
