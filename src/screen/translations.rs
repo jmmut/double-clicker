@@ -109,14 +109,14 @@ const SPANISH: Translation = Translation {
     },
     lore: Lore {
         act_1: &[
-            "Tu jefe quiere hablar contigo, está contento. Demasiado contento.",
-            "\"¿Cómo que despedido?\"\n        - Malik",
+            "Tu jefe quiere hablar contigo, está contento.\nDemasiado contento.",
+            "\"¿Cómo que despedido?\"\n - Malik",
             "Tu departamento va a desaparecer, debes hacer algo.",
-            "\"Debo encontrar 'Los Trapos Sucios'\"\n        - Malik",
+            "\"Debo encontrar 'Los Trapos Sucios'\"\n - Malik",
         ],
         act_2: &[
             "\"¿Me dejas chupar ese moho?\" - Caos Adora",
-            "\"Jefe, voy a necesitar tres cepillos\" - Técnico Operario de Cepillo",
+            "\"Jefe, voy a necesitar tres cepillos\"\n - Técnico Operario de Cepillo",
             "Frase acto 2 - 1",
             "Frase acto 2 - 2",
             "Frase acto 2 - 3",
