@@ -1,37 +1,16 @@
 use macroquad::prelude::{
-    draw_texture_ex, is_mouse_button_down, is_mouse_button_released,
-    mouse_position, MouseButton, Rect, WHITE,
+    draw_texture_ex, is_mouse_button_down, is_mouse_button_released, mouse_position, MouseButton,
+    Rect, WHITE,
 };
 use macroquad::prelude::{DrawTextureParams, Texture2D};
 
 use crate::external::backends::Vec2;
+use crate::external::widgets::anchor::Anchor;
 use crate::external::widgets::button::Interaction;
 
 pub struct TextureButton {
     rect: Rect,
     interaction: Interaction,
-}
-
-#[derive(Copy, Clone)]
-pub enum Anchor {
-    Center { x: f32, y: f32 },
-    TopLeft { x: f32, y: f32 },
-    TopRight { x: f32, y: f32 },
-    BottomLeft { x: f32, y: f32 },
-    BottomRight { x: f32, y: f32 },
-    // TODO: TopCenter, BottomCenter
-}
-
-impl Anchor {
-    pub fn get_top_left_pixel(&self, size: Vec2) -> Vec2 {
-        match *self {
-            Anchor::Center { x, y } => Vec2::new(x - size.x * 0.5, y - size.y * 0.5),
-            Anchor::TopLeft { x, y } => Vec2::new(x, y),
-            Anchor::TopRight { x, y } => Vec2::new(x - size.x, y),
-            Anchor::BottomLeft { x, y } => Vec2::new(x, y - size.y),
-            Anchor::BottomRight { x, y } => Vec2::new(x - size.x, y - size.y),
-        }
-    }
 }
 
 impl TextureButton {

@@ -7,6 +7,7 @@ use macroquad::prelude::{
 use macroquad::text::Font;
 
 use crate::external::backends::Vec2;
+use crate::external::widgets::anchor::Anchor;
 
 pub type Pixels = f32;
 
@@ -148,6 +149,34 @@ pub struct TextRect {
     pub pad: Vec2,
 }
 impl TextRect {
+    pub fn new(text: &str, position_pixels: Anchor, font_size: f32) -> Self {
+        #[cfg(not(test))]
+        let text_dimensions = measure_text(text, None, font_size as u16, 1.0);
+
+        // this will allow running any test that creates buttons. Button::render() will panic, though.
+        #[cfg(test)]
+        let text_dimensions = TextDimensions {
+            width: text.len() as f32 * font_size * 0.5,
+            height: font_size,
+            offset_y: font_size * 0.75,
+        };
+
+        let pad = Vec2::new(font_size, font_size * 0.25);
+        let size = Vec2::new(
+            (text_dimensions.width + pad.x * 2.0).round(),
+            (font_size + pad.y * 2.0).round(),
+        );
+        let top_left = position_pixels.get_top_left_pixel(size);
+
+        let rect = Rect::new((top_left.x).round(), (top_left.y).round(), size.x, size.y);
+        Self {
+            text: text.to_string(),
+            rect,
+            text_dimensions,
+            font_size,
+            pad,
+        }
+    }
     pub fn from_top_left_pixel(text: &str, top_left: Vec2, font_size: f32) -> Self {
         #[cfg(not(test))]
         let text_dimensions = measure_text(text, None, font_size as u16, 1.0);

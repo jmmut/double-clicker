@@ -5,9 +5,10 @@ use macroquad::prelude::*;
 use crate::external::texture_drawer::{
     TextureDrawer, BUY_PANEL_HORIZONTAL_PAD, BUY_PANEL_START_HEIGHT,
 };
+use crate::external::widgets::anchor::Anchor;
 use crate::external::widgets::button::Button;
 use crate::external::widgets::text::Pixels;
-use crate::external::widgets::texture_button::{Anchor, TextureButton};
+use crate::external::widgets::texture_button::TextureButton;
 use crate::screen::textures::Textures;
 use crate::screen::translations::Translation;
 use crate::world::heores::Hero;

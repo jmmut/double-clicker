@@ -12,6 +12,7 @@ pub mod external {
     pub mod texture_drawer;
     // pub mod textureless_drawer;
     pub mod widgets {
+        pub mod anchor;
         pub mod button;
         pub mod text;
         pub mod texture_button;
