@@ -7,12 +7,15 @@ use crate::external::texture_drawer::{
 };
 use crate::external::widgets::button::Button;
 use crate::external::widgets::text::Pixels;
+use crate::external::widgets::texture_button::{Anchor, TextureButton};
 use crate::screen::textures::Textures;
 use crate::screen::translations::Translation;
 use crate::world::heores::Hero;
 
 const BUTTON_PAD: Pixels = 2.0;
 pub struct Buttons {
+    pub clean: TextureButton,
+    pub dirty: TextureButton,
     pub buy: HashMap<Hero, Button>,
     pub sell: HashMap<Hero, Button>,
     pub continue_playing: Button,
@@ -46,7 +49,10 @@ pub fn create_buttons(
         spanish.rect().point() - Vec2::new(spanish.rect().w + BUTTON_PAD, 0.0),
         font_size,
     );
+    let (clean, dirty) = create_clean_and_dirty_buttons(width, height);
     Buttons {
+        clean,
+        dirty,
         continue_after_game_over: Button::from_center_pixel(
             translation.restart,
             Vec2::new(width * 0.5, height * 0.7),
@@ -63,6 +69,23 @@ pub fn create_buttons(
         change_language_to_english: english,
         extra: create_extra_buttons(font_size, width, height, translation),
     }
+}
+
+fn create_clean_and_dirty_buttons(width: f32, height: f32) -> (TextureButton, TextureButton) {
+    let size = (width * 0.1).min(height * 0.2);
+    let size = Vec2::new(size, size);
+    let clean_pos = Anchor::TopRight {
+        x: width * (0.5 - 0.001),
+        y: height * BUY_PANEL_START_HEIGHT,
+    };
+    let dirty_pos = Anchor::TopLeft {
+        x: width * (0.5 + 0.001),
+        y: height * BUY_PANEL_START_HEIGHT,
+    };
+    (
+        TextureButton::new(clean_pos, size),
+        TextureButton::new(dirty_pos, size),
+    )
 }
 
 fn create_buy_hero_buttons(

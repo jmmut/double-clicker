@@ -9,6 +9,7 @@ use crate::external::widgets::button::Interaction;
 use crate::external::widgets::text::{
     draw_text_centered, draw_tooltip_centered, wrap_or_hide_text, TextRect,
 };
+use crate::external::widgets::texture_button::{Anchor, TextureButton};
 use crate::screen::drawer_trait::{Button, DrawerTrait};
 use crate::screen::textures::{Texture, Textures};
 use crate::screen::translations::{get_translation, Language, Translation};
@@ -141,6 +142,7 @@ impl DrawerTrait for TextureDrawer {
 
         self.draw_background_pattern(width, height);
         self.draw_bar_and_money(world, width, height, self.font_size);
+        self.draw_clean_and_dirty();
         self.draw_buy_heroes(world, width, height, self.font_size);
         draw_text_bar(
             world,
@@ -180,28 +182,8 @@ impl DrawerTrait for TextureDrawer {
         };
         use Texture::*;
         match button {
-            Button::Clean => {
-                let size = (width * 0.1).min(height * 0.2);
-                let rect = Rect::new(
-                    width * (0.5 - 0.001) - size,
-                    height * BUY_PANEL_START_HEIGHT,
-                    size,
-                    size,
-                );
-                is_texture_clicked(rect, CleanBackground, Some(CleanBackgroundOff));
-                is_texture_clicked(rect, self.clean_texture(), None)
-            }
-            Button::Dirty => {
-                let size = (width * 0.1).min(height * 0.2);
-                let rect = Rect::new(
-                    width * (0.5 + 0.001),
-                    height * BUY_PANEL_START_HEIGHT,
-                    size,
-                    size,
-                );
-                is_texture_clicked(rect, DirtyBackground, Some(DirtyBackgroundOff));
-                is_texture_clicked(rect, self.dirty_texture(), None)
-            }
+            Button::Clean => self.buttons.clean.interact().is_clicked(),
+            Button::Dirty => self.buttons.dirty.interact().is_clicked(),
             Button::Arrangement => self
                 .buttons
                 .extra
@@ -427,6 +409,30 @@ impl TextureDrawer {
         //     font_size,
         //     self.translation,
         // );
+    }
+
+    fn draw_clean_and_dirty(&self) {
+        use Texture::*;
+        self.buttons.clean.render(
+            vec![
+                self.textures.get(CleanBackground),
+                self.textures.get(self.clean_texture()),
+            ],
+            Some(vec![
+                self.textures.get(CleanBackgroundOff),
+                self.textures.get(self.clean_texture()),
+            ]),
+        );
+        self.buttons.dirty.render(
+            vec![
+                self.textures.get(DirtyBackground),
+                self.textures.get(self.dirty_texture()),
+            ],
+            Some(vec![
+                self.textures.get(DirtyBackgroundOff),
+                self.textures.get(self.dirty_texture()),
+            ]),
+        );
     }
 
     fn draw_buy_heroes(&mut self, world: &World, width: f32, height: f32, font_size: f32) {

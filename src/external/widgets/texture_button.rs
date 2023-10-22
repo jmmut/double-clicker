@@ -10,49 +10,35 @@ use crate::external::widgets::button::Interaction;
 use crate::external::widgets::text::TextRect;
 
 pub struct TextureButton {
-    texture: Texture2D,
-    texture_highlighted: Option<Texture2D>,
     anchor: Anchor,
     rect: Rect,
     interaction: Interaction,
 }
 
+#[derive(Copy, Clone)]
 pub enum Anchor {
-    Center(Vec2),
-    TopLeft(Vec2),
-    TopRight(Vec2),
-    BottomLeft(Vec2),
-    BottomRight(Vec2),
+    Center { x: f32, y: f32 },
+    TopLeft { x: f32, y: f32 },
+    TopRight { x: f32, y: f32 },
+    BottomLeft { x: f32, y: f32 },
+    BottomRight { x: f32, y: f32 },
     // TODO: TopCenter, BottomCenter
 }
 
 impl Anchor {
     pub fn get_top_left_pixel(&self, size: Vec2) -> Vec2 {
-        match self {
-            Anchor::Center(Vec2 { x, y }) => {
-                todo!()
-            }
-            Anchor::TopLeft(pos) => *pos,
-            Anchor::TopRight(Vec2 { x, y }) => {
-                todo!()
-            }
-            Anchor::BottomLeft(Vec2 { x, y }) => {
-                todo!()
-            }
-            Anchor::BottomRight(Vec2 { x, y }) => {
-                todo!()
-            }
+        match *self {
+            Anchor::Center { x, y } => Vec2::new(x - size.x * 0.5, y - size.y * 0.5),
+            Anchor::TopLeft { x, y } => Vec2::new(x, y),
+            Anchor::TopRight { x, y } => Vec2::new(x - size.x, y),
+            Anchor::BottomLeft { x, y } => Vec2::new(x, y - size.y),
+            Anchor::BottomRight { x, y } => Vec2::new(x - size.x, y - size.y),
         }
     }
 }
 
 impl TextureButton {
-    pub fn new(
-        texture: Texture2D,
-        texture_highlighted: Option<Texture2D>,
-        anchor: Anchor,
-        size_pixels: Vec2,
-    ) -> Self {
+    pub fn new(anchor: Anchor, size_pixels: Vec2) -> Self {
         let top_left = anchor.get_top_left_pixel(size_pixels);
         let rect = Rect::new(
             (top_left.x).round(),
@@ -62,8 +48,6 @@ impl TextureButton {
         );
 
         Self {
-            texture,
-            texture_highlighted,
             anchor,
             rect,
             interaction: Interaction::None,
@@ -88,22 +72,24 @@ impl TextureButton {
         };
         self.interaction
     }
-    pub fn render(&self) {
-        let chosen_texture = match self.interaction {
-            Interaction::Clicked | Interaction::Pressing => self.texture,
-            Interaction::Hovered => self.texture_highlighted.unwrap_or(self.texture),
-            Interaction::None => self.texture,
+    pub fn render(&self, textures: Vec<Texture2D>, textures_highlighted: Option<Vec<Texture2D>>) {
+        let chosen_textures = match self.interaction {
+            Interaction::Clicked | Interaction::Pressing => textures,
+            Interaction::Hovered => textures_highlighted.unwrap_or(textures),
+            Interaction::None => textures,
         };
 
-        draw_texture_ex(
-            chosen_texture,
-            self.rect.x,
-            self.rect.y,
-            WHITE,
-            DrawTextureParams {
-                dest_size: Some(self.rect.size()),
-                ..Default::default()
-            },
-        );
+        for chosen_texture in chosen_textures {
+            draw_texture_ex(
+                chosen_texture,
+                self.rect.x,
+                self.rect.y,
+                WHITE,
+                DrawTextureParams {
+                    dest_size: Some(self.rect.size()),
+                    ..Default::default()
+                },
+            );
+        }
     }
 }
