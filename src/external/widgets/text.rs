@@ -70,52 +70,68 @@ where
     }
     assert!(panel_width >= 0.0);
     assert!(panel_height >= 0.0);
-    let dimensions = measure_text(text, None, font_size as u16, 1.0);
-    if line_height.max(dimensions.height) > panel_height {
+    if text.is_empty() {
+        return vec!["".to_string()];
+    }
+
+    let lines = text.split("\n").map(|s| s.to_string()).collect::<Vec<_>>();
+    let dimensions = lines
+        .iter()
+        .map(|line| measure_text(line, None, font_size as u16, 1.0))
+        .collect::<Vec<_>>();
+    let max_width = dimensions
+        .iter()
+        .map(|d| d.width)
+        .max_by(|a, b| a.partial_cmp(&b).unwrap())
+        .unwrap();
+    let max_height = font_size;
+    if line_height.max(max_height) > panel_height {
         return Vec::new(); // not enough space for a single line, hide all text
-    } else if dimensions.width <= panel_width && dimensions.height <= panel_height {
-        return vec![text.to_string()];
+    } else if max_width <= panel_width && max_height * lines.len() as f32 <= panel_height {
+        return lines;
     } else {
-        let mut remaining_text = text;
         let mut result: Vec<String> = Vec::new();
-        let letter_width_estimate: Pixels = dimensions.width / remaining_text.len() as f32;
-        let letters_per_line_estimate = (panel_width / letter_width_estimate).trunc() as usize;
-        loop {
-            if (result.len() + 1) as f32 * line_height >= panel_height {
-                let mut last_line = result.pop().unwrap();
-                // lines will usually end in a space, so the index points to the letter before the last one
-                let mut last_letter_in_last_word_utf8 = last_line.len() - 2;
-                while !last_line.is_char_boundary(last_letter_in_last_word_utf8) {
-                    last_letter_in_last_word_utf8 -= 1;
-                }
-                let line_break_index = last_line[..last_letter_in_last_word_utf8].rfind(" ");
-                let mut last_line = if let Some(previous_word_index) = line_break_index {
-                    last_line[..previous_word_index].to_string()
-                } else {
-                    last_line.pop();
-                    last_line.pop();
-                    last_line.pop();
-                    last_line
-                };
-                last_line.add_assign("...");
-                result.push(last_line);
-                break;
-            }
-            if remaining_text.len() <= letters_per_line_estimate {
-                result.push(remaining_text.to_string());
-                break;
-            } else {
-                let mut letters_per_line_estimate_utf8 = letters_per_line_estimate;
-                while !remaining_text.is_char_boundary(letters_per_line_estimate_utf8 + 1) {
-                    letters_per_line_estimate_utf8 -= 1;
-                }
-                let line_break_index = remaining_text[0..=letters_per_line_estimate_utf8]
-                    .rfind(" ")
-                    .unwrap_or(letters_per_line_estimate_utf8 - 1); // TODO: put a dash for cut words?
-                result.push(remaining_text[0..=line_break_index].to_string());
-                remaining_text = &remaining_text[(line_break_index + 1)..];
-                if remaining_text.is_empty() {
+        for (line, line_dimensions) in lines.iter().zip(dimensions) {
+            let mut remaining_text = line.as_str();
+            let letter_width_estimate: Pixels = line_dimensions.width / remaining_text.len() as f32;
+            let letters_per_line_estimate = (panel_width / letter_width_estimate).trunc() as usize;
+            loop {
+                if (result.len() + 1) as f32 * line_height > panel_height {
+                    let mut last_line = result.pop().unwrap();
+                    // lines will usually end in a space, so the index points to the letter before the last one
+                    let mut last_letter_in_last_word_utf8 = last_line.len() - 2;
+                    while !last_line.is_char_boundary(last_letter_in_last_word_utf8) {
+                        last_letter_in_last_word_utf8 -= 1;
+                    }
+                    let line_break_index = last_line[..last_letter_in_last_word_utf8].rfind(" ");
+                    let mut last_line = if let Some(previous_word_index) = line_break_index {
+                        last_line[..previous_word_index].to_string()
+                    } else {
+                        last_line.pop();
+                        last_line.pop();
+                        last_line.pop();
+                        last_line
+                    };
+                    last_line.add_assign("...");
+                    result.push(last_line);
                     break;
+                }
+                if remaining_text.len() <= letters_per_line_estimate {
+                    result.push(remaining_text.to_string());
+                    break;
+                } else {
+                    let mut letters_per_line_estimate_utf8 = letters_per_line_estimate;
+                    while !remaining_text.is_char_boundary(letters_per_line_estimate_utf8 + 1) {
+                        letters_per_line_estimate_utf8 -= 1;
+                    }
+                    let line_break_index = remaining_text[0..=letters_per_line_estimate_utf8]
+                        .rfind(" ")
+                        .unwrap_or(letters_per_line_estimate_utf8 - 1); // TODO: put a dash for cut words?
+                    result.push(remaining_text[0..=line_break_index].to_string());
+                    remaining_text = &remaining_text[(line_break_index + 1)..];
+                    if remaining_text.is_empty() {
+                        break;
+                    }
                 }
             }
         }
@@ -274,5 +290,41 @@ mod tests {
             font_size * 1.5,
         );
         assert_eq!(lines, vec!["looooooooooooooooooooooong_..."]);
+    }
+
+    #[test]
+    fn test_wrap_text_respect_newlines() {
+        let text = "first line\nsecond line";
+        let font_size = 10.0;
+        let lines = wrap_or_hide_text_mocked(
+            text,
+            font_size,
+            font_size,
+            text.len() as f32 * font_size,
+            font_size * 3.0,
+        );
+        assert_eq!(lines, vec!["first line", "second line"]);
+    }
+
+    #[test]
+    fn test_wrap_text_respect_newlines_short_lines() {
+        let text = "first line with many words\nsecond line with many words as well";
+        let font_size = 10.0;
+        let lines = wrap_or_hide_text_mocked(
+            text,
+            font_size,
+            font_size,
+            "first line with many wo".len() as f32 * font_size,
+            font_size * 4.0,
+        );
+        assert_eq!(
+            lines,
+            vec![
+                "first line with many ",
+                "words",
+                "second line with many ",
+                "words as well"
+            ]
+        );
     }
 }

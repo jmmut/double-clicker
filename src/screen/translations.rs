@@ -110,9 +110,9 @@ const SPANISH: Translation = Translation {
     lore: Lore {
         act_1: &[
             "Tu jefe quiere hablar contigo, está contento. Demasiado contento.",
-            "\"¿Cómo que despedido?\" - Malik",
+            "\"¿Cómo que despedido?\"\n        - Malik",
             "Tu departamento va a desaparecer, debes hacer algo.",
-            "\"Debo encontrar 'Los Trapos Sucios'\" - Malik",
+            "\"Debo encontrar 'Los Trapos Sucios'\"\n        - Malik",
         ],
         act_2: &[
             "\"¿Me dejas chupar ese moho?\" - Caos Adora",

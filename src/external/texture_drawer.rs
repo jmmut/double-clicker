@@ -983,12 +983,15 @@ fn draw_text_bar(
         BLACK,
     );
     let text = choose_text_lore(world.stage(), frame, translation);
-    let pos = Vec2::new(
-        (width * 0.5).round(),
-        (height * (bar_height + 0.01) + font_size).round(),
-    );
-    let text_rect = TextRect::from_center_pixel(text, pos, font_size);
-    text_rect.render_text(BLACK);
+    let wrapped_text = wrap_or_hide_text(text, font_size, font_size, width, height - bar_height);
+    for (i, line) in wrapped_text.iter().enumerate() {
+        let pos = Vec2::new(
+            (width * 0.5).round(),
+            (height * (bar_height + 0.01) + font_size * (1.0 + i as f32)).round(),
+        );
+        let text_rect = TextRect::from_center_pixel(line, pos, font_size);
+        text_rect.render_text(BLACK);
+    }
 }
 
 fn choose_text_lore(stage: Act, frame: i64, translation: &Translation) -> &str {
