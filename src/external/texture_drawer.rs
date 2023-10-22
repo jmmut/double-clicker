@@ -62,12 +62,15 @@ pub struct TextureDrawer {
 #[derive(Copy, Clone, Debug)]
 struct Arrangement {
     overlapping: bool,
+    transparency: bool,
 }
 
 #[rustfmt::skip]
-const AVAILABLE_ARRANGEMENTS: [Arrangement; 2] = [
-    Arrangement { overlapping: true },
-    Arrangement { overlapping: false },
+const AVAILABLE_ARRANGEMENTS: &[Arrangement] = &[
+    Arrangement { overlapping: true, transparency: false},
+    Arrangement { overlapping: false, transparency: false },
+    Arrangement { overlapping: true, transparency: true},
+    Arrangement { overlapping: false, transparency: true },
 ];
 
 impl TextureDrawer {
@@ -412,7 +415,10 @@ impl TextureDrawer {
     }
 
     fn draw_bar_and_money(&self, world: &World, width: f32, height: f32, font_size: f32) {
-        let Arrangement { overlapping } = AVAILABLE_ARRANGEMENTS[self.arrangement_index];
+        let Arrangement {
+            overlapping,
+            transparency,
+        } = AVAILABLE_ARRANGEMENTS[self.arrangement_index];
 
         draw_bar(world, width, height, overlapping);
         // draw_salary(world, width, height, overlapping);
@@ -429,6 +435,7 @@ impl TextureDrawer {
             width,
             height,
             overlapping,
+            transparency,
             font_size,
             self.translation,
         );
@@ -943,6 +950,7 @@ fn draw_speeds(
     width: f32,
     height: f32,
     overlapping: bool,
+    transparency: bool,
     font_size: f32,
     translation: &Translation,
 ) {
@@ -964,13 +972,17 @@ fn draw_speeds(
         (vertical_offset).round(),
     );
     let text_rect = TextRect::new(&cleaning_text, text_pos, font_size);
-    if !overlapping {
+    if !overlapping || transparency {
         draw_rectangle(
             text_rect.rect.x,
             text_rect.rect.y,
             text_rect.rect.w,
             text_rect.rect.h,
-            CLEAN_BACKGROUND_COLOR,
+            if transparency {
+                with_alpha(CLEAN_BACKGROUND_COLOR, 0.75)
+            } else {
+                CLEAN_BACKGROUND_COLOR
+            },
         );
     }
     text_rect.render_text(text_color);
@@ -985,16 +997,25 @@ fn draw_speeds(
         (vertical_offset).round(),
     );
     let text_rect = TextRect::new(&dirtiying_text, text_pos, font_size);
-    if !overlapping {
+    if !overlapping || transparency {
         draw_rectangle(
             text_rect.rect.x,
             text_rect.rect.y,
             text_rect.rect.w,
             text_rect.rect.h,
-            DIRTY_BACKGROUND_COLOR,
+            if transparency {
+                with_alpha(DIRTY_BACKGROUND_COLOR, 0.75)
+            } else {
+                DIRTY_BACKGROUND_COLOR
+            },
         );
     }
     text_rect.render_text(text_color);
+}
+
+fn with_alpha(mut color: Color, alpha: f32) -> Color {
+    color.a = alpha;
+    color
 }
 
 #[allow(unused)]
