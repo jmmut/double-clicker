@@ -28,11 +28,7 @@ impl TextureButton {
             interaction: Interaction::None,
         }
     }
-}
-impl TextureButton {
-    pub fn rect(&self) -> Rect {
-        self.rect
-    }
+
     pub fn interact(&mut self) -> Interaction {
         self.interaction = if self.rect.contains(Vec2::from(mouse_position())) {
             if is_mouse_button_down(MouseButton::Left) {

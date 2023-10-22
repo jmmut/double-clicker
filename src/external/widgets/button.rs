@@ -5,6 +5,7 @@ use macroquad::prelude::{
 
 use crate::external::backends::Vec2;
 use crate::external::texture_drawer::draw::draw_panel_border;
+use crate::external::widgets::anchor::Anchor;
 use crate::external::widgets::text::TextRect;
 
 #[derive(Eq, PartialEq, Copy, Clone)]
@@ -41,30 +42,11 @@ pub struct Button {
 }
 
 impl Button {
-    pub fn from_top_left_pixel(text: &str, top_left: Vec2, font_size: f32) -> Self {
-        Self::from_text_rect(TextRect::from_top_left_pixel(text, top_left, font_size))
-    }
-
-    fn from_text_rect(text_rect: TextRect) -> Self {
+    pub fn new(text: &str, position_pixels: Anchor, font_size: f32) -> Self {
         Self {
-            text_rect,
-            interaction: Interaction::None,
+            text_rect: TextRect::new(text, position_pixels, font_size),
+            interaction: Interaction::Pressing,
         }
-    }
-
-    pub fn from_center_pixel(text: &str, center_pixel: Vec2, font_size: f32) -> Self {
-        Self::from_text_rect(TextRect::from_center_pixel(text, center_pixel, font_size))
-    }
-    pub fn from_bottom_right_pixel(text: &str, bottom_right: Vec2, font_size: f32) -> Self {
-        let text_rect = TextRect::from_bottom_right_pixel(text, bottom_right, font_size);
-        Self::from_text_rect(text_rect)
-    }
-    pub fn from_top_right_pixel(text: &str, top_right: Vec2, font_size: f32) -> Self {
-        Self::from_text_rect(TextRect::from_top_right_pixel(text, top_right, font_size))
-    }
-    pub fn from_bottom_left_pixel(text: &str, bottom_left: Vec2, font_size: f32) -> Self {
-        let text_rect = TextRect::from_bottom_left_pixel(text, bottom_left, font_size);
-        Self::from_text_rect(text_rect)
     }
 
     pub fn rect(&self) -> Rect {

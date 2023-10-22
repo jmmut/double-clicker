@@ -40,30 +40,33 @@ pub fn create_buttons(
     textures: &Textures,
     translation: &Translation,
 ) -> Buttons {
-    let spanish = Button::from_bottom_right_pixel(
+    let spanish = Button::new(
         "Español",
-        Vec2::new(width - BUTTON_PAD, height - BUTTON_PAD),
+        Anchor::bottom_right(width - BUTTON_PAD, height - BUTTON_PAD),
         font_size,
     );
-    let english = Button::from_top_left_pixel(
+    let english = Button::new(
         "English",
-        spanish.rect().point() - Vec2::new(spanish.rect().w + BUTTON_PAD, 0.0),
+        Anchor::top_left(
+            spanish.rect().x - (spanish.rect().w + BUTTON_PAD),
+            spanish.rect().y,
+        ),
         font_size,
     );
     let (clean, dirty) = create_clean_and_dirty_buttons(width, height);
     Buttons {
         clean,
         dirty,
-        continue_after_game_over: Button::from_center_pixel(
+        continue_after_game_over: Button::new(
             translation.restart,
-            Vec2::new(width * 0.5, height * 0.7),
+            Anchor::center(width * 0.5, height * 0.7),
             font_size,
         ),
         buy: create_buy_hero_buttons(font_size, width, height, textures, translation),
         sell: create_sell_hero_buttons(font_size, width, height, textures, translation),
-        continue_playing: Button::from_center_pixel(
+        continue_playing: Button::new(
             translation.continue_playing,
-            Vec2::new(width * 0.5, height * 0.7),
+            Anchor::center(width * 0.5, height * 0.7),
             font_size,
         ),
         change_language_to_spanish: spanish,
@@ -131,9 +134,9 @@ fn create_buy_or_sell_hero_buttons(
             BUY_PANEL_HORIZONTAL_PAD + extra_horizontal_offset + horizontal_offset + texture_offset;
         let y_coef = BUY_PANEL_START_HEIGHT + 0.14 + vertical_offset;
         let font_size = font_size;
-        let button = Button::from_top_left_pixel(
+        let button = Button::new(
             text,
-            Vec2::new(width * x_coef, height * y_coef),
+            Anchor::top_left(width * x_coef, height * y_coef),
             font_size,
         );
         buttons.insert(*hero, button);
@@ -147,15 +150,18 @@ fn create_extra_buttons(
     height: f32,
     translation: &Translation,
 ) -> ExtraControls {
-    let show_extra_controls = Button::from_bottom_left_pixel(
+    let show_extra_controls = Button::new(
         translation.extra_controls,
-        Vec2::new(0.0, height - BUTTON_PAD),
+        Anchor::bottom_left(0.0, height - BUTTON_PAD),
         font_size,
     );
     let next_button = |text, prev_rect: Rect| {
-        let button = Button::from_top_left_pixel(
+        let button = Button::new(
             text,
-            prev_rect.point() + Vec2::new(prev_rect.w + BUTTON_PAD, 0.0),
+            Anchor::top_left(
+                prev_rect.point().x + prev_rect.w + BUTTON_PAD,
+                prev_rect.point().y,
+            ),
             font_size,
         );
         let rect = button.rect();

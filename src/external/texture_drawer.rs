@@ -4,6 +4,7 @@ use crate::external::backends::{now, Seconds};
 use crate::external::basic_input::get_background_color;
 use crate::external::texture_drawer::buttons::Buttons;
 use crate::external::texture_drawer::draw::draw_panel_border;
+use crate::external::widgets::anchor::Anchor;
 use crate::external::widgets::button::Interaction;
 use crate::external::widgets::text::{
     draw_text_centered, draw_tooltip_centered, wrap_or_hide_text, TextRect,
@@ -310,8 +311,9 @@ impl TextureDrawer {
             Color::new(0.0, 0.0, 0.0, 0.5),
         );
         for (i, line) in lines.iter().enumerate() {
-            let pos = Vec2::new((0.0_f32).round(), (0.0 + self.font_size * i as f32).round());
-            let text_rect = TextRect::from_top_left_pixel(&line, pos, self.font_size);
+            let pos =
+                Anchor::top_left((0.0_f32).round(), (0.0 + self.font_size * i as f32).round());
+            let text_rect = TextRect::new(&line, pos, self.font_size);
             text_rect.render_text(WHITE);
         }
         self.previous_time = new_time;
@@ -986,11 +988,11 @@ fn draw_text_bar(
     let text = choose_text_lore(world.stage(), frame, translation);
     let wrapped_text = wrap_or_hide_text(text, font_size, font_size, width, height - bar_height);
     for (i, line) in wrapped_text.iter().enumerate() {
-        let pos = Vec2::new(
+        let pos = Anchor::center(
             (width * 0.5).round(),
             (height * (bar_height + 0.01) + font_size * (1.0 + i as f32)).round(),
         );
-        let text_rect = TextRect::from_center_pixel(line, pos, font_size);
+        let text_rect = TextRect::new(line, pos, font_size);
         text_rect.render_text(BLACK);
     }
 }
@@ -1017,9 +1019,12 @@ fn choose_pseudo_random<T>(collection: &[T], frame: i64) -> &T {
 }
 
 fn draw_version(_width: f32, height: f32, font_size: f32) {
-    let text_rect = TextRect::from_bottom_left_pixel(
+    let text_rect = TextRect::new(
         &format!("v{}", GIT_VERSION),
-        Vec2::new(-font_size, height - 1.5 * font_size),
+        Anchor::BottomLeft {
+            x: -font_size,
+            y: height - 1.5 * font_size,
+        },
         font_size,
     );
     text_rect.render_text(BLACK);

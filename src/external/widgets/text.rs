@@ -177,59 +177,6 @@ impl TextRect {
             pad,
         }
     }
-    pub fn from_top_left_pixel(text: &str, top_left: Vec2, font_size: f32) -> Self {
-        #[cfg(not(test))]
-        let text_dimensions = measure_text(text, None, font_size as u16, 1.0);
-
-        // this will allow running any test that creates buttons. Button::render() will panic, though.
-        #[cfg(test)]
-        let text_dimensions = TextDimensions {
-            width: text.len() as f32 * font_size * 0.5,
-            height: font_size,
-            offset_y: font_size * 0.75,
-        };
-
-        let pad = Vec2::new(font_size, font_size * 0.25);
-        let rect = Rect::new(
-            (top_left.x).round(),
-            (top_left.y).round(),
-            (text_dimensions.width + pad.x * 2.0).round(),
-            (font_size + pad.y * 2.0).round(),
-        );
-
-        Self {
-            text: text.to_string(),
-            rect,
-            text_dimensions,
-            font_size,
-            pad,
-        }
-    }
-
-    pub fn from_center_pixel(text: &str, center_pixel: Vec2, font_size: f32) -> Self {
-        let mut text_rect = Self::from_top_left_pixel(text, center_pixel, font_size);
-        text_rect.rect = text_rect.rect.offset(-text_rect.center_offset());
-        text_rect
-    }
-    pub fn from_bottom_right_pixel(text: &str, bottom_right: Vec2, font_size: f32) -> Self {
-        let mut text_rect = Self::from_top_left_pixel(text, bottom_right, font_size);
-        text_rect.rect = text_rect.rect.offset(-text_rect.rect.size());
-        text_rect
-    }
-    pub fn from_top_right_pixel(text: &str, top_right: Vec2, font_size: f32) -> Self {
-        let mut text_rect = Self::from_top_left_pixel(text, top_right, font_size);
-        text_rect.rect.x -= text_rect.rect.w;
-        text_rect
-    }
-    pub fn from_bottom_left_pixel(text: &str, bottom_left: Vec2, font_size: f32) -> Self {
-        let mut text_rect = Self::from_top_left_pixel(text, bottom_left, font_size);
-        text_rect.rect.y -= text_rect.rect.h;
-        text_rect
-    }
-
-    fn center_offset(&self) -> Vec2 {
-        self.rect.size() * Vec2::new(0.5, 0.5)
-    }
 
     pub fn render_text(&self, color: Color) {
         // draw_text() draws from the baseline of the text
@@ -249,7 +196,7 @@ impl TextRect {
 }
 
 pub fn draw_tooltip_centered(text: &str, position: Vec2, font_size: f32) {
-    let text_rect = TextRect::from_center_pixel(text, position, font_size);
+    let text_rect = TextRect::new(text, Anchor::center_v(position), font_size);
     let rect = &text_rect.rect;
     draw_rectangle(rect.x, rect.y, rect.w, rect.h, ALERT_COLOR);
     draw_rectangle_lines(rect.x, rect.y, rect.w, rect.h, 2.0, BLACK);
@@ -259,7 +206,7 @@ pub fn draw_tooltip_centered(text: &str, position: Vec2, font_size: f32) {
 pub fn draw_text_centered(text: &str, mut position: Vec2, width: f32, height: f32, font_size: f32) {
     position.x *= width;
     position.y *= height;
-    let text_rect = TextRect::from_center_pixel(text, position, font_size);
+    let text_rect = TextRect::new(text, Anchor::center_v(position), font_size);
     text_rect.render_text(BLACK);
 }
 
