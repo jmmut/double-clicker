@@ -716,17 +716,17 @@ impl TextureDrawer {
                 2.0,
                 BLACK,
             );
-            draw_text_centered("GAME OVER", Vec2::new(0.5, 0.57), width, height, font_size);
+            draw_text_centered("GAME OVER", Vec2::new(0.5, 0.55), width, height, font_size);
             draw_text_centered(
                 self.translation.over_greedy,
-                Vec2::new(0.5, 0.64),
+                Vec2::new(0.5, 0.61),
                 width,
                 height,
                 font_size,
             );
             draw_text_centered(
                 self.translation.owned_by_dirt,
-                Vec2::new(0.5, 0.67),
+                Vec2::new(0.5, 0.64),
                 width,
                 height,
                 font_size,
@@ -760,21 +760,21 @@ impl TextureDrawer {
             );
             draw_text_centered(
                 self.translation.you_won,
-                Vec2::new(0.5, 0.57),
+                Vec2::new(0.5, 0.55),
                 width,
                 height,
                 font_size,
             );
             draw_text_centered(
                 self.translation.retire,
-                Vec2::new(0.5, 0.64),
+                Vec2::new(0.5, 0.61),
                 width,
                 height,
                 font_size,
             );
             draw_text_centered(
                 self.translation.you_can_continue_playing,
-                Vec2::new(0.5, 0.67),
+                Vec2::new(0.5, 0.64),
                 width,
                 height,
                 font_size,

@@ -14,9 +14,8 @@ type Cents = i64;
 type Units = i64;
 
 const ALERT_PERSISTENCE: Seconds = 5.0;
+pub const TARGET_SAVINGS: Units = 10;
 // pub const TARGET_SAVINGS: Units = 1_000_000;
-// pub const TARGET_SAVINGS: Units = 10;
-pub const TARGET_SAVINGS: Units = 1_000_000;
 
 pub struct World {
     pub frame: i64,
@@ -68,7 +67,7 @@ impl World {
 
             // self.max_dirtiness = 100 + self.total_money_euros();
             if gui_actions.dirty_pressed {
-                self.dirtiness += to_cents(1);
+                self.dirtiness += to_cents(10);
             }
             if gui_actions.clean_pressed {
                 if self.dirtiness >= to_cents(1) {
