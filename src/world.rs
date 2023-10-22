@@ -14,8 +14,13 @@ type Cents = i64;
 type Units = i64;
 
 const ALERT_PERSISTENCE: Seconds = 5.0;
-pub const TARGET_SAVINGS: Units = 10;
-// pub const TARGET_SAVINGS: Units = 1_000_000;
+
+pub const TARGET_SAVINGS: Units = 1_000_000;
+// pub const TARGET_SAVINGS: Units = 50;
+const DIRTYING_PER_CLICK: Cents = to_cents(1);
+// const DIRTYING_PER_CLICK: Cents = to_cents(10);
+const CLEANING_PER_CLICK: Cents = to_cents(1);
+// const CLEANING_PER_CLICK: Cents = to_cents(10);
 
 pub struct World {
     pub frame: i64,
@@ -67,12 +72,12 @@ impl World {
 
             // self.max_dirtiness = 100 + self.total_money_euros();
             if gui_actions.dirty_pressed {
-                self.dirtiness += to_cents(10);
+                self.dirtiness += DIRTYING_PER_CLICK
             }
             if gui_actions.clean_pressed {
-                if self.dirtiness >= to_cents(1) {
-                    self.dirtiness -= to_cents(1);
-                    self.money += to_cents(1);
+                if self.dirtiness >= CLEANING_PER_CLICK {
+                    self.dirtiness -= CLEANING_PER_CLICK;
+                    self.money += CLEANING_PER_CLICK;
                     self.total_money += 10;
                 } else {
                     self.alerts.push((now_time, Alert::CannotClean));
@@ -179,7 +184,7 @@ impl World {
         self.target_savings = new_target_savings;
     }
 }
-pub fn to_cents(unit: Units) -> Cents {
+pub const fn to_cents(unit: Units) -> Cents {
     unit * 100
 }
 
