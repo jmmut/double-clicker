@@ -1,16 +1,13 @@
 use macroquad::prelude::{
-    draw_rectangle, draw_texture_ex, is_mouse_button_down, is_mouse_button_released,
-    mouse_position, MouseButton, Rect, BLACK, GRAY, LIGHTGRAY, WHITE,
+    draw_texture_ex, is_mouse_button_down, is_mouse_button_released,
+    mouse_position, MouseButton, Rect, WHITE,
 };
 use macroquad::prelude::{DrawTextureParams, Texture2D};
 
 use crate::external::backends::Vec2;
-use crate::external::texture_drawer::draw::draw_panel_border;
 use crate::external::widgets::button::Interaction;
-use crate::external::widgets::text::TextRect;
 
 pub struct TextureButton {
-    anchor: Anchor,
     rect: Rect,
     interaction: Interaction,
 }
@@ -48,7 +45,6 @@ impl TextureButton {
         );
 
         Self {
-            anchor,
             rect,
             interaction: Interaction::None,
         }

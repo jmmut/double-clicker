@@ -1,5 +1,4 @@
 use macroquad::prelude::*;
-use macroquad::ui::root_ui;
 
 use crate::external::backends::{now, Seconds};
 use crate::external::basic_input::get_background_color;
@@ -9,7 +8,6 @@ use crate::external::widgets::button::Interaction;
 use crate::external::widgets::text::{
     draw_text_centered, draw_tooltip_centered, wrap_or_hide_text, TextRect,
 };
-use crate::external::widgets::texture_button::{Anchor, TextureButton};
 use crate::screen::drawer_trait::{Button, DrawerTrait};
 use crate::screen::textures::{Texture, Textures};
 use crate::screen::translations::{get_translation, Language, Translation};
@@ -158,7 +156,7 @@ impl DrawerTrait for TextureDrawer {
         self.buttons.change_language_to_spanish.render();
         self.buttons.change_language_to_english.render();
         if self.show_debug_fps {
-            self.debug_fps(&world)
+            self.debug_fps(&world, width, height)
         }
         let extra = &self.buttons.extra;
         if self.extra_controls {
@@ -171,16 +169,6 @@ impl DrawerTrait for TextureDrawer {
     }
 
     fn button(&mut self, button: Button) -> bool {
-        let width = self.width;
-        let height = self.height;
-        let is_texture_clicked = |rect, texture: Texture, texture_pressed: Option<Texture>| {
-            draw::is_texture_clicked(
-                rect,
-                self.textures.get(texture),
-                texture_pressed.map(|t| self.textures.get(t)),
-            )
-        };
-        use Texture::*;
         match button {
             Button::Clean => self.buttons.clean.interact().is_clicked(),
             Button::Dirty => self.buttons.dirty.interact().is_clicked(),
@@ -305,20 +293,27 @@ impl TextureDrawer {
         self.dirty_index = (self.dirty_index + 1) % 3;
     }
 
-    fn debug_fps(&mut self, world: &World) {
+    fn debug_fps(&mut self, world: &World, width: f32, _height: f32) {
         let new_time = now();
-        root_ui().label(None, &format!("now: {}", new_time));
-        root_ui().label(None, &format!("drawing frame: {}", self.frame));
-        root_ui().label(None, &format!("physics frame: {}", world.frame));
-        let new_time = now();
-        root_ui().label(
-            None,
-            &format!("drawing fps: {:.2}", 1.0 / (new_time - self.previous_time)),
+        let lines = vec![
+            format!("now: {}", new_time),
+            format!("drawing frame: {}", self.frame),
+            format!("physics frame: {}", world.frame),
+            format!("drawing fps: {:.2}", 1.0 / (new_time - self.previous_time)),
+            format!("physics fps: {:.2}", 1.0 / (world.time_since_last_frame)),
+        ];
+        draw_rectangle(
+            0.0,
+            0.0,
+            0.25 * width,
+            self.font_size * (lines.len() as f32 + 0.5),
+            Color::new(0.0, 0.0, 0.0, 0.5),
         );
-        root_ui().label(
-            None,
-            &format!("physics fps: {:.2}", 1.0 / (world.time_since_last_frame)),
-        );
+        for (i, line) in lines.iter().enumerate() {
+            let pos = Vec2::new((0.0_f32).round(), (0.0 + self.font_size * i as f32).round());
+            let text_rect = TextRect::from_top_left_pixel(&line, pos, self.font_size);
+            text_rect.render_text(WHITE);
+        }
         self.previous_time = new_time;
     }
 
