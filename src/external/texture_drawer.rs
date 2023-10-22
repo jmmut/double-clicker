@@ -142,7 +142,8 @@ impl DrawerTrait for TextureDrawer {
             self.font_size = Self::choose_font_size(width, height);
         }
 
-        clear_background(Self::get_background_color(self.dirtiness()));
+        let background_color = Self::get_background_color(self.dirtiness());
+        clear_background(background_color);
         self.draw_background_pattern(width, height);
         self.draw_bar_and_money(world, width, height, self.font_size);
         self.draw_clean_and_dirty();
@@ -158,19 +159,31 @@ impl DrawerTrait for TextureDrawer {
         draw_alerts(world, width, height, self.font_size, self.translation);
         self.draw_game_over(world, width, height, self.font_size);
         self.draw_game_won(world, width, height, self.font_size);
-        self.buttons.change_language_to_spanish.render();
-        self.buttons.change_language_to_english.render();
+        self.buttons
+            .change_language_to_spanish
+            .set_color(background_color)
+            .render();
+        self.buttons
+            .change_language_to_english
+            .set_color(background_color)
+            .render();
         if self.show_debug_fps {
             self.debug_fps(&world, width, height)
         }
-        let extra = &self.buttons.extra;
+        let extra = &mut self.buttons.extra;
         if self.extra_controls {
-            extra.show_debug_fps.render();
-            extra.restart.render();
-            extra.change_arrangement.render();
+            extra.show_debug_fps.set_color(background_color).render();
+            extra.restart.set_color(background_color).render();
+            extra
+                .change_arrangement
+                .set_color(background_color)
+                .render();
             draw_version(width, height, self.font_size);
         }
-        extra.show_extra_controls.render();
+        extra
+            .show_extra_controls
+            .set_color(background_color)
+            .render();
     }
 
     fn button(&mut self, button: Button) -> bool {
@@ -787,11 +800,7 @@ impl TextureDrawer {
 
 fn draw_bar(world: &World, width: f32, height: f32, overlapping: bool) {
     let bar_width = 1.0 - BAR_HORIZONTAL_PAD * 2.0;
-    let bar_height = if overlapping {
-        0.05 + BAR_VERTICAL_PAD
-    } else {
-        BAR_VERTICAL_PAD
-    };
+    let bar_height = get_bar_height(overlapping);
 
     draw_rectangle(
         width * BAR_HORIZONTAL_PAD,
@@ -817,6 +826,14 @@ fn draw_bar(world: &World, width: f32, height: f32, overlapping: bool) {
         ),
         Interaction::None,
     );
+}
+
+fn get_bar_height(overlapping: bool) -> f32 {
+    if overlapping {
+        0.05 + BAR_VERTICAL_PAD
+    } else {
+        BAR_VERTICAL_PAD
+    }
 }
 
 fn draw_savings(
@@ -929,30 +946,55 @@ fn draw_speeds(
     font_size: f32,
     translation: &Translation,
 ) {
-    let vertical_offset = if overlapping { -0.055 } else { 0.05 };
+    let vertical_offset = if overlapping {
+        height * BAR_VERTICAL_PAD + font_size * 0.5
+    } else {
+        height * BAR_VERTICAL_PAD * 2.0 + font_size * 0.5
+    };
+    // let text_color = if overlapping { BLACK } else { WHITE };
+    let text_color = BLACK;
+
     let mut speed = 0;
     for hero in [Hero::Hero1, Hero::Hero2, Hero::Hero3] {
         speed += hero.production_clean() * world.heroes_count[&hero];
     }
     let cleaning_text = format!("{}: {}", translation.cleaning_speed, speed);
-    let text_pos = Vec2::new(
-        (width * BAR_HORIZONTAL_PAD + font_size).round(),
-        (height * (SAVINGS_HEIGHT + vertical_offset)).round(),
+    let text_pos = Anchor::top_left(
+        (width * (BAR_HORIZONTAL_PAD)).round(),
+        (vertical_offset).round(),
     );
-    draw_text(&cleaning_text, text_pos.x, text_pos.y, font_size, BLACK);
+    let text_rect = TextRect::new(&cleaning_text, text_pos, font_size);
+    if !overlapping {
+        draw_rectangle(
+            text_rect.rect.x,
+            text_rect.rect.y,
+            text_rect.rect.w,
+            text_rect.rect.h,
+            CLEAN_BACKGROUND_COLOR,
+        );
+    }
+    text_rect.render_text(text_color);
 
     let mut speed = 0;
     for hero in [Hero::Villain1, Hero::Villain2, Hero::Villain3] {
         speed += hero.production_dirty() * world.heroes_count[&hero];
     }
     let dirtiying_text = format!("{}: {}", translation.dirtying_speed, speed);
-    let text_size = measure_text(&dirtiying_text, None, font_size as u16, 1.0);
-
-    let text_pos = Vec2::new(
-        (width * (1.0 - BAR_HORIZONTAL_PAD) - text_size.width - font_size).round(),
-        (height * (SAVINGS_HEIGHT + vertical_offset)).round(),
+    let text_pos = Anchor::top_right(
+        (width * (1.0 - BAR_HORIZONTAL_PAD)).round(),
+        (vertical_offset).round(),
     );
-    draw_text(&dirtiying_text, text_pos.x, text_pos.y, font_size, BLACK);
+    let text_rect = TextRect::new(&dirtiying_text, text_pos, font_size);
+    if !overlapping {
+        draw_rectangle(
+            text_rect.rect.x,
+            text_rect.rect.y,
+            text_rect.rect.w,
+            text_rect.rect.h,
+            DIRTY_BACKGROUND_COLOR,
+        );
+    }
+    text_rect.render_text(text_color);
 }
 
 #[allow(unused)]
@@ -1012,7 +1054,7 @@ fn draw_text_bar(
         wrapped_text,
         Anchor::center(
             (width * 0.5).round(),
-            (height * (bar_height + 0.01) + font_size),
+            (height * (bar_height + 0.01) + font_size).round(),
         ),
         font_size,
         font_size,

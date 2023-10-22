@@ -3,7 +3,8 @@ use std::collections::HashMap;
 use macroquad::prelude::*;
 
 use crate::external::texture_drawer::{
-    TextureDrawer, BUY_PANEL_HORIZONTAL_PAD, BUY_PANEL_START_HEIGHT,
+    TextureDrawer, BUY_PANEL_HORIZONTAL_PAD, BUY_PANEL_START_HEIGHT, CLEAN_BACKGROUND_COLOR,
+    DIRTY_BACKGROUND_COLOR,
 };
 use crate::external::widgets::anchor::Anchor;
 use crate::external::widgets::button::Button;
@@ -121,7 +122,7 @@ fn create_buy_or_sell_hero_buttons(
     extra_horizontal_offset: f32,
 ) -> HashMap<Hero, Button> {
     let mut buttons = HashMap::new();
-    for hero in Hero::list() {
+    for (i, hero) in Hero::list().iter().enumerate() {
         let (horizontal_offset, vertical_offset) =
             TextureDrawer::get_buy_panel_offset(hero.index());
         let texture_offset = TextureDrawer::get_buy_text_offset_from_texture(
@@ -134,11 +135,18 @@ fn create_buy_or_sell_hero_buttons(
             BUY_PANEL_HORIZONTAL_PAD + extra_horizontal_offset + horizontal_offset + texture_offset;
         let y_coef = BUY_PANEL_START_HEIGHT + 0.14 + vertical_offset;
         let font_size = font_size;
-        let button = Button::new(
+        let mut button = Button::new(
             text,
             Anchor::top_left(width * x_coef, height * y_coef),
             font_size,
         );
+
+        let color = if i % 2 == 0 {
+            CLEAN_BACKGROUND_COLOR
+        } else {
+            DIRTY_BACKGROUND_COLOR
+        };
+        button.set_color(color);
         buttons.insert(*hero, button);
     }
     buttons
