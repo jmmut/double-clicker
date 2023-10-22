@@ -6,7 +6,7 @@ use crate::external::texture_drawer::draw::draw_panel_border;
 use crate::external::widgets::anchor::Anchor;
 use crate::external::widgets::button::Interaction;
 use crate::external::widgets::text::{
-    draw_text_centered, draw_tooltip_centered, wrap_or_hide_text, TextRect,
+    draw_text_centered, draw_text_lines, draw_tooltip_centered, wrap_or_hide_text, TextRect,
 };
 use crate::screen::drawer_trait::{Button, DrawerTrait};
 use crate::screen::textures::{Texture, Textures};
@@ -314,12 +314,13 @@ impl TextureDrawer {
             self.font_size * (lines.len() as f32 + 0.5),
             Color::new(0.0, 0.0, 0.0, 0.5),
         );
-        for (i, line) in lines.iter().enumerate() {
-            let pos =
-                Anchor::top_left((0.0_f32).round(), (0.0 + self.font_size * i as f32).round());
-            let text_rect = TextRect::new(&line, pos, self.font_size);
-            text_rect.render_text(WHITE);
-        }
+        draw_text_lines(
+            lines,
+            Anchor::top_left(0.0, 0.0),
+            self.font_size,
+            self.font_size,
+            WHITE,
+        );
         self.previous_time = new_time;
     }
 
@@ -1007,14 +1008,16 @@ fn draw_text_bar(
     );
     let text = choose_text_lore(world.stage(), frame, translation);
     let wrapped_text = wrap_or_hide_text(text, font_size, font_size, width, height - bar_height);
-    for (i, line) in wrapped_text.iter().enumerate() {
-        let pos = Anchor::center(
+    draw_text_lines(
+        wrapped_text,
+        Anchor::center(
             (width * 0.5).round(),
-            (height * (bar_height + 0.01) + font_size * (1.0 + i as f32)).round(),
-        );
-        let text_rect = TextRect::new(line, pos, font_size);
-        text_rect.render_text(BLACK);
-    }
+            (height * (bar_height + 0.01) + font_size),
+        ),
+        font_size,
+        font_size,
+        BLACK,
+    );
 }
 
 fn choose_text_lore(stage: Act, frame: i64, translation: &Translation) -> &str {

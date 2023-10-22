@@ -210,6 +210,20 @@ pub fn draw_text_centered(text: &str, mut position: Vec2, width: f32, height: f3
     text_rect.render_text(BLACK);
 }
 
+pub fn draw_text_lines(
+    lines: Vec<String>,
+    mut position: Anchor,
+    font_size: f32,
+    line_height: f32,
+    color: Color,
+) {
+    for line in lines {
+        let text_rect = TextRect::new(&line, position, font_size);
+        text_rect.render_text(color);
+        position.offset(0.0, line_height);
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

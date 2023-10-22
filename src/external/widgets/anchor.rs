@@ -56,6 +56,30 @@ impl Anchor {
             y: position.y,
         }
     }
+    pub fn offset(&mut self, x_diff: f32, y_diff: f32) {
+        match self {
+            Anchor::Center { x, y } => {
+                *x += x_diff;
+                *y += y_diff
+            }
+            Anchor::TopLeft { x, y } => {
+                *x += x_diff;
+                *y += y_diff
+            }
+            Anchor::TopRight { x, y } => {
+                *x += x_diff;
+                *y += y_diff
+            }
+            Anchor::BottomLeft { x, y } => {
+                *x += x_diff;
+                *y += y_diff
+            }
+            Anchor::BottomRight { x, y } => {
+                *x += x_diff;
+                *y += y_diff
+            }
+        }
+    }
     pub fn get_top_left_pixel(&self, size: Vec2) -> Vec2 {
         match *self {
             Anchor::Center { x, y } => Vec2::new(x - size.x * 0.5, y - size.y * 0.5),
