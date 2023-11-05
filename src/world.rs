@@ -103,6 +103,10 @@ impl World {
             self.dirtiness -= cleaned;
             self.dirtiness = to_cents(self.max_dirtiness).min(self.dirtiness);
 
+            if self.dirtiness > (to_cents(self.max_dirtiness) as f32 * 0.75) as Cents {
+                self.alerts.push((now_time, Alert::TooDirty));
+            }
+
             for (hero, bought) in &gui_actions.heroes_bought {
                 if *bought {
                     if self.money_euros() >= self.price(hero) {
@@ -145,6 +149,7 @@ impl World {
         self.alerts.retain(|(time_alert_was_raised, alert)| {
             time_alert_was_raised + ALERT_PERSISTENCE >= now_time
                 && *alert != Alert::InefficientCleaners
+                && *alert != Alert::TooDirty
         });
     }
 

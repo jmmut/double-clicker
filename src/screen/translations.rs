@@ -57,6 +57,7 @@ pub struct AlertMessages {
     pub cannot_clean: &'static str,
     pub insufficient_money: &'static str,
     pub cannot_sell: &'static str,
+    pub too_dirty: &'static str,
 }
 
 const SPANISH: Translation = Translation {
@@ -138,6 +139,7 @@ const SPANISH: Translation = Translation {
         cannot_clean: "No se puede limpiar si no hay nada sucio",
         insufficient_money: "No tienes suficiente dinero para comprar esto",
         cannot_sell: "No puedes vender porque tienes 0 unidades",
+        too_dirty: "¡Si no hay nada limpio te despedirán!",
     },
     extra_controls: "Controles extra",
 };
@@ -221,6 +223,7 @@ const ENGLISH: Translation = Translation {
         cannot_clean: "You can not clean is there is nothing dirty",
         insufficient_money: "You don't have enough money to buy this",
         cannot_sell: "You can not sell this because you have 0 units",
+        too_dirty: "You will be fired if nothing is clean!",
     },
     extra_controls: "Extra controls",
 };
