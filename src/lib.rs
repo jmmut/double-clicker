@@ -22,7 +22,6 @@ pub mod external {
 
 pub const GIT_VERSION: &str = git_version!(args = ["--tags"]);
 
-
 /// returns if should continue looping. In other words, if there should be another future frame.
 pub fn frame(screen: &mut Screen, world: &mut World) -> bool {
     let gui_actions = screen.get_gui_actions(world);
