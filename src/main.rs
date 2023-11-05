@@ -19,7 +19,11 @@ const FRAME_PERIOD: f64 = 1.0 / MAX_FPS;
 
 #[macroquad::main(window_conf)]
 async fn main() {
-    let (mut screen, mut world) = load().await;
+    let loader = Loader::new();
+    while loader.frame() {
+        ;
+    }
+    let (mut screen, mut world) = loader.next_stage();
     let mut previous_time = now();
     while frame(&mut screen, &mut world) {
         sleep_until_next_frame(&mut previous_time).await

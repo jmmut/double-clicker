@@ -11,6 +11,7 @@ pub mod external {
     // pub mod text_drawer;
     pub mod texture_drawer;
     // pub mod textureless_drawer;
+    pub mod loader;
     pub mod widgets {
         pub mod anchor;
         pub mod button;
@@ -20,6 +21,7 @@ pub mod external {
 }
 
 pub const GIT_VERSION: &str = git_version!(args = ["--tags"]);
+
 
 /// returns if should continue looping. In other words, if there should be another future frame.
 pub fn frame(screen: &mut Screen, world: &mut World) -> bool {
