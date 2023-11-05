@@ -160,7 +160,7 @@ impl DrawerTrait for TextureDrawer {
             width,
             height,
             self.font_size,
-            self.frame,
+            now(),
             self.translation,
         );
         draw_alerts(world, width, height, self.font_size, self.translation);
@@ -1017,7 +1017,7 @@ fn draw_text_bar(
     width: f32,
     height: f32,
     font_size: f32,
-    frame: i64,
+    now: Seconds,
     translation: &Translation,
 ) {
     let bar_height = BUY_PANEL_START_HEIGHT + 3.0 * (BUY_PANEL_HEIGHT + BUY_PANEL_VERTICAL_PAD);
@@ -1037,7 +1037,7 @@ fn draw_text_bar(
         2.0,
         BLACK,
     );
-    let text = choose_text_lore(world.stage(), frame, translation);
+    let text = choose_text_lore(world.stage(), now, translation);
     let wrapped_text = wrap_or_hide_text(text, font_size, font_size, width, height - bar_height);
     draw_text_lines(
         wrapped_text,
@@ -1051,7 +1051,7 @@ fn draw_text_bar(
     );
 }
 
-fn choose_text_lore(stage: Act, frame: i64, translation: &Translation) -> &str {
+fn choose_text_lore(stage: Act, now: Seconds, translation: &Translation) -> &str {
     let lore_sentences = match stage {
         Act::Act1 => translation.lore.act_1,
         Act::Act2 => translation.lore.act_2,
@@ -1060,13 +1060,12 @@ fn choose_text_lore(stage: Act, frame: i64, translation: &Translation) -> &str {
         Act::GameWon => translation.lore.game_won,
         Act::ContinuePlayingAfterWinning => translation.lore.act_3,
     };
-    *choose_pseudo_random(lore_sentences, frame)
+    *choose_pseudo_random(lore_sentences, now)
 }
 
-fn choose_pseudo_random<T>(collection: &[T], frame: i64) -> &T {
-    let fps = 60;
-    let persistence: Seconds = 15.0; // TODO: make this based on time
-    let block = frame / (fps * persistence as i64);
+fn choose_pseudo_random<T>(collection: &[T], now: Seconds) -> &T {
+    let persistence: Seconds = 15.0;
+    let block = (now / persistence) as i64;
     let hash = block % 5 + 6 - block * 2 % 3 + block / 5;
     let index = hash as usize % collection.len();
     collection.get(index).unwrap()
