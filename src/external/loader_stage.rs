@@ -1,9 +1,10 @@
 use macroquad::prelude::{
-    clear_background, next_frame, screen_height, screen_width, trace, Color, FileError, BLACK,
-    WHITE,
+    clear_background, draw_rectangle, draw_rectangle_lines, next_frame, screen_height,
+    screen_width, trace, FileError, Rect, Vec2, BLACK, WHITE,
 };
 
 use crate::external::backends::factory;
+use crate::external::texture_drawer::{CLEAN_COLOR, DIRTY_COLOR};
 use crate::external::texture_loader::{Progress, TextureLoader};
 use crate::external::widgets::anchor::Anchor;
 use crate::external::widgets::text::TextRect;
@@ -46,19 +47,44 @@ impl LoaderStage {
 
     fn draw_loading(progress: Progress) {
         clear_background(BLACK);
-        Self::draw_loading_text(progress, WHITE);
-        trace!("painted frame of loading screen");
-    }
-
-    fn draw_loading_text(progress: Progress, color: Color) {
-        TextRect::new(
+        let font_size = 32.0;
+        let width = screen_width();
+        let height = screen_height();
+        let text_rect = TextRect::new(
             &format!(
                 "Loading... ({}/{})",
                 progress.loaded, progress.total_to_load
             ),
-            Anchor::center(screen_width() * 0.5, screen_height() * 0.5),
-            32.0,
-        )
-        .render_text(color);
+            Anchor::center(width * 0.5, height * 0.5),
+            font_size,
+        );
+        text_rect.render_text(DIRTY_COLOR);
+
+        let bar_width = width / 8.0;
+        let rect = Rect::new(
+            width * 0.5 - bar_width * 0.5,
+            text_rect.rect.y + text_rect.rect.h + font_size * 0.5,
+            bar_width * progress.loaded as f32 / progress.total_to_load as f32,
+            font_size,
+        );
+
+        let thickness = 2.0;
+        let pad = 3.0 + thickness;
+        let line_rect = Rect::new(
+            rect.x - pad,
+            rect.y - pad,
+            bar_width + 2.0 * pad,
+            rect.h + 2.0 * pad,
+        );
+
+        draw_rectangle_lines(
+            line_rect.x,
+            line_rect.y,
+            line_rect.w,
+            line_rect.h,
+            thickness,
+            DIRTY_COLOR,
+        );
+        draw_rectangle(rect.x, rect.y, rect.w, rect.h, CLEAN_COLOR);
     }
 }

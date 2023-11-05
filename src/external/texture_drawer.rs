@@ -20,8 +20,8 @@ use crate::GIT_VERSION;
 mod buttons;
 pub mod draw;
 
-const CLEAN_COLOR: Color = SKYBLUE;
-const DIRTY_COLOR: Color = PURPLE;
+pub const CLEAN_COLOR: Color = SKYBLUE;
+pub const DIRTY_COLOR: Color = PURPLE;
 
 const CLEAN_BACKGROUND_COLOR: Color = Color::new(0.75, 0.85, 1.0, 1.0);
 const DIRTY_BACKGROUND_COLOR: Color = Color::new(0.85, 0.75, 1.0, 1.0);
