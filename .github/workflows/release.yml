@@ -10,6 +10,7 @@ on:
 env:
   CARGO_TERM_COLOR: always
   PROJECT_NAME: double-clicker
+  PROJECT_NAME_ITCH_IO: caramierda
 
 jobs:
   deploy-wasm-linux-windows:
@@ -47,7 +48,7 @@ jobs:
       - name: Deploy Linux to itch.io
         env:
           BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
-        run: ./butler push ${PROJECT_NAME}_linux.zip jmmut/${PROJECT_NAME}:linux
+        run: ./butler push ${PROJECT_NAME}_linux.zip jmmut/${PROJECT_NAME_ITCH_IO}:linux
 
       - name: Compile and package WebAssembly
         run: |
@@ -65,7 +66,7 @@ jobs:
       - name: Deploy WebAssembly to itch.io
         env:
           BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
-        run: ./butler push wasm.zip jmmut/${PROJECT_NAME}:html5
+        run: ./butler push wasm.zip jmmut/${PROJECT_NAME_ITCH_IO}:html5
 
       - name: Compile and package Windows
         run: |
@@ -80,7 +81,7 @@ jobs:
       - name: Deploy Windows to itch.io
         env:
           BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
-        run: ./butler push ${PROJECT_NAME}_windows.zip jmmut/${PROJECT_NAME}:windows
+        run: ./butler push ${PROJECT_NAME}_windows.zip jmmut/${PROJECT_NAME_ITCH_IO}:windows
 
   deploy-mac:
     runs-on: macos-latest
@@ -116,4 +117,4 @@ jobs:
       - name: Deploy Mac to itch.io
         env:
           BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
-        run: ./butler push ${PROJECT_NAME}_mac.zip jmmut/${PROJECT_NAME}:mac
+        run: ./butler push ${PROJECT_NAME}_mac.zip jmmut/${PROJECT_NAME_ITCH_IO}:mac
