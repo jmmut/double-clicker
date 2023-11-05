@@ -1,12 +1,14 @@
+use crate::external::backends::factory;
 use macroquad::prelude::{
-    clear_background, draw_rectangle, draw_rectangle_lines, next_frame, screen_height,
-    screen_width, trace, FileError, Rect, Vec2, BLACK, WHITE,
+    clear_background, draw_rectangle, next_frame, screen_height, screen_width, FileError, Rect,
+    BLACK, WHITE,
 };
 
-use crate::external::backends::factory;
+use crate::external::texture_drawer::draw::draw_panel_border;
 use crate::external::texture_drawer::{CLEAN_COLOR, DIRTY_COLOR};
 use crate::external::texture_loader::{Progress, TextureLoader};
 use crate::external::widgets::anchor::Anchor;
+use crate::external::widgets::button::Interaction;
 use crate::external::widgets::text::TextRect;
 use crate::screen::Screen;
 use crate::world::World;
@@ -58,33 +60,36 @@ impl LoaderStage {
             Anchor::center(width * 0.5, height * 0.5),
             font_size,
         );
-        text_rect.render_text(DIRTY_COLOR);
+        text_rect.render_text(WHITE);
 
         let bar_width = width / 8.0;
-        let rect = Rect::new(
+        let line_rect = Rect::new(
             width * 0.5 - bar_width * 0.5,
             text_rect.rect.y + text_rect.rect.h + font_size * 0.5,
-            bar_width * progress.loaded as f32 / progress.total_to_load as f32,
+            bar_width,
             font_size,
         );
-
-        let thickness = 2.0;
-        let pad = 3.0 + thickness;
-        let line_rect = Rect::new(
-            rect.x - pad,
-            rect.y - pad,
-            bar_width + 2.0 * pad,
-            rect.h + 2.0 * pad,
+        let progress_rect = Rect::new(
+            line_rect.x,
+            line_rect.y,
+            line_rect.w * progress.loaded as f32 / progress.total_to_load as f32,
+            line_rect.h,
         );
 
-        draw_rectangle_lines(
+        draw_rectangle(
             line_rect.x,
             line_rect.y,
             line_rect.w,
             line_rect.h,
-            thickness,
             DIRTY_COLOR,
         );
-        draw_rectangle(rect.x, rect.y, rect.w, rect.h, CLEAN_COLOR);
+        draw_rectangle(
+            progress_rect.x,
+            progress_rect.y,
+            progress_rect.w,
+            progress_rect.h,
+            CLEAN_COLOR,
+        );
+        draw_panel_border(line_rect, Interaction::None);
     }
 }
