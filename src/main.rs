@@ -45,7 +45,7 @@ async fn load() -> (Screen, World) {
         while assets.as_ref().lock().unwrap().is_none() {
             frames += 1;
             clear_background(LIGHTGRAY);
-            root_ui().label(None, "Loading...");
+            // root_ui().label(None, "Loading...");
             trace!("painted frame of loading screen");
             next_frame().await;
         }
@@ -91,6 +91,7 @@ async fn sleep_until_next_frame(previous_time: &mut Seconds) {
             // this is a blocking sleep on purpose. My current understanding is that macroquad
             // relies on OS or GPU drivers to limit the FPS to ~60 on non-wasm, which doesn't always
             // work. I was experiencing ~8000 FPS and this is the only way I know to limit them.
+            // This may not work in web.
             std::thread::sleep(Duration::from_secs_f64(sleep_secs));
         }
     }

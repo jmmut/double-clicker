@@ -1,4 +1,7 @@
+use crate::external::backends::now;
+use macroquad::prelude::*;
 use macroquad::prelude::{load_texture, trace, FilterMode, Texture2D};
+use macroquad::ui::root_ui;
 
 #[derive(Copy, Clone)]
 pub enum Texture {
@@ -40,9 +43,10 @@ impl Default for Textures {
 }
 
 pub async fn load_textures() -> Vec<Texture2D> {
-    trace!("before loading");
+    let start = now();
+    trace!("before loading at {}", start);
     let mut textures = Vec::new();
-    for path in [
+    let texture_paths = [
         "assets/images/buttons/buttonBLU-256-yes.png",
         "assets/images/buttons/buttonBLU-256-no.png",
         "assets/images/buttons/buttonPUR-256-yes.png",
@@ -61,11 +65,44 @@ pub async fn load_textures() -> Vec<Texture2D> {
         "assets/images/buttons/buttonPUR256-3.png",
         "assets/images/background/BGpatronsmol.png",
         "assets/images/background/BGmargin.png",
-    ] {
+    ];
+    for (i, path) in texture_paths.iter().enumerate() {
         let t = load_texture(path).await.unwrap();
         t.set_filter(FilterMode::Linear);
         textures.push(t);
+
+        clear_background(LIGHTGRAY);
+        root_ui().label(None, &format!("Loading... ({}/{})", i, texture_paths.len()));
+        trace!("painted frame of loading screen");
+        next_frame().await;
     }
-    trace!("after loading");
+
+    // TODO: remove this after testing the loading screen
+    textures.clear();
+    for (i, path) in texture_paths.iter().enumerate() {
+        let t = load_texture(path).await.unwrap();
+        t.set_filter(FilterMode::Linear);
+        textures.push(t);
+
+        clear_background(LIGHTGRAY);
+        root_ui().label(None, &format!("Loading... ({}/{})", i, texture_paths.len()));
+        trace!("painted frame of loading screen");
+        next_frame().await;
+    }
+    textures.clear();
+    for (i, path) in texture_paths.iter().enumerate() {
+        let t = load_texture(path).await.unwrap();
+        t.set_filter(FilterMode::Linear);
+        textures.push(t);
+
+        clear_background(LIGHTGRAY);
+        root_ui().label(None, &format!("Loading... ({}/{})", i, texture_paths.len()));
+        trace!("painted frame of loading screen");
+        next_frame().await;
+    }
+    //TODO: until here
+
+    let end = now();
+    trace!("after loading at {}, took {:.3}s", end, end - start);
     textures
 }

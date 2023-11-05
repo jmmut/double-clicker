@@ -1065,7 +1065,7 @@ fn choose_text_lore(stage: Act, frame: i64, translation: &Translation) -> &str {
 
 fn choose_pseudo_random<T>(collection: &[T], frame: i64) -> &T {
     let fps = 60;
-    let persistence: Seconds = 5.0;
+    let persistence: Seconds = 15.0; // TODO: make this based on time
     let block = frame / (fps * persistence as i64);
     let hash = block % 5 + 6 - block * 2 % 3 + block / 5;
     let index = hash as usize % collection.len();
