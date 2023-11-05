@@ -11,7 +11,8 @@ pub mod external {
     // pub mod text_drawer;
     pub mod texture_drawer;
     // pub mod textureless_drawer;
-    pub mod loader;
+    pub mod loader_stage;
+    pub mod texture_loader;
     pub mod widgets {
         pub mod anchor;
         pub mod button;

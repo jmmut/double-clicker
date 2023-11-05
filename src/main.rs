@@ -1,7 +1,7 @@
 use macroquad::prelude::*;
 
 use double_clicker::external::backends::{now, Seconds};
-use double_clicker::external::loader::Loader;
+use double_clicker::external::loader_stage::LoaderStage;
 use double_clicker::frame;
 
 const DEFAULT_WINDOW_WIDTH: i32 = 1200;
@@ -10,10 +10,7 @@ const DEFAULT_WINDOW_TITLE: &str = "Double Clicker";
 
 #[macroquad::main(window_conf)]
 async fn main() -> Result<(), FileError> {
-    let mut loader = Loader::new();
-    while loader.frame().await? {}
-
-    let (mut screen, mut world) = loader.next_stage();
+    let (mut screen, mut world) = LoaderStage::setup().await?;
     let mut previous_time = now();
     while frame(&mut screen, &mut world) {
         sleep_until_next_frame(&mut previous_time).await
